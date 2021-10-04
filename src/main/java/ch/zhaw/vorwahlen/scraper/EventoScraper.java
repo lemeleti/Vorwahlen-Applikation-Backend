@@ -13,7 +13,7 @@ public class EventoScraper {
 
     private static final int SITE_LOADING_TIMEOUT = 3000;
 
-    private static final Logger LOGGER = Logger.getLogger(EventoData.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(EventoScraper.class.getName());
 
     public static EventoData parseModuleByURL(String url) {
         EventoData eventoData = null;
