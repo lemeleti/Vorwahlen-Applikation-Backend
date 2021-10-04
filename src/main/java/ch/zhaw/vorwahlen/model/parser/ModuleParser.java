@@ -69,7 +69,7 @@ public class ModuleParser {
             case ID -> builder.moduleId((int) Double.parseDouble(data));
             case GROUP -> builder.moduleGroup(data);
             case IP -> builder.isIPModule(data.contains("x"));
-            case INSTITUTE -> builder.institute(data);
+            case INSTITUTE -> builder.institute(data.toUpperCase());
             case CREDITS -> builder.credits((byte) Double.parseDouble(data));
             case LANGUAGE -> builder.language(data);
         }
