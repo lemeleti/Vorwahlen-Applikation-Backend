@@ -15,6 +15,7 @@ public class Module {
     @Id
     private String moduleNo;
     private String shortModuleNo;
+    private String moduleTitle;
     private int moduleId;
     private String moduleGroup;
     private boolean isIPModule;

@@ -14,6 +14,7 @@ import java.util.Map;
 public enum ModuleStringTable {
     NO("Modulkürzel", -1),
     SHORT_NO("Stammkürzel(Farbcode nach Modultafel)", -1),
+    TITLE("Modulbezeichnung Deutsch(Farbcode nach Curriculum)", -1),
     ID("Modul-ID", -1),
     GROUP("Modulgruppe", -1),
     IP("IP-Modul", -1),

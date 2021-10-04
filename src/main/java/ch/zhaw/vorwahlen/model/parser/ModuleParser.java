@@ -65,6 +65,7 @@ public class ModuleParser {
         switch (stringTable) {
             case NO -> builder.moduleNo(data);
             case SHORT_NO -> builder.shortModuleNo(data);
+            case TITLE -> builder.moduleTitle(data);
             case ID -> builder.moduleId((int) Double.parseDouble(data));
             case GROUP -> builder.moduleGroup(data);
             case IP -> builder.isIPModule(data.contains("x"));
