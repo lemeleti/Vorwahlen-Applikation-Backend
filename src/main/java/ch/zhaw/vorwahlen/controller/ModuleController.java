@@ -26,4 +26,10 @@ public class ModuleController {
         moduleService.createModuleByXLSX(file);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping(path = "/scrape")
+    public ResponseEntity<String> fetchAdditionalModuleData() {
+        moduleService.fetchAdditionalModuleData();
+        return ResponseEntity.ok().build();
+    }
 }
