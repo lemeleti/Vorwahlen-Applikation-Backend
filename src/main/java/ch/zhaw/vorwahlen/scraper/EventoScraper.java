@@ -11,7 +11,9 @@ import java.util.logging.Logger;
 
 public class EventoScraper {
 
-    private static final int SITE_LOADING_TIMEOUT = 3000;
+    public static final String SITE_URL =
+            "https://eventoweb.zhaw.ch/Evt_Pages/Brn_ModulDetailAZ.aspx?IDAnlass=%d&IdLanguage=1";
+    private static final int SITE_LOADING_TIMEOUT = 30000;
 
     private static final Logger LOGGER = Logger.getLogger(EventoScraper.class.getName());
 
