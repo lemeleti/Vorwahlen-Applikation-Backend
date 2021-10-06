@@ -35,7 +35,8 @@ public class ModuleService {
     public void createModuleByXLSX(MultipartFile file) {
         try {
             String location = saveFileToDisk(file);
-            List<Module> modules = ModuleParser.parseModulesFromXLSX(location);
+            ModuleParser moduleParser = new ModuleParser(location, "Module 2025");
+            List<Module> modules = moduleParser.parseModulesFromXLSX();
             moduleRepository.saveAll(modules);
         } catch (IOException e) {
             String message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
