@@ -28,7 +28,7 @@ public class EventoScraper {
             for (int i = 1; i < elements.size(); i += 2) {
                 Element currElement = elements.get(i);
                 String dataText = currElement.text();
-                if (currElement.select("table").size() > 0 && currElement.select("li").size() > 0) {
+                if (!currElement.select("table").isEmpty() && !currElement.select("li").isEmpty()) {
                     dataText = currElement.html();
                 }
 
