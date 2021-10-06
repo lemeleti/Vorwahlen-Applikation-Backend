@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.controller;
 
-import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.service.ModuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +16,7 @@ public class ModuleController {
     private final ModuleService moduleService;
 
     @GetMapping(path = {"/", ""})
-    public ResponseEntity<List<Module>> index() {
-        // Todo replace Module with ModuleDTO
+    public ResponseEntity<List<ModuleDTO>> index() {
         return ResponseEntity.ok().body(moduleService.getAllModules());
     }
 

@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.model.service;
 
+import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.parser.ModuleParser;
@@ -46,15 +47,19 @@ public class ModuleService {
         }
     }
 
-    public List<Module> getAllModules() {
-        return moduleRepository.findAll();
+    public List<ModuleDTO> getAllModules() {
+        return moduleRepository
+                .findAll()
+                .stream()
+                .map(module -> new ModuleDTO(module.getModuleNo(), module.getModuleTitle(), module.getLanguage()))
+                .toList();
     }
 
     @Async
     public void fetchAdditionalModuleData() {
         ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         List<Future<EventoData>> futures = new LinkedList<>();
-        getAllModules()
+        moduleRepository.findAll()
                 .stream()
                 .map(Module::getModuleId)
                 .forEach(moduleId -> futures.add(
