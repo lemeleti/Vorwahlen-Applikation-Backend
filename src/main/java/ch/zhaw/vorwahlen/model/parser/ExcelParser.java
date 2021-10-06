@@ -27,7 +27,6 @@ public abstract class ExcelParser<T, S extends StringTable<?>> {
 
         try (FileInputStream fis = new FileInputStream(fileLocation)) {
             XSSFWorkbook workbook = new XSSFWorkbook(fis);
-            // todo somehow let the user decide which sheet should be parsed.
             XSSFSheet moduleSheet = workbook.getSheet(workSheet);
 
             Iterator<Row> rowIterator = moduleSheet.rowIterator();
