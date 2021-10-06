@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * Scraper class to retrieve detailed data of a module on eventoweb.zhaw.ch.
+ */
 public class EventoScraper {
 
     public static final String SITE_URL =
@@ -17,6 +20,11 @@ public class EventoScraper {
 
     private static final Logger LOGGER = Logger.getLogger(EventoScraper.class.getName());
 
+    /**
+     * Retrieve the parsed module.
+     * @param url Eventoweb module website
+     * @return {@link EventoData}
+     */
     public static EventoData parseModuleByURL(String url) {
         EventoData eventoData = null;
         try {

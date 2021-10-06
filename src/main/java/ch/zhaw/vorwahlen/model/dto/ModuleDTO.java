@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+/**
+ * DTO for a module
+ */
 @AllArgsConstructor
 @Data
 public class ModuleDTO {

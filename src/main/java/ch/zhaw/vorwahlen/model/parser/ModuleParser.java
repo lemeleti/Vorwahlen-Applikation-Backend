@@ -7,8 +7,16 @@ import org.apache.poi.ss.usermodel.Row;
 
 import static ch.zhaw.vorwahlen.model.modules.ModuleStringTable.GROUP;
 
+/**
+ * Concrete module excel parser.
+ */
 public class ModuleParser extends ExcelParser<Module, ModuleStringTable> {
 
+    /**
+     * Create instance.
+     * @param fileLocation where the excel file is found.
+     * @param workSheet which should be parsed.
+     */
     public ModuleParser(String fileLocation, String workSheet) {
         super(fileLocation, workSheet, ModuleStringTable.class);
     }

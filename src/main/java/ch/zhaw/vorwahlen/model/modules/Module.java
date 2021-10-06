@@ -5,6 +5,9 @@ import lombok.*;
 import javax.persistence.*;
 import javax.persistence.Table;
 
+/**
+ * Model / Entity class for a module
+ */
 @Entity
 @Table(name = "modules")
 @Data

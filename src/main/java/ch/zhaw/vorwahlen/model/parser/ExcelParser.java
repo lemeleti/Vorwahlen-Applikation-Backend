@@ -1,24 +1,35 @@
 package ch.zhaw.vorwahlen.model.parser;
 
 import ch.zhaw.vorwahlen.model.modules.StringTable;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@AllArgsConstructor
+/**
+ * Abstract excel parser for type <T>
+ * @param <T> type to be parsed from the provided excel sheet
+ * @param <S> lookup table from type enum
+ */
+@RequiredArgsConstructor
 public abstract class ExcelParser<T, S extends StringTable<?>> {
     private final String fileLocation;
     private final String workSheet;
     private final Class<S> clazz;
 
+    /**
+     * Parse all modules from the provided excel sheet
+     * @return list of <T>
+     * @throws IOException if file not found or file not an excel sheet
+     */
     public List<T> parseModulesFromXLSX() throws IOException {
         List<T> moduleList = new ArrayList<>();
         T object;
@@ -40,6 +51,10 @@ public abstract class ExcelParser<T, S extends StringTable<?>> {
         return moduleList;
     }
 
+    /**
+     * Set all columns in lookup table where the constant enum value is found.
+     * @param row Excel sheet row
+     */
     void setCellIndexes(Row row) {
         for (Cell cell : row) {
             String cellValue = cell.getStringCellValue().trim().replace("\n", "");
@@ -50,5 +65,10 @@ public abstract class ExcelParser<T, S extends StringTable<?>> {
         }
     }
 
+    /**
+     * Create <T> from the excel sheet row
+     * @param row excel sheet row
+     * @return <T>
+     */
     abstract T createObjectFromRow(Row row);
 }

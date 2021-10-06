@@ -24,6 +24,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Logger;
 
+/**
+ * Business logic for the modules
+ */
 @RequiredArgsConstructor
 @Service
 public class ModuleService {
@@ -33,7 +36,11 @@ public class ModuleService {
     private final EventoDataRepository eventoDataRepository;
     private final Environment env;
 
-    public void createModuleByXLSX(MultipartFile file) {
+    /**
+     * Saves modules based on an excel file.
+     * @param file the excel file to be parsed
+     */
+    public void saveModulesFromExcel(MultipartFile file) {
         try {
             String location = saveFileToDisk(file);
             ModuleParser moduleParser = new ModuleParser(location, "Module 2025");
@@ -47,6 +54,10 @@ public class ModuleService {
         }
     }
 
+    /**
+     * Get all modules from the database
+     * @return a list of {@link Module}
+     */
     public List<ModuleDTO> getAllModules() {
         return moduleRepository
                 .findAll()
@@ -55,6 +66,9 @@ public class ModuleService {
                 .toList();
     }
 
+    /**
+     * Runs the scraper for all modules to retrieve additional data.
+     */
     @Async
     public void fetchAdditionalModuleData() {
         ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newCachedThreadPool();

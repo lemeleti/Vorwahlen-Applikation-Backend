@@ -5,7 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Lookup table to parse the module list excel
+ */
 @AllArgsConstructor
+@Getter
 @ToString
 // Todo search a better name
 public enum ModuleStringTable implements StringTable<ModuleStringTable> {
@@ -19,8 +23,7 @@ public enum ModuleStringTable implements StringTable<ModuleStringTable> {
     CREDITS("Credits/SWL", -1),
     LANGUAGE("Unterrichtssprache", -1);
 
-    @Getter
     private final String cellHeaderName;
-    @Setter @Getter
+    @Setter
     private int cellNumber;
 }

@@ -5,6 +5,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+/**
+ * Model / Entity class for the additional module data
+ */
 @Entity
 @Data
 @NoArgsConstructor
