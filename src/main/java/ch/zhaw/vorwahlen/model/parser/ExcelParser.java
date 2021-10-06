@@ -1,7 +1,5 @@
 package ch.zhaw.vorwahlen.model.parser;
 
-import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleStringTable;
 import ch.zhaw.vorwahlen.model.modules.StringTable;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
