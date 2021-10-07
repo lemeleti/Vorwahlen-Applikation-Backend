@@ -22,9 +22,9 @@ public abstract class ExcelParser<T, S extends StringTable<?>> {
     private final Class<S> clazz;
 
     /**
-     * Parse all modules from the provided excel sheet
+     * Parse all modules from the provided Excel sheet
      * @return list of <T>
-     * @throws IOException if file not found or file not an excel sheet
+     * @throws IOException if file not found or file not an Excel sheet
      */
     public List<T> parseModulesFromXLSX() throws IOException {
         List<T> moduleList = new ArrayList<>();

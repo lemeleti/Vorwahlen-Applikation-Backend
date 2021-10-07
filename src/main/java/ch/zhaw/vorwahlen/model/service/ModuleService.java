@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
- * Business logic for the modules
+ * Business logic for the modules.
  */
 @RequiredArgsConstructor
 @Service
@@ -40,8 +40,8 @@ public class ModuleService {
     private final Environment env;
 
     /**
-     * Saves modules based on an excel file.
-     * @param file the excel file to be parsed
+     * Saves modules based on the module list Excel file.
+     * @param file the Excel file to be parsed
      */
     public void importModuleExcel(MultipartFile file) {
         try {
@@ -58,7 +58,7 @@ public class ModuleService {
     }
 
     /**
-     * Get all modules from the database
+     * Get all modules from the database.
      * @return a list of {@link Module}
      */
     public List<ModuleDTO> getAllModules() {
