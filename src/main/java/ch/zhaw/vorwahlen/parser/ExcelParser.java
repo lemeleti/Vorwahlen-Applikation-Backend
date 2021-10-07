@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.parser;
+package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.StringTable;
 import lombok.RequiredArgsConstructor;

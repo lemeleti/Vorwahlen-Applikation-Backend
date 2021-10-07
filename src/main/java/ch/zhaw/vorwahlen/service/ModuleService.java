@@ -1,9 +1,9 @@
-package ch.zhaw.vorwahlen.model.service;
+package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.parser.ModuleParser;
+import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.scraper.EventoScraper;
