@@ -1,6 +1,8 @@
 package ch.zhaw.vorwahlen.scraper;
 
 import ch.zhaw.vorwahlen.model.modules.EventoData;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,6 +13,7 @@ import java.util.logging.Logger;
 /**
  * Scraper class to retrieve detailed data of a module on eventoweb.zhaw.ch.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventoScraper {
 
     private static final Logger LOGGER = Logger.getLogger(EventoScraper.class.getName());
