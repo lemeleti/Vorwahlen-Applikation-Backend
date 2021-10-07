@@ -2,16 +2,12 @@ package ch.zhaw.vorwahlen.model.parser;
 
 import ch.zhaw.vorwahlen.model.modules.StringTable;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,17 +30,19 @@ public abstract class ExcelParser<T, S extends StringTable<?>> {
         List<T> moduleList = new ArrayList<>();
         T object;
 
-        try (FileInputStream fis = new FileInputStream(fileLocation)) {
-            XSSFWorkbook workbook = new XSSFWorkbook(fis);
-            XSSFSheet moduleSheet = workbook.getSheet(workSheet);
+        try (var fis = new FileInputStream(fileLocation)) {
+            var workbook = new XSSFWorkbook(fis);
+            var moduleSheet = workbook.getSheet(workSheet);
 
-            Iterator<Row> rowIterator = moduleSheet.rowIterator();
-            if (rowIterator.hasNext())
+            var rowIterator = moduleSheet.rowIterator();
+            if (rowIterator.hasNext()) {
                 setCellIndexes(rowIterator.next());
+            }
 
             while (rowIterator.hasNext()) {
-                if ((object = createObjectFromRow(rowIterator.next())) != null)
+                if ((object = createObjectFromRow(rowIterator.next())) != null) {
                     moduleList.add(object);
+                }
             }
 
         }
@@ -56,12 +54,13 @@ public abstract class ExcelParser<T, S extends StringTable<?>> {
      * @param row Excel sheet row
      */
     void setCellIndexes(Row row) {
-        for (Cell cell : row) {
-            String cellValue = cell.getStringCellValue().trim().replace("\n", "");
+        for (var cell : row) {
+            var cellValue = cell.getStringCellValue().trim().replace("\n", "");
 
             S stringTable = StringTable.getConstantByValue(cellValue, clazz);
-            if (stringTable != null)
+            if (stringTable != null) {
                 stringTable.setCellNumber(cell.getColumnIndex());
+            }
         }
     }
 

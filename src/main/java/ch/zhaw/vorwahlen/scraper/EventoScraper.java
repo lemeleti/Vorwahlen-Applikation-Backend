@@ -6,7 +6,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -14,11 +13,14 @@ import java.util.logging.Logger;
  */
 public class EventoScraper {
 
+    private static final Logger LOGGER = Logger.getLogger(EventoScraper.class.getName());
+
     public static final String SITE_URL =
             "https://eventoweb.zhaw.ch/Evt_Pages/Brn_ModulDetailAZ.aspx?IDAnlass=%d&IdLanguage=1";
-    private static final int SITE_LOADING_TIMEOUT = 30000;
 
-    private static final Logger LOGGER = Logger.getLogger(EventoScraper.class.getName());
+    private static final int SITE_LOADING_TIMEOUT = 30000;
+    private static final int COLUMNS_PER_ROW = 2;
+
 
     /**
      * Retrieve the parsed module.
@@ -28,25 +30,31 @@ public class EventoScraper {
     public static EventoData parseModuleByURL(String url) {
         EventoData eventoData = null;
         try {
-            Document modulePage = getWebsiteContent(url);
-            List<Element> elements = modulePage.select(".DetailDialog_FormLabelCell, .DetailDialog_FormValueCell");
+            var modulePage = getWebsiteContent(url);
+            var columns = modulePage.select(".DetailDialog_FormLabelCell, .DetailDialog_FormValueCell");
 
             eventoData = new EventoData();
 
-            for (int i = 1; i < elements.size(); i += 2) {
-                Element currElement = elements.get(i);
-                String dataText = currElement.text();
-                if (!currElement.select("table").isEmpty() && !currElement.select("li").isEmpty()) {
-                    dataText = currElement.html();
-                }
+            for (var i = 1; i < columns.size(); i += COLUMNS_PER_ROW) {
+                var rowTitleElement = columns.get(i - 1);
+                var rowValueElement = columns.get(i);
 
-                String fieldName = elements.get(i - 1).text().trim();
+                var fieldName = rowTitleElement.text().trim();
+                var dataText = valueIsHtmlStructure(rowValueElement)
+                        ? rowValueElement.html()
+                        : rowValueElement.text();
+
                 setEventoDataField(fieldName, eventoData, dataText);
             }
         } catch (IOException | NullPointerException e) {
             LOGGER.severe(e.getMessage());
         }
         return eventoData;
+    }
+
+    private static boolean valueIsHtmlStructure(Element rowValueElement) {
+        return !rowValueElement.select("table").isEmpty() ||
+                !rowValueElement.select("li").isEmpty();
     }
 
     private static Document getWebsiteContent(String url) throws IOException {
@@ -70,8 +78,7 @@ public class EventoScraper {
             case "Modulausprägung", "Modulstruktur" -> eventoData.setModuleStructure(dataText);
             case "Leistungsnachweise" -> eventoData.setExams(dataText);
             case "Bemerkungen" -> eventoData.setRemarks(dataText);
-            default -> {
-            }
+            default -> {}
         }
     }
 }

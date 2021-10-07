@@ -2,7 +2,6 @@ package ch.zhaw.vorwahlen.model.parser;
 
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleStringTable;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import static ch.zhaw.vorwahlen.model.modules.ModuleStringTable.GROUP;
@@ -24,12 +23,12 @@ public class ModuleParser extends ExcelParser<Module, ModuleStringTable> {
     @Override
     Module createObjectFromRow(Row row) {
         Module module = null;
-        Cell moduleGroupCell = row.getCell(GROUP.getCellNumber());
+        var moduleGroupCell = row.getCell(GROUP.getCellNumber());
         if (row.getCell(0) != null && moduleGroupCell != null &&
                 (moduleGroupCell.toString().contains("IT5") || moduleGroupCell.toString().contains("IT6"))) {
 
-            Module.ModuleBuilder builder = Module.builder();
-            for (ModuleStringTable field : ModuleStringTable.values()) {
+            var builder = Module.builder();
+            for (var field : ModuleStringTable.values()) {
                 setModuleField(builder, field, row.getCell(field.getCellNumber()).toString());
             }
 

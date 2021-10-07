@@ -34,7 +34,7 @@ public class ModuleController {
      */
     @PostMapping(path = {"/", ""})
     public ResponseEntity<String> saveModulesFromExcel(@RequestParam("file") MultipartFile file) {
-        moduleService.saveModulesFromExcel(file);
+        moduleService.importModuleExcel(file);
         return ResponseEntity.ok().build();
     }
 

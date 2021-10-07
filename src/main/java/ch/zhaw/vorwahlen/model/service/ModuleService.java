@@ -16,12 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -30,6 +30,9 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 @Service
 public class ModuleService {
+
+    private static final int MAX_THREAD_NUMBER = 10;
+
     private final Logger logger = Logger.getLogger(ModuleService.class.getName());
 
     private final ModuleRepository moduleRepository;
@@ -40,14 +43,14 @@ public class ModuleService {
      * Saves modules based on an excel file.
      * @param file the excel file to be parsed
      */
-    public void saveModulesFromExcel(MultipartFile file) {
+    public void importModuleExcel(MultipartFile file) {
         try {
-            String location = saveFileToDisk(file);
-            ModuleParser moduleParser = new ModuleParser(location, "Module 2025");
-            List<Module> modules = moduleParser.parseModulesFromXLSX();
+            var location = saveFileToDisk(file);
+            var moduleParser = new ModuleParser(location, "Module 2025");
+            var modules = moduleParser.parseModulesFromXLSX();
             moduleRepository.saveAll(modules);
         } catch (IOException e) {
-            String message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
+            var message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
                     file.getOriginalFilename(), e.getMessage());
             logger.severe(message);
             // Todo throw custom Exception
@@ -71,34 +74,42 @@ public class ModuleService {
      */
     @Async
     public void fetchAdditionalModuleData() {
-        ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-        List<Future<EventoData>> futures = new LinkedList<>();
-        moduleRepository.findAll()
-                .stream()
-                .map(Module::getModuleId)
-                .forEach(moduleId -> futures.add(
-                    executorService.submit(() -> {
-                        String eventoUrl = String.format(EventoScraper.SITE_URL, moduleId);
-                        return EventoScraper.parseModuleByURL(eventoUrl);
-                    })
-                ));
+        var executorService = Executors.newFixedThreadPool(MAX_THREAD_NUMBER);
+        var startedThreads = startThreads(executorService);
+        saveFetchedModuleData(startedThreads);
+        executorService.shutdown();
+    }
 
+    private void saveFetchedModuleData(List<Future<EventoData>> futures) {
         for (var future : futures) {
             try {
                 eventoDataRepository.save(future.get());
             } catch (InterruptedException | ExecutionException e) {
+                // not re-interrupting because this is not critical and is logged
                 logger.severe(e.getMessage());
             }
         }
     }
 
+    private List<Future<EventoData>> startThreads(ExecutorService executorService) {
+        Function<Integer, Future<EventoData>> startThread = moduleId -> executorService.submit(() -> {
+            var eventoUrl = String.format(EventoScraper.SITE_URL, moduleId);
+            return EventoScraper.parseModuleByURL(eventoUrl);
+        });
+
+        return moduleRepository.findAll()
+                .stream()
+                .map(Module::getModuleId)
+                .map(startThread)
+                .toList();
+    }
+
     private String saveFileToDisk(MultipartFile file) throws IOException {
-        String filePath = env.getProperty("upload.dir") + File.separator + file.getOriginalFilename();
-        try (FileOutputStream fos = new FileOutputStream(filePath)) {
-            for (byte b : file.getInputStream().readAllBytes()) {
-                fos.write(b);
-            }
+        var filePath = env.getProperty("upload.dir") + File.separator + file.getOriginalFilename();
+        try (var fos = new FileOutputStream(filePath)) {
+            fos.write(file.getInputStream().readAllBytes());
         }
         return filePath;
     }
+
 }
