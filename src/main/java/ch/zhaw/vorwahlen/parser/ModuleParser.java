@@ -1,15 +1,15 @@
 package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleStringTable;
+import ch.zhaw.vorwahlen.model.modules.ModuleLookupTable;
 import org.apache.poi.ss.usermodel.Row;
 
-import static ch.zhaw.vorwahlen.model.modules.ModuleStringTable.GROUP;
+import static ch.zhaw.vorwahlen.model.modules.ModuleLookupTable.GROUP;
 
 /**
  * Concrete module excel parser.
  */
-public class ModuleParser extends ExcelParser<Module, ModuleStringTable> {
+public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
 
     /**
      * Create instance.
@@ -17,7 +17,7 @@ public class ModuleParser extends ExcelParser<Module, ModuleStringTable> {
      * @param workSheet which should be parsed.
      */
     public ModuleParser(String fileLocation, String workSheet) {
-        super(fileLocation, workSheet, ModuleStringTable.class);
+        super(fileLocation, workSheet, ModuleLookupTable.class);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ModuleParser extends ExcelParser<Module, ModuleStringTable> {
                 (moduleGroupCell.toString().contains("IT5") || moduleGroupCell.toString().contains("IT6"))) {
 
             var builder = Module.builder();
-            for (var field : ModuleStringTable.values()) {
+            for (var field : ModuleLookupTable.values()) {
                 setModuleField(builder, field, row.getCell(field.getCellNumber()).toString());
             }
 
@@ -38,6 +38,7 @@ public class ModuleParser extends ExcelParser<Module, ModuleStringTable> {
     }
 
     private void setModuleField(Module.ModuleBuilder builder, ModuleStringTable stringTable, String data) {
+    private void setModuleField(Module.ModuleBuilder builder, ModuleLookupTable stringTable, String data) {
         switch (stringTable) {
             case NO -> builder.moduleNo(data);
             case SHORT_NO -> builder.shortModuleNo(data);

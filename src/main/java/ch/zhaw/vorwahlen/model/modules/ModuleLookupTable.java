@@ -6,13 +6,12 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Lookup table to parse the module list excel
+ * Lookup table to parse the module list Excel.
  */
 @AllArgsConstructor
 @Getter
 @ToString
-// Todo search a better name
-public enum ModuleStringTable implements StringTable<ModuleStringTable> {
+public enum ModuleLookupTable implements LookupTable<ModuleLookupTable> {
     NO("Modulkürzel", -1),
     SHORT_NO("Stammkürzel(Farbcode nach Modultafel)", -1),
     TITLE("Modulbezeichnung Deutsch(Farbcode nach Curriculum)", -1),

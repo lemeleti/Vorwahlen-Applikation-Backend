@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.parser;
 
-import ch.zhaw.vorwahlen.model.modules.StringTable;
+import ch.zhaw.vorwahlen.model.modules.LookupTable;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -57,7 +57,7 @@ public abstract class ExcelParser<T, S extends StringTable<?>> {
         for (var cell : row) {
             var cellValue = cell.getStringCellValue().trim().replace("\n", "");
 
-            S stringTable = StringTable.getConstantByValue(cellValue, clazz);
+            S stringTable = LookupTable.getConstantByValue(cellValue, clazz);
             if (stringTable != null) {
                 stringTable.setCellNumber(cell.getColumnIndex());
             }
