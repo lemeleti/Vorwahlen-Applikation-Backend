@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleLookupTable;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import static ch.zhaw.vorwahlen.model.modules.ModuleLookupTable.GROUP;
@@ -24,20 +25,21 @@ public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
     Module createObjectFromRow(Row row) {
         Module module = null;
         var moduleGroupCell = row.getCell(GROUP.getCellNumber());
-        if (row.getCell(0) != null && moduleGroupCell != null &&
-                (moduleGroupCell.toString().contains("IT5") || moduleGroupCell.toString().contains("IT6"))) {
-
+        if (moduleGroupCell != null && belongsToWantedModuleGroup(moduleGroupCell)) {
             var builder = Module.builder();
             for (var field : ModuleLookupTable.values()) {
                 setModuleField(builder, field, row.getCell(field.getCellNumber()).toString());
             }
-
             module = builder.build();
         }
         return module;
     }
 
-    private void setModuleField(Module.ModuleBuilder builder, ModuleStringTable stringTable, String data) {
+    private boolean belongsToWantedModuleGroup(Cell moduleGroupCell) {
+        var value = moduleGroupCell.toString();
+        return value.contains("IT5") || value.contains("IT6");
+    }
+
     private void setModuleField(Module.ModuleBuilder builder, ModuleLookupTable stringTable, String data) {
         switch (stringTable) {
             case NO -> builder.moduleNo(data);
