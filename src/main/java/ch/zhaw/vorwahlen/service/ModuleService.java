@@ -40,8 +40,8 @@ public class ModuleService {
     private final Environment env;
 
     /**
-     * Saves modules based on the module list Excel file.
-     * @param file the Excel file to be parsed
+     * Importing the Excel file and storing the needed content into the database.
+     * @param file the Excel file to be parsed and stored.
      */
     public void importModuleExcel(MultipartFile file) {
         try {
@@ -59,7 +59,7 @@ public class ModuleService {
 
     /**
      * Get all modules from the database.
-     * @return a list of {@link Module}
+     * @return a list of {@link Module}.
      */
     public List<ModuleDTO> getAllModules() {
         return moduleRepository

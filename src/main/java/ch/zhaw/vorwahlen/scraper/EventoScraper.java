@@ -27,7 +27,7 @@ public class EventoScraper {
 
     /**
      * Retrieve the parsed module.
-     * @param url Eventoweb module website
+     * @param url Eventoweb module website.
      * @return {@link EventoData}
      */
     public static EventoData parseModuleByURL(String url) {

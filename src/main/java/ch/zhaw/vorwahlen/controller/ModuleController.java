@@ -28,8 +28,8 @@ public class ModuleController {
     }
 
     /**
-     * Import module list from excel.
-     * @param file the excel file
+     * Import module list from Excel.
+     * @param file the Excel file.
      * @return {@link ResponseEntity<String>}
      */
     @PostMapping(path = {"/", ""})
