@@ -1,0 +1,174 @@
+package ch.zhaw.vorwahlen.parser;
+
+import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.ModuleLookupTable;
+import ch.zhaw.vorwahlen.repository.ModuleRepository;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.jdbc.Sql;
+
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@DataJpaTest
+class ModuleParserTest {
+
+    private static final String MODULE_LIST_FILE_NAME = "Liste_alle_Module_SM2025_SGL_Def_1.7-2021-03-29.xlsx";
+    private static final String WORK_SHEET_NAME = "Module 2025";
+    private static final String DEFAULT_CELL_VALUE = "0";
+    private static final String MODULE_GROUPS_CONTAINS_IT5 = "ET5,IT5,ST5";
+    private static final String MODULE_GROUPS_CONTAINS_IT6 = "ET5,IT6,ST5";
+    private static final String MODULE_GROUPS_CONTAINS_NOT_IT5_OR_IT6= "ET5,ST5";
+    private static final int GROUP_CELL_NUMBER = 4;
+
+    ModuleParser moduleParser;
+
+    @Autowired
+    ModuleRepository moduleRepository;
+
+    @Mock Row rowMock;
+    @Mock Cell defaultCellMock;
+    @Mock Cell groupCellMock;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        var fileUri = getClass().getClassLoader().getResource(MODULE_LIST_FILE_NAME).toURI();
+        moduleParser = new ModuleParser(fileUri.getPath(), WORK_SHEET_NAME);
+    }
+
+    /* **************************************************************************************************************
+     * Positive tests
+     * ************************************************************************************************************** */
+
+    @Test
+    @Sql("classpath:sql/modules.sql")
+    void parseModulesFromXLSX() throws IOException {
+        // prepare
+        var expected = sortByModuleNo(moduleRepository.findAll());
+
+        // execute
+        var result = sortByModuleNo(moduleParser.parseModulesFromXLSX());
+
+        // verify
+        assertNotNull(result);
+        assertEquals(expected.size(), result.size());
+        assertIterableEquals(expected, result);
+    }
+
+    private List<Module> sortByModuleNo(List<Module> list) {
+        return list.stream()
+                .sorted(Comparator.comparing(Module::getModuleNo))
+                .toList();
+    }
+
+    @Test
+    void createObjectFromRow_IT5() {
+        // prepare
+        setupLookupTable();
+
+        var expectedModule = Module.builder()
+                .moduleId(Integer.parseInt(DEFAULT_CELL_VALUE))
+                .isIPModule(false)
+                .moduleGroup(MODULE_GROUPS_CONTAINS_IT5)
+                .moduleNo(DEFAULT_CELL_VALUE)
+                .moduleTitle(DEFAULT_CELL_VALUE)
+                .shortModuleNo(DEFAULT_CELL_VALUE)
+                .credits(Byte.parseByte(DEFAULT_CELL_VALUE))
+                .institute(DEFAULT_CELL_VALUE)
+                .language(DEFAULT_CELL_VALUE)
+                .build();
+
+        when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
+        when(defaultCellMock.toString()).thenReturn(DEFAULT_CELL_VALUE);
+
+        when(rowMock.getCell(GROUP_CELL_NUMBER)).thenReturn(groupCellMock);
+        when(groupCellMock.toString()).thenReturn(MODULE_GROUPS_CONTAINS_IT5);
+
+        // execute
+        var resultModule = moduleParser.createObjectFromRow(rowMock);
+
+        // verify
+        assertNotNull(resultModule);
+        assertEquals(expectedModule, resultModule);
+        verify(rowMock, times(10)).getCell(anyInt());
+        verify(rowMock, times(2)).getCell(GROUP_CELL_NUMBER);
+    }
+
+    @Test
+    void createObjectFromRow_IT6() {
+        // prepare
+        setupLookupTable();
+
+        var expectedModule = Module.builder()
+                .moduleId(Integer.parseInt(DEFAULT_CELL_VALUE))
+                .isIPModule(false)
+                .moduleGroup(MODULE_GROUPS_CONTAINS_IT6)
+                .moduleNo(DEFAULT_CELL_VALUE)
+                .moduleTitle(DEFAULT_CELL_VALUE)
+                .shortModuleNo(DEFAULT_CELL_VALUE)
+                .credits(Byte.parseByte(DEFAULT_CELL_VALUE))
+                .institute(DEFAULT_CELL_VALUE)
+                .language(DEFAULT_CELL_VALUE)
+                .build();
+
+        when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
+        when(defaultCellMock.toString()).thenReturn(DEFAULT_CELL_VALUE);
+
+        when(rowMock.getCell(GROUP_CELL_NUMBER)).thenReturn(groupCellMock);
+        when(groupCellMock.toString()).thenReturn(MODULE_GROUPS_CONTAINS_IT6);
+
+        // execute
+        var resultModule = moduleParser.createObjectFromRow(rowMock);
+
+        // verify
+        assertNotNull(resultModule);
+        assertEquals(expectedModule, resultModule);
+        verify(rowMock, times(10)).getCell(anyInt());
+        verify(rowMock, times(2)).getCell(GROUP_CELL_NUMBER);
+    }
+
+    @Test
+    void createObjectFromRow_Not_IT5_or_IT6() {
+        // prepare
+        when(rowMock.getCell(GROUP_CELL_NUMBER)).thenReturn(groupCellMock);
+        when(groupCellMock.toString()).thenReturn(MODULE_GROUPS_CONTAINS_NOT_IT5_OR_IT6);
+
+        // execute
+        var resultModuleFilteredGroup = moduleParser.createObjectFromRow(rowMock);
+
+        // verify
+        assertNull(resultModuleFilteredGroup);
+    }
+
+    private void setupLookupTable() {
+        int i = 0;
+        for (var field: ModuleLookupTable.values()) {
+            field.setCellNumber(i++);
+        }
+    }
+
+    /* **************************************************************************************************************
+     * Negative tests
+     * ************************************************************************************************************** */
+
+    // todo: constructor null arguments
+    // todo: constructor file not found
+    // todo: constructor non existing worksheet
+    // todo: constructor no header row
+    // todo: constructor missing header column (will be tested in createObjectFromRow: negative cell number)
+    // todo: createObjectFromRow null
+    // todo: createObjectFromRow negative cell number
+    // todo: createObjectFromRow invalid cell values
+
+}
