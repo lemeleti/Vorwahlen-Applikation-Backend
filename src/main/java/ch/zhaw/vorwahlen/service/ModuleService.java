@@ -105,6 +105,11 @@ public class ModuleService {
     }
 
     private String saveFileToDisk(MultipartFile file) throws IOException {
+        var dir = new File(env.getProperty("upload.dir"));
+        if (!dir.exists()) {
+            var success = dir.mkdir();
+            logger.info((success) ? "Created upload dir" : "Failed to create upload dir");
+        }
         var filePath = env.getProperty("upload.dir") + File.separator + file.getOriginalFilename();
         try (var fos = new FileOutputStream(filePath)) {
             fos.write(file.getInputStream().readAllBytes());
