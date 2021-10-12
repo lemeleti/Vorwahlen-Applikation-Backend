@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * Repository for the modules.
  */
 @Repository
-public interface ModuleRepository extends JpaRepository<Module, Long> {
+public interface ModuleRepository extends JpaRepository<Module, String> {
 }
