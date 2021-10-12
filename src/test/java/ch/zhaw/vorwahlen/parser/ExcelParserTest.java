@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.dummy.DummyLookupTable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,6 +26,13 @@ class ExcelParserTest {
         parser = mock(ExcelParser.class, Mockito.withSettings()
                     .useConstructor(fileLocation, WORK_SHEET_NAME, DummyLookupTable.class)
                     .defaultAnswer(CALLS_REAL_METHODS));
+    }
+
+    @AfterEach
+    void tearDown() {
+        for (var field: DummyLookupTable.values()) {
+            field.setCellNumber(-1);
+        }
     }
 
     /* **************************************************************************************************************
