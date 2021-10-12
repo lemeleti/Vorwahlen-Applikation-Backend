@@ -33,7 +33,7 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
      * @throws IOException if file not found or file not an Excel sheet.
      */
     public List<T> parseModulesFromXLSX() throws IOException {
-        List<T> moduleList = new ArrayList<>();
+        var moduleList = new ArrayList<T>();
         T object;
 
         try (var fis = new FileInputStream(fileLocation)) {
@@ -42,7 +42,7 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
 
             var rowIterator = moduleSheet.rowIterator();
             if (rowIterator.hasNext()) {
-                setCellIndexes(rowIterator.next());
+                setCellNumbersInLookupTableFromHeaderRow(rowIterator.next());
             }
 
             while (rowIterator.hasNext()) {
@@ -55,17 +55,12 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
         return moduleList;
     }
 
-    /**
-     * Set all columns in lookup table where the constant enum value is found.
-     * @param row Excel sheet row.
-     */
-    void setCellIndexes(Row row) {
+    private void setCellNumbersInLookupTableFromHeaderRow(Row row) {
         for (var cell : row) {
             var cellValue = cell.getStringCellValue().trim().replace("\n", "");
-
-            S stringTable = LookupTable.getConstantByValue(cellValue, clazz);
-            if (stringTable != null) {
-                stringTable.setCellNumber(cell.getColumnIndex());
+            var lookupTable = LookupTable.getConstantByValue(cellValue, clazz);
+            if (lookupTable != null) {
+                lookupTable.setCellNumber(cell.getColumnIndex());
             }
         }
     }

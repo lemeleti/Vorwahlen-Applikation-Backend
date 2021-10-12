@@ -40,8 +40,8 @@ public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
         return value.contains("IT5") || value.contains("IT6");
     }
 
-    private void setModuleField(Module.ModuleBuilder builder, ModuleLookupTable stringTable, String data) {
-        switch (stringTable) {
+    private void setModuleField(Module.ModuleBuilder builder, ModuleLookupTable field, String data) {
+        switch (field) {
             case NO -> builder.moduleNo(data);
             case SHORT_NO -> builder.shortModuleNo(data);
             case TITLE -> builder.moduleTitle(data);
