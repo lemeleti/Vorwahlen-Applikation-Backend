@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  database:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${SQL_DB}
+      MYSQL_USER: ${SQL_USER}
+      MYSQL_PASSWORD: ${SQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${SQL_ROOT_PASSWORD}
+    volumes:
+      - "mysql:/var/lib/mysql"
+    networks:
+      - wpm
+
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - wpm
+      - web
+
+  wpm-backend:
+    build: .
+    restart: always
+    depends_on:
+      - database
+    environment:
+      SQL_HOST: database
+      SQL_DB: ${SQL_DB}
+      SQL_USER: ${SQL_USER}
+      SQL_PASSWORD: ${SQL_PASSWORD}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.plex.rule=Host(`pa.lubojanski.me`) # Zu ersetzen
+      - traefik.http.routers.plex.entrypoints=web
+    networks:
+      - wpm
+      - web
+
+volumes:
+  mysql:
+    external: false
+
+networks:
+  wpm:
+    external: true
+  web:
+    external: true
