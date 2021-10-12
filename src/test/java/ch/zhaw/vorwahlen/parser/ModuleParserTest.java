@@ -5,6 +5,7 @@ import ch.zhaw.vorwahlen.model.modules.ModuleLookupTable;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -46,6 +47,13 @@ class ModuleParserTest {
         MockitoAnnotations.openMocks(this);
         var fileUri = getClass().getClassLoader().getResource(MODULE_LIST_FILE_NAME).toURI();
         moduleParser = new ModuleParser(fileUri.getPath(), WORK_SHEET_NAME);
+    }
+
+    @AfterEach
+    void tearDown() {
+        for (var field: ModuleLookupTable.values()) {
+            field.setCellNumber(-1);
+        }
     }
 
     /* **************************************************************************************************************
