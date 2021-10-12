@@ -12,6 +12,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.anyOf;
@@ -32,6 +33,7 @@ class ModuleControllerTest {
     private static final String LANGUAGE_EN = "en";
     private static final String REQUEST_MAPPING_PREFIX = "/module";
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
+    private static final String MODULE_LIST_FILE_NAME = "Liste_alle_Module_SM2025_SGL_Def_1.7-2021-03-29.xlsx";
 
     @Autowired
     MockMvc mockMvc;
@@ -87,9 +89,10 @@ class ModuleControllerTest {
     }
 
     @Test
-    void testSaveModulesFromExcel() {
+    void testSaveModulesFromExcel() throws IOException {
         // prepare
-        var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, "", "text/plain", "test data".getBytes());
+        var fis = getClass().getClassLoader().getResourceAsStream(MODULE_LIST_FILE_NAME);
+        var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, MODULE_LIST_FILE_NAME, "", fis);
 
         // execute
         try {
@@ -135,7 +138,7 @@ class ModuleControllerTest {
     @Test
     void testSaveModulesFromExcel_WithoutAFile() {
         // prepare
-        var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, "", "text/plain", "".getBytes());
+        var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, "", "", "".getBytes());
 
         // execute
         try {
