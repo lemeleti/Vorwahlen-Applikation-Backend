@@ -108,7 +108,11 @@ public class ModuleService {
         var dir = new File(env.getProperty("upload.dir"));
         if (!dir.exists()) {
             var success = dir.mkdir();
-            logger.info((success) ? "Created upload dir" : "Failed to create upload dir");
+            if (success) {
+                logger.info("Created upload dir");
+            } else {
+                logger.warning("Failed to create upload dir");
+            }
         }
         var filePath = env.getProperty("upload.dir") + File.separator + file.getOriginalFilename();
         try (var fos = new FileOutputStream(filePath)) {
