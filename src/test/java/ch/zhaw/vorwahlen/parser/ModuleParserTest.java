@@ -30,6 +30,7 @@ class ModuleParserTest {
     private static final String MODULE_GROUPS_CONTAINS_IT6 = "ET5,IT6,ST5";
     private static final String MODULE_GROUPS_CONTAINS_NOT_IT5_OR_IT6= "ET5,ST5";
     private static final int GROUP_CELL_NUMBER = 4;
+    public static final String INVALID_CELL_VALUE_FOR_NON_TEXT = "a";
 
     ModuleParser moduleParser;
 
@@ -139,7 +140,7 @@ class ModuleParserTest {
     }
 
     @Test
-    void createObjectFromRow_Not_IT5_or_IT6() {
+    void createObjectFromRow_Not_IT5_Or_IT6() {
         // prepare
         when(rowMock.getCell(GROUP_CELL_NUMBER)).thenReturn(groupCellMock);
         when(groupCellMock.toString()).thenReturn(MODULE_GROUPS_CONTAINS_NOT_IT5_OR_IT6);
@@ -162,8 +163,28 @@ class ModuleParserTest {
      * Negative tests
      * ************************************************************************************************************** */
 
-    // todo: createObjectFromRow null
-    // todo: createObjectFromRow negative cell number
-    // todo: createObjectFromRow invalid cell values
+    @Test
+    void createObjectFromRow_Null() {
+        assertThrows(NullPointerException.class, () -> moduleParser.createObjectFromRow(null));
+    }
 
+    @Test
+    void createObjectFromRow_Group_Not_Found() {
+        when(rowMock.getCell(anyInt())).thenReturn(groupCellMock);
+        assertNull(moduleParser.createObjectFromRow(rowMock));
+        verify(rowMock, times(1)).getCell(-1);
+    }
+
+    @Test
+    void createObjectFromRow_Parsing_Invalid_Type() {
+        setupLookupTable();
+
+        when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
+        when(defaultCellMock.toString()).thenReturn(INVALID_CELL_VALUE_FOR_NON_TEXT);
+
+        when(rowMock.getCell(GROUP_CELL_NUMBER)).thenReturn(groupCellMock);
+        when(groupCellMock.toString()).thenReturn(MODULE_GROUPS_CONTAINS_IT5);
+
+        assertThrows(NumberFormatException.class, () -> moduleParser.createObjectFromRow(rowMock));
+    }
 }
