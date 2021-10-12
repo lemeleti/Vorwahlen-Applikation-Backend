@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Abstract excel parser for type {@code <T>}.<br/>
@@ -23,6 +24,9 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public abstract class ExcelParser<T, S extends LookupTable<?>> {
+
+    private static final Logger LOGGER = Logger.getLogger(ExcelParser.class.getName());
+
     private final String fileLocation;
     private final String workSheet;
     private final Class<S> clazz;
@@ -57,10 +61,14 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
 
     private void setCellNumbersInLookupTableFromHeaderRow(Row row) {
         for (var cell : row) {
-            var cellValue = cell.getStringCellValue().trim().replace("\n", "");
-            var lookupTable = LookupTable.getConstantByValue(cellValue, clazz);
-            if (lookupTable != null) {
-                lookupTable.setCellNumber(cell.getColumnIndex());
+            try {
+                var cellValue = cell.getStringCellValue().trim().replace("\n", "");
+                var lookupTable = LookupTable.getConstantByValue(cellValue, clazz);
+                if (lookupTable != null) {
+                    lookupTable.setCellNumber(cell.getColumnIndex());
+                }
+            } catch (IllegalStateException e) {
+                LOGGER.warning(e.getMessage());
             }
         }
     }

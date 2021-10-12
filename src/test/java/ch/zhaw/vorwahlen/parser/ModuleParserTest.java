@@ -162,11 +162,6 @@ class ModuleParserTest {
      * Negative tests
      * ************************************************************************************************************** */
 
-    // todo: constructor null arguments
-    // todo: constructor file not found
-    // todo: constructor non existing worksheet
-    // todo: constructor no header row
-    // todo: constructor missing header column (will be tested in createObjectFromRow: negative cell number)
     // todo: createObjectFromRow null
     // todo: createObjectFromRow negative cell number
     // todo: createObjectFromRow invalid cell values
