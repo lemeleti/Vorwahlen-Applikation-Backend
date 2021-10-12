@@ -18,9 +18,7 @@ import java.util.ArrayList;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,6 +32,7 @@ class ModuleControllerTest {
     private static final String REQUEST_MAPPING_PREFIX = "/module";
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
     private static final String MODULE_LIST_FILE_NAME = "Liste_alle_Module_SM2025_SGL_Def_1.7-2021-03-29.xlsx";
+    private static final String WORKSHEET = "Module 2025";
 
     @Autowired
     MockMvc mockMvc;
@@ -99,6 +98,7 @@ class ModuleControllerTest {
             mockMvc.perform(MockMvcRequestBuilders
                     .multipart(REQUEST_MAPPING_PREFIX)
                     .file(mockMultipartFile)
+                    .param("worksheet", WORKSHEET)
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andDo(print());
@@ -107,7 +107,7 @@ class ModuleControllerTest {
         }
 
         // verify
-        verify(moduleService, times(1)).importModuleExcel(mockMultipartFile);
+        verify(moduleService, times(1)).importModuleExcel(mockMultipartFile, WORKSHEET);
     }
 
 
@@ -145,6 +145,7 @@ class ModuleControllerTest {
             mockMvc.perform(MockMvcRequestBuilders
                     .multipart(REQUEST_MAPPING_PREFIX)
                     .file(mockMultipartFile)
+                    .param("worksheet", WORKSHEET)
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andDo(print());
@@ -153,7 +154,7 @@ class ModuleControllerTest {
         }
 
         // verify
-        verify(moduleService, times(0)).importModuleExcel(mockMultipartFile);
+        verify(moduleService, times(0)).importModuleExcel(mockMultipartFile, WORKSHEET);
     }
 
 }

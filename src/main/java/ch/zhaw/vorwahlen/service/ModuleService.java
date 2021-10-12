@@ -43,10 +43,10 @@ public class ModuleService {
      * Importing the Excel file and storing the needed content into the database.
      * @param file the Excel file to be parsed and stored.
      */
-    public void importModuleExcel(MultipartFile file) {
+    public void importModuleExcel(MultipartFile file, String worksheet) {
         try {
             var location = saveFileToDisk(file);
-            var moduleParser = new ModuleParser(location, "Module 2025");
+            var moduleParser = new ModuleParser(location, worksheet);
             var modules = moduleParser.parseModulesFromXLSX();
             moduleRepository.saveAll(modules);
         } catch (IOException e) {
