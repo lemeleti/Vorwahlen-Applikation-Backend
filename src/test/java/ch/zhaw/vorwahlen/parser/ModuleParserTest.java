@@ -43,10 +43,9 @@ class ModuleParserTest {
     @Mock Cell groupCellMock;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-        var fileUri = getClass().getClassLoader().getResource(MODULE_LIST_FILE_NAME).toURI();
-        moduleParser = new ModuleParser(fileUri.getPath(), WORK_SHEET_NAME);
+        moduleParser = new ModuleParser(getClass().getClassLoader().getResourceAsStream(MODULE_LIST_FILE_NAME), WORK_SHEET_NAME);
     }
 
     @AfterEach

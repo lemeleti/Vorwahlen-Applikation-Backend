@@ -21,10 +21,10 @@ class ExcelParserTest {
     ExcelParser<?, DummyLookupTable> parser;
 
     @BeforeEach
-    void setUp() throws URISyntaxException {
-        var fileLocation = getClass().getClassLoader().getResource(MODULE_LIST_FILE_NAME).toURI().getPath();
+    void setUp() {
+        var fis = getClass().getClassLoader().getResourceAsStream(MODULE_LIST_FILE_NAME);
         parser = mock(ExcelParser.class, Mockito.withSettings()
-                    .useConstructor(fileLocation, WORK_SHEET_NAME, DummyLookupTable.class)
+                    .useConstructor(fis, WORK_SHEET_NAME, DummyLookupTable.class)
                     .defaultAnswer(CALLS_REAL_METHODS));
     }
 
@@ -54,12 +54,12 @@ class ExcelParserTest {
     }
 
     @Test
-    void testParseModulesFromXLSX_No_Header_Row() throws URISyntaxException {
-        var fileLocation = getClass().getClassLoader()
-                .getResource("No_Header_" + MODULE_LIST_FILE_NAME).toURI().getPath();
+    void testParseModulesFromXLSX_No_Header_Row() {
+        var fis = getClass().getClassLoader()
+                .getResourceAsStream("No_Header_" + MODULE_LIST_FILE_NAME);
 
         parser = mock(ExcelParser.class, Mockito.withSettings()
-                .useConstructor(fileLocation, WORK_SHEET_NAME, DummyLookupTable.class)
+                .useConstructor(fis, WORK_SHEET_NAME, DummyLookupTable.class)
                 .defaultAnswer(CALLS_REAL_METHODS));
         when(parser.createObjectFromRow(any())).thenReturn(null);
 
@@ -85,36 +85,37 @@ class ExcelParserTest {
     }
 
     @Test
-    void testParseModulesFromXLSX_Worksheet_Null() throws URISyntaxException {
-        var fileLocation = getClass().getClassLoader().getResource(MODULE_LIST_FILE_NAME).toURI().getPath();
+    void testParseModulesFromXLSX_Worksheet_Null() {
+        var fis = getClass().getClassLoader().getResourceAsStream(MODULE_LIST_FILE_NAME);
         parser = mock(ExcelParser.class, Mockito.withSettings()
-                .useConstructor(fileLocation, null, DummyLookupTable.class)
+                .useConstructor(fis, null, DummyLookupTable.class)
                 .defaultAnswer(CALLS_REAL_METHODS));
         assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
     }
 
     @Test
-    void testParseModulesFromXLSX_LookupTable_Null() throws URISyntaxException {
-        var fileLocation = getClass().getClassLoader().getResource(MODULE_LIST_FILE_NAME).toURI().getPath();
+    void testParseModulesFromXLSX_LookupTable_Null() {
+        var fis = getClass().getClassLoader().getResourceAsStream(MODULE_LIST_FILE_NAME);
         parser = mock(ExcelParser.class, Mockito.withSettings()
-                .useConstructor(fileLocation, WORK_SHEET_NAME, null)
+                .useConstructor(fis, WORK_SHEET_NAME, null)
                 .defaultAnswer(CALLS_REAL_METHODS));
         assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
     }
 
     @Test
     void testParseModulesFromXLSX_FileNotFound() {
+        var fis = getClass().getClassLoader().getResourceAsStream("nonexisting file.xlsx");
         parser = mock(ExcelParser.class, Mockito.withSettings()
-                .useConstructor(MODULE_LIST_FILE_NAME, WORK_SHEET_NAME, DummyLookupTable.class)
+                .useConstructor(fis, WORK_SHEET_NAME, DummyLookupTable.class)
                 .defaultAnswer(CALLS_REAL_METHODS));
-        assertThrows(FileNotFoundException.class, () -> parser.parseModulesFromXLSX());
+        assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
     }
 
     @Test
-    void testParseModulesFromXLSX_NonExistingWorksheet() throws URISyntaxException {
-        var fileLocation = getClass().getClassLoader().getResource(MODULE_LIST_FILE_NAME).toURI().getPath();
+    void testParseModulesFromXLSX_NonExistingWorksheet() {
+        var fis = getClass().getClassLoader().getResourceAsStream(MODULE_LIST_FILE_NAME);
         parser = mock(ExcelParser.class, Mockito.withSettings()
-                .useConstructor(fileLocation, "Inkognito", DummyLookupTable.class)
+                .useConstructor(fis, "Inkognito", DummyLookupTable.class)
                 .defaultAnswer(CALLS_REAL_METHODS));
         assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
     }

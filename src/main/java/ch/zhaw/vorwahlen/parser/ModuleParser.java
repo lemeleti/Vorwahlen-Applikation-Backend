@@ -5,6 +5,8 @@ import ch.zhaw.vorwahlen.model.modules.ModuleLookupTable;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
+import java.io.InputStream;
+
 import static ch.zhaw.vorwahlen.model.modules.ModuleLookupTable.GROUP;
 
 /**
@@ -17,7 +19,7 @@ public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
      * @param fileLocation where the Excel file is found.
      * @param workSheet which should be parsed.
      */
-    public ModuleParser(String fileLocation, String workSheet) {
+    public ModuleParser(InputStream fileLocation, String workSheet) {
         super(fileLocation, workSheet, ModuleLookupTable.class);
     }
 

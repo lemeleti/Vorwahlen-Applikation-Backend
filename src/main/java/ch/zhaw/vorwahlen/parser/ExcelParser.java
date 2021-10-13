@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -27,7 +27,7 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
 
     private static final Logger LOGGER = Logger.getLogger(ExcelParser.class.getName());
 
-    private final String fileLocation;
+    private final InputStream fileInputStream;
     private final String workSheet;
     private final Class<S> clazz;
 
@@ -40,7 +40,7 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
         var moduleList = new ArrayList<T>();
         T object;
 
-        try (var fis = new FileInputStream(fileLocation)) {
+        try (var fis = fileInputStream) {
             var workbook = new XSSFWorkbook(fis);
             var moduleSheet = workbook.getSheet(workSheet);
 

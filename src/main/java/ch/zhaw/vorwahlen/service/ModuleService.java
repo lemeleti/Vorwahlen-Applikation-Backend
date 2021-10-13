@@ -45,8 +45,7 @@ public class ModuleService {
      */
     public void importModuleExcel(MultipartFile file, String worksheet) {
         try {
-            var location = saveFileToDisk(file);
-            var moduleParser = new ModuleParser(location, worksheet);
+            var moduleParser = new ModuleParser(file.getInputStream(), worksheet);
             var modules = moduleParser.parseModulesFromXLSX();
             moduleRepository.saveAll(modules);
         } catch (IOException e) {
@@ -102,23 +101,6 @@ public class ModuleService {
                 .map(Module::getModuleId)
                 .map(startThread)
                 .toList();
-    }
-
-    private String saveFileToDisk(MultipartFile file) throws IOException {
-        var dir = new File(env.getProperty("upload.dir"));
-        if (!dir.exists()) {
-            var success = dir.mkdir();
-            if (success) {
-                logger.info("Created upload dir");
-            } else {
-                logger.warning("Failed to create upload dir");
-            }
-        }
-        var filePath = env.getProperty("upload.dir") + File.separator + file.getOriginalFilename();
-        try (var fos = new FileOutputStream(filePath)) {
-            fos.write(file.getInputStream().readAllBytes());
-        }
-        return filePath;
     }
 
 }
