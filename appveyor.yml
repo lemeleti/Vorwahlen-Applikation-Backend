@@ -1,0 +1,39 @@
+image: Ubuntu2004
+
+environment:
+  DOCKERHUB_PASS:
+    secure: o71pevAd3AAskRz34CZIak0HRHKebCm8MM1mE7g9w3dWajlADYoFLR++PXpt5G1MK6fYPQGrjZEqDV6jpN5uPg==
+
+install:
+  - sh: |
+      sudo wget https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz
+      sudo tar xfvz openjdk-17_linux-x64_bin.tar.gz
+      sudo rm -rf /opt/jdk-17
+      sudo mv jdk-17 -f /opt
+      export JAVA_HOME=/opt/jdk-17
+      export PATH=$PATH:$JAVA_HOME/bin
+      chmod +x ./gradlew
+      chmod +x ./deploy.sh
+
+build_script:
+  # Build a JAR from the sources.
+  - ./gradlew --console=plain bootJar
+
+test_script:
+  # Run tests and CheckStyle audit.
+  - ./gradlew --console=plain check
+
+artifacts:
+  # Collect all JARs that have been built and upload them to the CI server. Can be downloaded via
+  # the UI. If you want to keep them longer than 6 months, deploy to Artifactory (not shown).
+  - path: "build/libs/*.jar"
+
+deploy_script:
+  - sh: ./deploy.sh
+
+
+# We do not want to build git tags.
+skip_tags: true
+
+# Use integers as build versions (1, 2, 3, …) instead of 1.0.X.
+version: "{build}"
