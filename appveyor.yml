@@ -4,6 +4,9 @@ environment:
   DOCKERHUB_PASS:
     secure: o71pevAd3AAskRz34CZIak0HRHKebCm8MM1mE7g9w3dWajlADYoFLR++PXpt5G1MK6fYPQGrjZEqDV6jpN5uPg==
 
+cache:
+  - build
+
 install:
   - sh: |
       sudo wget https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz
@@ -17,7 +20,7 @@ install:
 
 build_script:
   # Build a JAR from the sources.
-  - ./gradlew bootJar
+  - ./gradlew --build-cache bootJar
 
 test_script:
   # Run tests.
