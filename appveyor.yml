@@ -6,6 +6,7 @@ environment:
 
 cache:
   - build
+  - jdk-17
 
 install:
   - sh: |
