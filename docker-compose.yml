@@ -22,7 +22,7 @@ services:
       - web
 
   wpm-backend:
-    build: .
+    image: vorwahlen/backend:latest
     restart: always
     depends_on:
       - database
