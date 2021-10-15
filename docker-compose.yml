@@ -14,13 +14,6 @@ services:
     networks:
       - wpm
 
-  adminer:
-    image: adminer
-    restart: always
-    networks:
-      - wpm
-      - web
-
   wpm-backend:
     image: vorwahlen/backend:latest
     restart: always
