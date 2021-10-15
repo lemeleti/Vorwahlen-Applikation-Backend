@@ -26,7 +26,6 @@ services:
       SQL_PASSWORD: ${SQL_PASSWORD}
     networks:
       - wpm
-      - web
 
 volumes:
   mysql:
