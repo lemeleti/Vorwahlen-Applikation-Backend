@@ -31,10 +31,6 @@ services:
       SQL_DB: ${SQL_DB}
       SQL_USER: ${SQL_USER}
       SQL_PASSWORD: ${SQL_PASSWORD}
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.plex.rule=Host(`pa.lubojanski.me`) # Zu ersetzen
-      - traefik.http.routers.plex.entrypoints=web
     networks:
       - wpm
       - web
