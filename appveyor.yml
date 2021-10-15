@@ -17,11 +17,11 @@ install:
 
 build_script:
   # Build a JAR from the sources.
-  - ./gradlew --console=plain bootJar
+  - ./gradlew bootJar
 
 test_script:
-  # Run tests and CheckStyle audit.
-  - ./gradlew --console=plain check
+  # Run tests.
+  - ./gradlew test
 
 artifacts:
   # Collect all JARs that have been built and upload them to the CI server. Can be downloaded via
