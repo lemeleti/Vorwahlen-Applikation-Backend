@@ -10,7 +10,7 @@ cache:
 install:
   - sh: |
       sudo wget https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz
-      sudo tar xfvz openjdk-17_linux-x64_bin.tar.gz
+      sudo tar xfz openjdk-17_linux-x64_bin.tar.gz
       sudo rm -rf /opt/jdk-17
       sudo mv jdk-17 -f /opt
       export JAVA_HOME=/opt/jdk-17
