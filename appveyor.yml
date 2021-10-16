@@ -28,6 +28,7 @@ artifacts:
   # Collect all JARs that have been built and upload them to the CI server. Can be downloaded via
   # the UI. If you want to keep them longer than 6 months, deploy to Artifactory (not shown).
   - path: "build/libs/*.jar"
+    name: "WPM-Backend"
 
 deploy_script:
   - sh: ./deploy.sh
