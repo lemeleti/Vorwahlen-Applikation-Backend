@@ -16,6 +16,7 @@ services:
 
   wpm-backend:
     image: vorwahlen/backend:latest
+    container_name: wpm-backend
     restart: always
     depends_on:
       - database
