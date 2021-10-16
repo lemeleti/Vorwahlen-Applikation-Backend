@@ -3,6 +3,10 @@ image: Ubuntu2004
 environment:
   DOCKERHUB_PASS:
     secure: o71pevAd3AAskRz34CZIak0HRHKebCm8MM1mE7g9w3dWajlADYoFLR++PXpt5G1MK6fYPQGrjZEqDV6jpN5uPg==
+  SSH_ENC_PW:
+    secure: dsfg/madWjGDwzbs9mqzVBzsm9yTPuAXDn8p06X5x19HE55oB2/DwLyt2rBdOEhc
+  SSH_ENC_SALT:
+    secure: SfpYN5CE94KMJwIe+tznDBzhMfMqwdgQxb0uxVS9yVUuzgV5ko6mVx26Er6QRovyNYsCZ6WcaxFYHhDmLx9htw==
 
 cache:
   - build
