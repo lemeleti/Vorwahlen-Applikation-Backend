@@ -33,6 +33,4 @@ volumes:
 
 networks:
   wpm:
-    external: true
-  web:
-    external: true
+    external: false
