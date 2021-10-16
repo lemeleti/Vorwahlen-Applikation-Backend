@@ -14,15 +14,9 @@ services:
     networks:
       - wpm
 
-  adminer:
-    image: adminer
-    restart: always
-    networks:
-      - wpm
-      - web
-
   wpm-backend:
-    build: .
+    image: vorwahlen/backend:latest
+    container_name: wpm-backend
     restart: always
     depends_on:
       - database
@@ -31,13 +25,8 @@ services:
       SQL_DB: ${SQL_DB}
       SQL_USER: ${SQL_USER}
       SQL_PASSWORD: ${SQL_PASSWORD}
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.plex.rule=Host(`pa.lubojanski.me`) # Zu ersetzen
-      - traefik.http.routers.plex.entrypoints=web
     networks:
       - wpm
-      - web
 
 volumes:
   mysql:
@@ -45,6 +34,4 @@ volumes:
 
 networks:
   wpm:
-    external: true
-  web:
-    external: true
+    external: false

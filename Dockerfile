@@ -14,4 +14,6 @@ ENV SQL_USER=""
 ENV SQL_PASSWORD=""
 ENV SQL_DB=""
 
+EXPOSE 8080
+
 CMD ["java", "-jar", "vorwahlen.jar"]
