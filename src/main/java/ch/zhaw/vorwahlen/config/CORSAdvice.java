@@ -16,7 +16,8 @@ public class CORSAdvice implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedMethods("GET", "PUT", "OPTIONS", "DELETE", "POST", "PATCH")
-                .allowedOrigins("http://localhost:8081")
+                .allowedOrigins("http://localhost:8081", "http://localhost", "http://vorwahlen.cloudlab.zhaw.ch",
+                                "https://vorwahlen.cloudlab.zhaw.ch")
                 .allowedHeaders("Origin", "Content-Type", "Accept");
     }
 
