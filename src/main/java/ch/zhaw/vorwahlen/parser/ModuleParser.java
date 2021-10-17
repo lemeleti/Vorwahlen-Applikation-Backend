@@ -14,6 +14,9 @@ import static ch.zhaw.vorwahlen.model.modules.ModuleLookupTable.GROUP;
  */
 public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
 
+    private static final String MODULE_GROUP_IT_5 = "IT5";
+    private static final String MODULE_GROUP_IT_6 = "IT6";
+
     /**
      * Create instance.
      * @param fileLocation where the Excel file is found.
@@ -39,7 +42,7 @@ public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
 
     private boolean belongsToWantedModuleGroup(Cell moduleGroupCell) {
         var value = moduleGroupCell.toString();
-        return value.contains("IT5") || value.contains("IT6");
+        return value.contains(MODULE_GROUP_IT_5) || value.contains(MODULE_GROUP_IT_6);
     }
 
     private void setModuleField(Module.ModuleBuilder builder, ModuleLookupTable field, String data) {

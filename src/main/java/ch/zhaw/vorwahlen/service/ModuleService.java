@@ -8,13 +8,10 @@ import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.scraper.EventoScraper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -37,7 +34,6 @@ public class ModuleService {
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
-    private final Environment env;
 
     /**
      * Importing the Excel file and storing the needed content into the database.
@@ -58,7 +54,7 @@ public class ModuleService {
 
     /**
      * Get all modules from the database.
-     * @return a list of {@link Module}.
+     * @return a list of {@link ModuleDTO}.
      */
     public List<ModuleDTO> getAllModules() {
         return moduleRepository

@@ -29,7 +29,7 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
 
     private final InputStream fileInputStream;
     private final String workSheet;
-    private final Class<S> clazz;
+    private final Class<S> lookupTableClass;
 
     /**
      * Parse all modules from the provided Excel sheet.
@@ -63,7 +63,7 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
         for (var cell : row) {
             try {
                 var cellValue = cell.getStringCellValue().trim().replace("\n", "");
-                var lookupTable = LookupTable.getConstantByValue(cellValue, clazz);
+                var lookupTable = LookupTable.getConstantByValue(cellValue, lookupTableClass);
                 if (lookupTable != null) {
                     lookupTable.setCellNumber(cell.getColumnIndex());
                 }
