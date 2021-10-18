@@ -1,6 +1,5 @@
 package ch.zhaw.vorwahlen.parser;
 
-import ch.zhaw.vorwahlen.model.modules.ModuleLookupTable;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentLookupTable;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
@@ -27,7 +26,6 @@ class ClassListParserTest {
 
     private static final String CLASS_LIST_FILE_NAME = "Vorlage_Klassenzuteilungen.xlsx";
     private static final String WORK_SHEET_NAME = "Sheet1";
-    private static final String INVALID_CELL_VALUE_FOR_NON_TEXT = "a";
     private static final String DEFAULT_CELL_VALUE = "valid content";
 
     ClassListParser classListParser;
@@ -81,7 +79,7 @@ class ClassListParserTest {
         // prepare
         setupLookupTable();
 
-        var expectedModule = Student.builder()
+        var expected = Student.builder()
                 .email(DEFAULT_CELL_VALUE)
                 .name(DEFAULT_CELL_VALUE)
                 .clazz(DEFAULT_CELL_VALUE)
@@ -91,17 +89,17 @@ class ClassListParserTest {
         when(defaultCellMock.toString()).thenReturn(DEFAULT_CELL_VALUE);
 
         // execute
-        var resultModule = classListParser.createObjectFromRow(rowMock);
+        var result = classListParser.createObjectFromRow(rowMock);
 
         // verify
-        assertNotNull(resultModule);
-        assertEquals(expectedModule, resultModule);
+        assertNotNull(result);
+        assertEquals(expected, result);
         verify(rowMock, times(3)).getCell(anyInt());
     }
 
     private void setupLookupTable() {
         int i = 0;
-        for (var field: ModuleLookupTable.values()) {
+        for (var field: StudentLookupTable.values()) {
             field.setCellNumber(i++);
         }
     }

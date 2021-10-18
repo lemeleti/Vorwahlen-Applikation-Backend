@@ -32,7 +32,7 @@ public class ClassListController {
     }
 
     /**
-     * Import module list from Excel.
+     * Import class list from Excel.
      * @param file the Excel file.
      * @return {@link ResponseEntity<String>}
      */

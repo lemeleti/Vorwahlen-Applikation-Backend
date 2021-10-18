@@ -86,7 +86,7 @@ class ClassListControllerTest {
     }
 
     @Test
-    void testSaveModulesFromExcel() throws IOException {
+    void testSaveClassListsFromExcel() throws IOException {
         // prepare
         var fis = getClass().getClassLoader().getResourceAsStream(CLASS_LIST_FILE_NAME);
         var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, CLASS_LIST_FILE_NAME, "", fis);
@@ -113,7 +113,7 @@ class ClassListControllerTest {
      * ************************************************************************************************************** */
 
     @Test
-    void testSaveModulesFromExcel_WithoutAFile() {
+    void testSaveClassListsFromExcel_WithoutAFile() {
         // prepare
         var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, "", "", "".getBytes());
 
