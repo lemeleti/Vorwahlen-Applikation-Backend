@@ -28,4 +28,9 @@ public class Student {
     @Column(name = "class")
     private String clazz;
 
+    @Column(columnDefinition = "integer default 0")
+    private int paDispensation;
+    @Column(columnDefinition = "integer default 0")
+    private int wpmDispensation;
+
 }

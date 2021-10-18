@@ -1,3 +1,3 @@
-INSERT INTO `class_list` (`email`, `name`, `class`) VALUES
-('musteranna@students.zhaw.ch', 'Anna Muster', 'IT19a_WIN'),
-('meierbob@students.zhaw.ch', 'Bob Meier', 'IT19ta_WIN');
+INSERT INTO `class_list` (`email`, `name`, `class`, `pa_dispensation`, `wpm_dispensation`) VALUES
+('musteranna@students.zhaw.ch', 'Anna Muster', 'IT19a_WIN', 0, 0),
+('meierbob@students.zhaw.ch', 'Bob Meier', 'IT19ta_WIN', 0, 0);
