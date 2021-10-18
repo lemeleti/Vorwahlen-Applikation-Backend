@@ -31,7 +31,7 @@ class ModuleParserTest {
     private static final String MODULE_GROUPS_CONTAINS_IT6 = "ET5,IT6,ST5";
     private static final String MODULE_GROUPS_CONTAINS_NOT_IT5_OR_IT6= "ET5,ST5";
     private static final int GROUP_CELL_NUMBER = 4;
-    public static final String INVALID_CELL_VALUE_FOR_NON_TEXT = "a";
+    private static final String INVALID_CELL_VALUE_FOR_NON_TEXT = "a";
 
     ModuleParser moduleParser;
 
