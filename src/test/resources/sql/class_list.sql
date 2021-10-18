@@ -1,4 +1,6 @@
 INSERT INTO `class_list` (`email`, `name`, `class`) VALUES
+('musteranna@students.zhaw.ch', 'Anna Muster', 'IT19a_WIN'),
+('meierbob@students.zhaw.ch', 'Bob Meier', 'IT19ta_WIN'),
 ('fgiacomazzo0@purevolume.com', 'Forster Giacomazzo', 'IT19ta_WIN'),
 ('vshuttlewood1@unicef.org', 'Valaree Shuttlewood', 'IT19a_ZH'),
 ('rstelfax2@unblog.fr', 'Rosy Stelfax', 'IT19a_WIN'),

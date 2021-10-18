@@ -20,6 +20,9 @@ public class ClassListService {
 
     private final Logger logger = Logger.getLogger(ClassListService.class.getName());
 
+    public static final int PA_DISPENSATION = 0;
+    public static final int WPM_DISPENSATION = 0;
+
     private final ClassListRepository classListRepository;
 
     /**
@@ -47,7 +50,7 @@ public class ClassListService {
         return classListRepository
                 .findAll()
                 .stream()
-                .map(student -> new StudentDTO(student.getEmail(), student.getName(), student.getClazz()))
+                .map(student -> new StudentDTO(student.getEmail(), student.getName(), student.getClazz(), PA_DISPENSATION, WPM_DISPENSATION))
                 .toList();
     }
 

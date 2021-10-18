@@ -21,6 +21,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import static ch.zhaw.vorwahlen.service.ClassListService.PA_DISPENSATION;
+import static ch.zhaw.vorwahlen.service.ClassListService.WPM_DISPENSATION;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class ClassListControllerTest {
@@ -46,9 +49,9 @@ class ClassListControllerTest {
     void testGetAllModules() {
         // prepare
         var expectedList = new ArrayList<StudentDTO>();
-        expectedList.add(new StudentDTO("mail1", "name1", CLASS_1));
-        expectedList.add(new StudentDTO("mail2", "name2", CLASS_2));
-        expectedList.add(new StudentDTO("mail3", "name3", CLASS_2));
+        expectedList.add(new StudentDTO("mail1", "name1", CLASS_1, PA_DISPENSATION, WPM_DISPENSATION));
+        expectedList.add(new StudentDTO("mail2", "name2", CLASS_2, PA_DISPENSATION, WPM_DISPENSATION));
+        expectedList.add(new StudentDTO("mail3", "name3", CLASS_2, PA_DISPENSATION, WPM_DISPENSATION));
 
         when(classListService.getAllClassLists()).thenReturn(expectedList);
 
@@ -61,13 +64,13 @@ class ClassListControllerTest {
                     .andExpect(jsonPath("$").exists())
                     .andExpect(jsonPath("$.[*].email").isNotEmpty())
                     .andExpect(jsonPath("$.[*].email", anyOf(
-                            hasItem(expectedList.get(0).getEmail()),
+                            hasItem(expectedList.get(PA_DISPENSATION).getEmail()),
                             hasItem(expectedList.get(1).getEmail()),
                             hasItem(expectedList.get(2).getEmail())
                     )))
                     .andExpect(jsonPath("$.[*].name").isNotEmpty())
                     .andExpect(jsonPath("$.[*].name", anyOf(
-                            hasItem(expectedList.get(0).getName()),
+                            hasItem(expectedList.get(PA_DISPENSATION).getName()),
                             hasItem(expectedList.get(1).getName()),
                             hasItem(expectedList.get(2).getName())
                     )))
@@ -76,6 +79,10 @@ class ClassListControllerTest {
                             hasItem(CLASS_1),
                             hasItem(CLASS_2)
                     )))
+                    .andExpect(jsonPath("$.[*].dispensation_pa").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].dispensation_pa", anyOf(hasItem(PA_DISPENSATION))))
+                    .andExpect(jsonPath("$.[*].dispensation_wpm").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].dispensation_wpm", anyOf(hasItem(PA_DISPENSATION))))
                     .andDo(print());
         } catch (Exception e) {
             fail(e);

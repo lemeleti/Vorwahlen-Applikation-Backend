@@ -14,4 +14,8 @@ public class StudentDTO {
     private String name;
     @JsonProperty("class")
     private String clazz;
+    @JsonProperty("dispensation_pa")
+    private int paDispensation;
+    @JsonProperty("dispensation_wpm")
+    private int wpmDispensation;
 }
