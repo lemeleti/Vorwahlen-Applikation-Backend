@@ -29,7 +29,6 @@ public class Module {
     private boolean isIPModule;
     private String institute;
     private byte credits;
-    //Todo remove either from EventoData Class or here.
     private String language;
     // Todo add Durchführungssemester für VZ + TZ
 }

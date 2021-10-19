@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * Repository for the evento data.
  */
 @Repository
-public interface EventoDataRepository extends JpaRepository<EventoData, Long> {
+public interface EventoDataRepository extends JpaRepository<EventoData, String> {
 }

@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.scraper;
 
 import ch.zhaw.vorwahlen.model.modules.EventoData;
+import ch.zhaw.vorwahlen.model.modules.Module;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jsoup.Jsoup;
@@ -30,14 +31,14 @@ public class EventoScraper {
      * @param url Eventoweb module website.
      * @return {@link EventoData}
      */
-    public static EventoData parseModuleByURL(String url) {
+    public static EventoData parseModuleByURL(String url, Module module) {
         EventoData eventoData = null;
         try {
             var modulePage = getWebsiteContent(url);
             var columns = modulePage.select(".DetailDialog_FormLabelCell, .DetailDialog_FormValueCell");
 
             eventoData = new EventoData();
-
+            eventoData.setModuleNo(module.getModuleNo());
             for (var i = 1; i < columns.size(); i += COLUMNS_PER_ROW) {
                 var rowTitleElement = columns.get(i - 1);
                 var rowValueElement = columns.get(i);
@@ -77,7 +78,6 @@ public class EventoScraper {
             case "Lehrmittel/Materialien" -> eventoData.setLiterature(dataText);
             case "Ergänzende Literatur" -> eventoData.setSuppLiterature(dataText);
             case "Zulassungs-voraussetzungen" -> eventoData.setPrerequisites(dataText);
-            case "Unterrichtssprache" -> eventoData.setLanguage(dataText);
             case "Modulausprägung", "Modulstruktur" -> eventoData.setModuleStructure(dataText);
             case "Leistungsnachweise" -> eventoData.setExams(dataText);
             case "Bemerkungen" -> eventoData.setRemarks(dataText);

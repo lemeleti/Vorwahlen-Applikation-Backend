@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
@@ -64,6 +65,23 @@ public class ModuleService {
                 .toList();
     }
 
+    public EventoDataDTO getEventoDataById(String id) {
+        var eventoData = eventoDataRepository.getById(id);
+        var dto = EventoDataDTO.builder()
+                .moduleStructure(eventoData.getModuleStructure())
+                .learningObjectives(eventoData.getLearningObjectives())
+                .shortDescription(eventoData.getShortDescription())
+                .suppLiterature(eventoData.getSuppLiterature())
+                .coordinator(eventoData.getCoordinator())
+                .exams(eventoData.getExams())
+                .literature(eventoData.getLiterature())
+                .moduleContents(eventoData.getModuleContents())
+                .prerequisites(eventoData.getPrerequisites())
+                .remarks(eventoData.getRemarks())
+                .build();
+        return dto;
+    }
+
     /**
      * Runs the scraper for all modules to retrieve additional data.
      */
@@ -87,14 +105,13 @@ public class ModuleService {
     }
 
     private List<Future<EventoData>> startThreads(ExecutorService executorService) {
-        Function<Integer, Future<EventoData>> startThread = moduleId -> executorService.submit(() -> {
-            var eventoUrl = String.format(EventoScraper.SITE_URL, moduleId);
-            return EventoScraper.parseModuleByURL(eventoUrl);
+        Function<Module, Future<EventoData>> startThread = module -> executorService.submit(() -> {
+            var eventoUrl = String.format(EventoScraper.SITE_URL, module.getModuleId());
+            return EventoScraper.parseModuleByURL(eventoUrl, module);
         });
 
         return moduleRepository.findAll()
                 .stream()
-                .map(Module::getModuleId)
                 .map(startThread)
                 .toList();
     }

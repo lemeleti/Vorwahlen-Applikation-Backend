@@ -5,8 +5,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
@@ -16,9 +14,9 @@ import javax.persistence.Id;
 @Data
 @NoArgsConstructor
 public class EventoData {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String moduleNo;
 
     @Column(columnDefinition = "text")
     private String shortDescription;
@@ -27,16 +25,16 @@ public class EventoData {
     private String learningObjectives;
     @Column(columnDefinition = "mediumblob")
     private String moduleContents;
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "blob")
     private String literature;
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "blob")
     private String suppLiterature;
+    @Column(columnDefinition = "blob")
     private String prerequisites;
     @Column(columnDefinition = "blob")
     private String moduleStructure;
-    private String language;
     @Column(columnDefinition = "blob")
     private String exams;
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "blob")
     private String remarks;
 }

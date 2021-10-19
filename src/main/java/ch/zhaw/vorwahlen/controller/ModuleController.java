@@ -1,10 +1,13 @@
 package ch.zhaw.vorwahlen.controller;
 
+import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
+import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.service.ModuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,6 +45,15 @@ public class ModuleController {
         if (file.isEmpty()) return ResponseEntity.notFound().build();
         moduleService.importModuleExcel(file, worksheet);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     *
+     * @return {@link ResponseEntity<EventoDataDTO>}
+     */
+    @GetMapping(path = {"/eventodata/{moduleKuerzel}"})
+    public ResponseEntity<EventoDataDTO> getAdditionalModuleDataByKuerzel(@PathVariable String moduleKuerzel) {
+        return ResponseEntity.ok().body(moduleService.getEventoDataById(moduleKuerzel));
     }
 
     /**
