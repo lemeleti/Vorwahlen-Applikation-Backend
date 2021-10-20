@@ -26,7 +26,7 @@ public class DispensationController {
     @PostMapping(path = {"/", ""})
     public ResponseEntity<String> saveDispensationListFromExcel(@RequestParam("file") MultipartFile file,
                                                        @RequestParam("worksheet") String worksheet) {
-        if (file.isEmpty()) return ResponseEntity.notFound().build();
+        if (file.isEmpty()) return ResponseEntity.badRequest().build();
         dispensationService.importDispensationExcel(file, worksheet);
         return ResponseEntity.ok().build();
     }

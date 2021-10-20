@@ -42,7 +42,7 @@ public class ModuleController {
     @PostMapping(path = {"/", ""})
     public ResponseEntity<String> saveModulesFromExcel(@RequestParam("file") MultipartFile file,
                                                        @RequestParam("worksheet") String worksheet) {
-        if (file.isEmpty()) return ResponseEntity.notFound().build();
+        if (file.isEmpty()) return ResponseEntity.badRequest().build();
         moduleService.importModuleExcel(file, worksheet);
         return ResponseEntity.ok().build();
     }
