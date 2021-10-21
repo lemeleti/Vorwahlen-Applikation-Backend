@@ -20,7 +20,7 @@ public class EventoScraper {
     private static final Logger LOGGER = Logger.getLogger(EventoScraper.class.getName());
 
     public static final String SITE_URL =
-            "https://eventoweb.zhaw.ch/Evt_Pages/Brn_ModulDetailAZ.aspx?IDAnlass=%d&IdLanguage=1";
+            "https://eventoweb.zhaw.ch/Evt_Pages/Brn_ModulDetailAZ.aspx?IDAnlass=%d&IdLanguage=1&date=662249088000000000";
 
     private static final int SITE_LOADING_TIMEOUT_MS = 30000;
     private static final int COLUMNS_PER_ROW = 2;
