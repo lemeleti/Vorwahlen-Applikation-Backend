@@ -9,30 +9,51 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthFilter extends OncePerRequestFilter {
+    Map<String, String> userData = new HashMap<>();
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         var auth = SecurityContextHolder.getContext().getAuthentication();
+        extractUserInfoFromHeader(request);
 
-        if (auth == null || !auth.isAuthenticated()) {
-            try {
-                User user = User.builder()
-                        .name(request.getHeader("givenname"))
-                        .lastName(request.getHeader("surname"))
-                        .affiliation(request.getHeader("affiliation"))
-                        .homeOrg(request.getHeader("homeorganization"))
-                        .mail(request.getHeader("mail"))
-                        .build();
-                auth = new CustomAuthToken(request.getHeader("shib-session-id"), user);
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            } catch (NullPointerException e) {
-                System.err.println("Unable to parse field " + e.getMessage());
-            }
+        if (isUserDataNotNull() && (auth == null || !auth.isAuthenticated())) {
+            auth = new CustomAuthToken(request.getHeader("shib-session-id"), createUser());
         }
 
+        SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isUserDataNotNull() {
+        for (String s : userData.values()) {
+            if (s == null || s.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void extractUserInfoFromHeader(HttpServletRequest request) {
+        userData.put("name", request.getHeader("givenname"));
+        userData.put("lastName", request.getHeader("surname"));
+        userData.put("affiliation", request.getHeader("affiliation"));
+        userData.put("homeOrg", request.getHeader("homeorganization"));
+        userData.put("mail", request.getHeader("mail"));
+    }
+
+    private User createUser() {
+        return User.builder()
+                .name(userData.get("name"))
+                .lastName(userData.get("lastName"))
+                .affiliation(userData.get("affiliation"))
+                .homeOrg(userData.get("homeOrg"))
+                .mail(userData.get("mail"))
+                .build();
     }
 }
