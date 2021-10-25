@@ -18,7 +18,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final CustomAuthProvider customAuthProvider;
     private final CustomBasicAuthenticationEntryPoint authenticationEntryPoint;
     private final String[] allowedPaths = {"/module**", "/", "/error**"};
-    private final String[] protectedPaths = {"/module**", "/dispensation**", "/class**", "/session/info"};
+    private final String[] protectedPaths = {"/module**", "/dispensation**", "/class**"};
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
