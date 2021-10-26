@@ -1,6 +1,8 @@
 package ch.zhaw.vorwahlen.authentication;
 
 import ch.zhaw.vorwahlen.model.user.User;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -12,18 +14,24 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
+@Setter
 public class AuthFilter extends OncePerRequestFilter {
     Map<String, String> userData = new HashMap<>();
+    private final boolean isProd;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        extractUserInfoFromHeader(request);
+
+        if (isProd) {
+            extractUserInfoFromHeader(request);
+        }
 
         if (isUserDataNotNull() && (auth == null || !auth.isAuthenticated())) {
-            auth = new CustomAuthToken(request.getHeader("shib-session-id"), createUser());
+            auth = new CustomAuthToken(userData.get("sessionId"), createUser());
         }
 
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -40,6 +48,7 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private void extractUserInfoFromHeader(HttpServletRequest request) {
+        userData.put("sessionId", request.getHeader("shib-session-id"));
         userData.put("name", request.getHeader("givenname"));
         userData.put("lastName", request.getHeader("surname"));
         userData.put("affiliation", request.getHeader("affiliation"));
