@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.user.User;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +35,7 @@ public class SessionController {
 
     @GetMapping(path = "/is-authenticated")
     public ResponseEntity<Boolean> isUserAuthenticated() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(user != null);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(auth != null && auth.getPrincipal() != null);
     }
 }
