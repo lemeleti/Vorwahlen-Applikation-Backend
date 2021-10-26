@@ -147,7 +147,7 @@ class ModuleControllerTest {
                     .file(mockMultipartFile)
                     .param("worksheet", WORKSHEET)
                     .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isNotFound())
+                    .andExpect(status().isBadRequest())
                     .andDo(print());
         } catch (Exception e) {
             fail(e);
