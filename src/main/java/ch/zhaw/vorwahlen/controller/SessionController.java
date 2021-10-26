@@ -22,4 +22,13 @@ public class SessionController {
         SecurityContextHolder.getContext().setAuthentication(null);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping(path = "is-admin")
+    public ResponseEntity<Boolean> isUserAdmin() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user == null) {
+            return ResponseEntity.ok(false);
+        }
+        return ResponseEntity.ok(user.getRole().equals("ADMIN"));
+    }
 }
