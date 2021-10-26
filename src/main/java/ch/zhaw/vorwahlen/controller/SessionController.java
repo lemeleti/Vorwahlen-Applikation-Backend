@@ -26,11 +26,16 @@ public class SessionController {
 
     @GetMapping(path = "is-admin")
     public ResponseEntity<Boolean> isUserAdmin() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user == null) {
-            return ResponseEntity.ok(false);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = null;
+        try {
+            if (auth != null && auth.getPrincipal() != null) {
+                user = (User) auth.getPrincipal();
+            }
+        } catch (ClassCastException ignored) {
+            // Has to be empty, do nothing
         }
-        return ResponseEntity.ok(user.getRole().equals("ADMIN"));
+        return ResponseEntity.ok(user != null && "ADMIN".equals(user.getRole()));
     }
 
     @GetMapping(path = "/is-authenticated")
