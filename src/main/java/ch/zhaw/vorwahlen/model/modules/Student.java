@@ -32,5 +32,6 @@ public class Student {
     private int paDispensation;
     @Column(columnDefinition = "integer default 0")
     private int wpmDispensation;
-
+    @Column(columnDefinition = "tinyint(1) default 0")
+    private boolean isIP;
 }

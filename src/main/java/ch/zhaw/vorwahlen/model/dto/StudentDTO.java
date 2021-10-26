@@ -1,13 +1,18 @@
 package ch.zhaw.vorwahlen.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO for a module
  */
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@Builder
 @Data
 public class StudentDTO {
     private String email;
@@ -18,4 +23,6 @@ public class StudentDTO {
     private int paDispensation;
     @JsonProperty("dispensation_wpm")
     private int wpmDispensation;
+
+    private boolean isIP;
 }

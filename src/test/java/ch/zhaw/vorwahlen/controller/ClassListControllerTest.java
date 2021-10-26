@@ -49,9 +49,9 @@ class ClassListControllerTest {
     void testGetAllModules() {
         // prepare
         var expectedList = new ArrayList<StudentDTO>();
-        expectedList.add(new StudentDTO("mail1", "name1", CLASS_1, PA_DISPENSATION, WPM_DISPENSATION));
-        expectedList.add(new StudentDTO("mail2", "name2", CLASS_2, PA_DISPENSATION, WPM_DISPENSATION));
-        expectedList.add(new StudentDTO("mail3", "name3", CLASS_2, PA_DISPENSATION, WPM_DISPENSATION));
+        expectedList.add(StudentDTO.builder().email("mail1").name("name1").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
+        expectedList.add(StudentDTO.builder().email("mail2").name("name2").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
+        expectedList.add(StudentDTO.builder().email("mail3").name("name3").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
 
         when(classListService.getAllClassLists()).thenReturn(expectedList);
 
