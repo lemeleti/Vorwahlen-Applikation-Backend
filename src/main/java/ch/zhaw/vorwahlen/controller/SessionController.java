@@ -31,4 +31,10 @@ public class SessionController {
         }
         return ResponseEntity.ok(user.getRole().equals("ADMIN"));
     }
+
+    @GetMapping(path = "/is-authenticated")
+    public ResponseEntity<Boolean> isUserAuthenticated() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(user != null);
+    }
 }
