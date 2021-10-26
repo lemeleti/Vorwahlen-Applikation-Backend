@@ -16,7 +16,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final AuthFilter authFilter;
     private final CustomAuthProvider customAuthProvider;
-    private final String[] allowedPaths = {"/module**", "/", "/error**", "/session/is-authenticated"};
+    private final String[] allowedPaths = {"/module**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
     private final String[] protectedPaths = {"/module**", "/dispensation**", "/class**"};
 
     @Override
