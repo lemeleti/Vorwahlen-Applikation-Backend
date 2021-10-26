@@ -5,22 +5,21 @@ import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 /**
  * Business logic for the modules.
  */
 @RequiredArgsConstructor
 @Service
+@Log
 public class ClassListService {
-
-    private final Logger logger = Logger.getLogger(ClassListService.class.getName());
 
     public static final int PA_DISPENSATION = 0;
     public static final int WPM_DISPENSATION = 0;
@@ -39,7 +38,7 @@ public class ClassListService {
         } catch (IOException e) {
             var message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
                     file.getOriginalFilename(), e.getMessage());
-            logger.severe(message);
+            log.severe(message);
             // Todo throw custom Exception
         }
     }

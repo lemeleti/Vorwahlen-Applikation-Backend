@@ -9,6 +9,7 @@ import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.scraper.EventoScraper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,11 +28,10 @@ import java.util.logging.Logger;
  */
 @RequiredArgsConstructor
 @Service
+@Log
 public class ModuleService {
 
     private static final int MAX_THREAD_NUMBER = 10;
-
-    private final Logger logger = Logger.getLogger(ModuleService.class.getName());
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
@@ -48,7 +48,7 @@ public class ModuleService {
         } catch (IOException e) {
             var message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
                     file.getOriginalFilename(), e.getMessage());
-            logger.severe(message);
+            log.severe(message);
             // Todo throw custom Exception
         }
     }
@@ -67,7 +67,7 @@ public class ModuleService {
 
     public EventoDataDTO getEventoDataById(String id) {
         var eventoData = eventoDataRepository.getById(id);
-        var dto = EventoDataDTO.builder()
+        return EventoDataDTO.builder()
                 .moduleStructure(eventoData.getModuleStructure())
                 .learningObjectives(eventoData.getLearningObjectives())
                 .shortDescription(eventoData.getShortDescription())
@@ -79,7 +79,6 @@ public class ModuleService {
                 .prerequisites(eventoData.getPrerequisites())
                 .remarks(eventoData.getRemarks())
                 .build();
-        return dto;
     }
 
     /**
@@ -99,7 +98,7 @@ public class ModuleService {
                 eventoDataRepository.save(future.get());
             } catch (InterruptedException | ExecutionException e) {
                 // not re-interrupting because this is not critical and is logged
-                logger.severe(e.getMessage());
+                log.severe(e.getMessage());
             }
         }
     }

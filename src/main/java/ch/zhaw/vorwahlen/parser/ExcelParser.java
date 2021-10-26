@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.LookupTable;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -23,9 +24,8 @@ import java.util.logging.Logger;
  * @param <S> lookup table from type enum.
  */
 @RequiredArgsConstructor
+@Log
 public abstract class ExcelParser<T, S extends LookupTable<?>> {
-
-    private static final Logger LOGGER = Logger.getLogger(ExcelParser.class.getName());
 
     private final InputStream fileInputStream;
     private final String workSheet;
@@ -68,7 +68,7 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
                     lookupTable.setCellNumber(cell.getColumnIndex());
                 }
             } catch (IllegalStateException e) {
-                LOGGER.warning(e.getMessage());
+                log.warning(e.getMessage());
             }
         }
     }

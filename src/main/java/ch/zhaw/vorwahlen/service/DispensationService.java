@@ -3,21 +3,20 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.parser.DispensationParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Business logic for the modules.
  */
 @RequiredArgsConstructor
 @Service
+@Log
 public class DispensationService {
-
-    private final Logger logger = Logger.getLogger(DispensationService.class.getName());
 
     private final ClassListRepository classListRepository;
 
@@ -36,13 +35,13 @@ public class DispensationService {
                     dbStudent.setWpmDispensation(student.getWpmDispensation());
                     classListRepository.save(dbStudent);
                 } catch (EntityNotFoundException e) {
-                    logger.warning(e.getMessage());
+                    log.warning(e.getMessage());
                 }
             });
         } catch (IOException e) {
             var message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
                     file.getOriginalFilename(), e.getMessage());
-            logger.severe(message);
+            log.severe(message);
             // Todo throw custom Exception
         }
     }

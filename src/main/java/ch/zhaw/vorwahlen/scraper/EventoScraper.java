@@ -4,20 +4,19 @@ import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.java.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Scraper class to retrieve detailed data of a module on eventoweb.zhaw.ch.
  */
+@Log
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventoScraper {
-
-    private static final Logger LOGGER = Logger.getLogger(EventoScraper.class.getName());
 
     public static final String SITE_URL =
             "https://eventoweb.zhaw.ch/Evt_Pages/Brn_ModulDetailAZ.aspx?IDAnlass=%d&IdLanguage=1&date=662249088000000000";
@@ -51,7 +50,7 @@ public class EventoScraper {
                 setEventoDataField(fieldName, eventoData, dataText);
             }
         } catch (IOException | NullPointerException e) {
-            LOGGER.severe(e.getMessage());
+            log.severe(e.getMessage());
         }
         return eventoData;
     }
@@ -81,7 +80,7 @@ public class EventoScraper {
             case "Modulausprägung", "Modulstruktur" -> eventoData.setModuleStructure(dataText);
             case "Leistungsnachweise" -> eventoData.setExams(dataText);
             case "Bemerkungen" -> eventoData.setRemarks(dataText);
-            default -> {}
+            default -> log.info(String.format("Not scraping field %s", value));
         }
     }
 }
