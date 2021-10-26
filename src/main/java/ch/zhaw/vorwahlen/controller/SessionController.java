@@ -36,6 +36,15 @@ public class SessionController {
     @GetMapping(path = "/is-authenticated")
     public ResponseEntity<Boolean> isUserAuthenticated() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return ResponseEntity.ok(auth != null && auth.getPrincipal() != null);
+        User user = null;
+        try {
+            if (auth != null && auth.getPrincipal() != null) {
+                user = (User) auth.getPrincipal();
+            }
+        } catch (ClassCastException ignored) {
+            // Has to be empty, do nothing
+        }
+
+        return ResponseEntity.ok(user != null);
     }
 }
