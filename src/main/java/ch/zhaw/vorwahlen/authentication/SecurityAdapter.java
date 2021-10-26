@@ -15,6 +15,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @RequiredArgsConstructor
 public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     public static final String INIT_SESSION_URL = "https://vorwahlen.cloudlab.zhaw.ch/session/init";
+    private final AuthFilter authFilter;
     private final CustomAuthProvider customAuthProvider;
     private final CustomBasicAuthenticationEntryPoint authenticationEntryPoint;
     private final String[] allowedPaths = {"/module**", "/", "/error**"};
@@ -32,7 +33,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
                 .antMatchers(protectedPaths).hasAuthority("ADMIN")
                 .anyRequest().authenticated()
                 .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint)
-                .and().addFilterBefore(new AuthFilter(), BasicAuthenticationFilter.class)
+                .and().addFilterBefore(authFilter, BasicAuthenticationFilter.class)
                 .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
 }
