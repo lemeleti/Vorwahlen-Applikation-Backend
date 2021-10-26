@@ -8,17 +8,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@ActiveProfiles("dev")
+@SpringBootTest(properties = "classpath:settings.properties")
 @AutoConfigureMockMvc
 class DispensationControllerTest {
 
@@ -49,6 +53,7 @@ class DispensationControllerTest {
                     .multipart(REQUEST_MAPPING_PREFIX)
                     .file(mockMultipartFile)
                     .param("worksheet", WORKSHEET)
+                    .with(csrf())
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andDo(print());
@@ -75,6 +80,7 @@ class DispensationControllerTest {
                     .multipart(REQUEST_MAPPING_PREFIX)
                     .file(mockMultipartFile)
                     .param("worksheet", WORKSHEET)
+                    .with(csrf())
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
                     .andDo(print());

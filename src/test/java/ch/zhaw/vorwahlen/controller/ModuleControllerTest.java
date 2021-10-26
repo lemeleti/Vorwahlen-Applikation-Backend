@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -19,11 +20,13 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@ActiveProfiles("dev")
+@SpringBootTest(properties = "classpath:settings.properties")
 @AutoConfigureMockMvc
 class ModuleControllerTest {
 
@@ -39,6 +42,10 @@ class ModuleControllerTest {
 
     @MockBean
     ModuleService moduleService;
+
+    static {
+        System.setProperty("ADMIN", "dev@zhaw.ch");
+    }
 
     /* **************************************************************************************************************
      * Positive tests
@@ -99,6 +106,7 @@ class ModuleControllerTest {
                     .multipart(REQUEST_MAPPING_PREFIX)
                     .file(mockMultipartFile)
                     .param("worksheet", WORKSHEET)
+                    .with(csrf())
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andDo(print());
@@ -119,6 +127,7 @@ class ModuleControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders
                     .post(REQUEST_MAPPING_PREFIX + "/scrape")
+                    .with(csrf())
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andDo(print());
@@ -146,6 +155,7 @@ class ModuleControllerTest {
                     .multipart(REQUEST_MAPPING_PREFIX)
                     .file(mockMultipartFile)
                     .param("worksheet", WORKSHEET)
+                    .with(csrf())
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
                     .andDo(print());
