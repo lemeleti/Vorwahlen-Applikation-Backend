@@ -20,7 +20,8 @@ public class WPMConfiguration {
                 "lastName", "dev",
                 "affiliation", "student;member",
                 "homeOrg", "zhaw.ch",
-                "mail", "dev@zhaw.ch"
+                "mail", "dev@zhaw.ch",
+                "role", "ADMIN"
         );
 
         AuthFilter filter = new AuthFilter(false);

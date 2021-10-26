@@ -36,7 +36,9 @@ public class CustomAuthProvider implements AuthenticationProvider {
         user = authToken.getUser();
         for (String admin : admins) {
             if (user.getMail().equals(admin)) {
-                authorities.add(new SimpleGrantedAuthority("ADMIN"));
+                String adminRole = "ADMIN";
+                authorities.add(new SimpleGrantedAuthority(adminRole));
+                user.setRole(adminRole);
             }
         }
 

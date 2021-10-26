@@ -18,4 +18,5 @@ public class User implements Serializable {
     private String affiliation;
     private String homeOrg;
     private String mail;
+    private String role;
 }

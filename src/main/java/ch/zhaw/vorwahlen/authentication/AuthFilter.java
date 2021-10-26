@@ -54,6 +54,7 @@ public class AuthFilter extends OncePerRequestFilter {
         userData.put("affiliation", request.getHeader("affiliation"));
         userData.put("homeOrg", request.getHeader("homeorganization"));
         userData.put("mail", request.getHeader("mail"));
+        userData.put("role", "USER");
     }
 
     private User createUser() {
@@ -63,6 +64,7 @@ public class AuthFilter extends OncePerRequestFilter {
                 .affiliation(userData.get("affiliation"))
                 .homeOrg(userData.get("homeOrg"))
                 .mail(userData.get("mail"))
+                .role(userData.get("role"))
                 .build();
     }
 }
