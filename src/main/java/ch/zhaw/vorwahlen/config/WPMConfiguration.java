@@ -14,7 +14,7 @@ public class WPMConfiguration {
     @Qualifier("authFilter")
     @Bean
     public AuthFilter developmentAuthFilter() {
-        Map<String, String> userData = Map.of(
+        var userData = Map.of(
                 "sessionId", "ABC123",
                 "name", "dev",
                 "lastName", "dev",
@@ -24,7 +24,7 @@ public class WPMConfiguration {
                 "role", "ADMIN"
         );
 
-        AuthFilter filter = new AuthFilter(false);
+        var filter = new AuthFilter(false);
         filter.setUserData(userData);
         return filter;
     }

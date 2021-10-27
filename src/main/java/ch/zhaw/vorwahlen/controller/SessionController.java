@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SessionController {
     @GetMapping(path = "info")
     public ResponseEntity<User> getSessionInfo() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(user);
     }
 
@@ -26,21 +26,19 @@ public class SessionController {
 
     @GetMapping(path = "is-admin")
     public ResponseEntity<Boolean> isUserAdmin() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = null;
-        try {
-            if (auth != null && auth.getPrincipal() != null) {
-                user = (User) auth.getPrincipal();
-            }
-        } catch (ClassCastException ignored) {
-            // Has to be empty, do nothing
-        }
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var user = getUserFromAuth(auth);
         return ResponseEntity.ok(user != null && "ADMIN".equals(user.getRole()));
     }
 
     @GetMapping(path = "/is-authenticated")
     public ResponseEntity<Boolean> isUserAuthenticated() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var user = getUserFromAuth(auth);
+        return ResponseEntity.ok(user != null);
+    }
+
+    private User getUserFromAuth(Authentication auth) {
         User user = null;
         try {
             if (auth != null && auth.getPrincipal() != null) {
@@ -49,7 +47,7 @@ public class SessionController {
         } catch (ClassCastException ignored) {
             // Has to be empty, do nothing
         }
-
-        return ResponseEntity.ok(user != null);
+        return user;
     }
+
 }

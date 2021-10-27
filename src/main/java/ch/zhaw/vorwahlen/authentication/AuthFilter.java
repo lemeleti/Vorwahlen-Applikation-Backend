@@ -17,7 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Setter
 public class AuthFilter extends OncePerRequestFilter {
-    Map<String, String> userData = new HashMap<>();
+    private Map<String, String> userData = new HashMap<>();
     private final boolean isProd;
 
     @Override
@@ -39,7 +39,7 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isUserDataNotNull() {
-        for (String s : userData.values()) {
+        for (var s : userData.values()) {
             if (s == null || s.isEmpty()) {
                 return false;
             }

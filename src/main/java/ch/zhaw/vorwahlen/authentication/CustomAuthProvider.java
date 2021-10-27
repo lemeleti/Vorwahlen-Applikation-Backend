@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @PropertySource("classpath:settings.properties")
@@ -25,8 +24,8 @@ public class CustomAuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        CustomAuthToken authToken = (CustomAuthToken) authentication;
-        List<GrantedAuthority> authorities = new ArrayList<>();
+        var authToken = (CustomAuthToken) authentication;
+        var authorities = new ArrayList<GrantedAuthority>();
         User user;
 
         if (authToken.getShibbolethSession() == null || authToken.getShibbolethSession().isEmpty()) {
@@ -34,9 +33,9 @@ public class CustomAuthProvider implements AuthenticationProvider {
         }
 
         user = authToken.getUser();
-        for (String admin : admins) {
+        for (var admin : admins) {
             if (user.getMail().equals(admin)) {
-                String adminRole = "ADMIN";
+                var adminRole = "ADMIN";
                 authorities.add(new SimpleGrantedAuthority(adminRole));
                 user.setRole(adminRole);
             }
