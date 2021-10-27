@@ -26,7 +26,7 @@ public class ModuleController {
 
     /**
      * Return all modules.
-     * @return {@link ResponseEntity<List<ModuleDTO>>}
+     * @return {@link ResponseEntity<List<ModuleDTO>>} with status code ok
      */
     @GetMapping(path = {"/", ""})
     public ResponseEntity<List<ModuleDTO>> getAllModules() {
@@ -36,7 +36,7 @@ public class ModuleController {
     /**
      * Import module list from Excel.
      * @param file the Excel file.
-     * @return {@link ResponseEntity<String>}
+     * @return {@link ResponseEntity<String>} with status code ok or bad request if the provided file is not there
      */
     @PostMapping(path = {"/", ""})
     public ResponseEntity<String> saveModulesFromExcel(@RequestParam("file") MultipartFile file,
@@ -47,8 +47,8 @@ public class ModuleController {
     }
 
     /**
-     *
-     * @return {@link ResponseEntity<EventoDataDTO>}
+     * Returns the additional data of a module.
+     * @return {@link ResponseEntity<EventoDataDTO>} with status code ok
      */
     @GetMapping(path = {"/eventodata/{moduleKuerzel}"})
     public ResponseEntity<EventoDataDTO> getAdditionalModuleDataByKuerzel(@PathVariable String moduleKuerzel) {
@@ -57,7 +57,7 @@ public class ModuleController {
 
     /**
      * Scrape external website to retrieve additional data from the module list.
-     * @return {@link ResponseEntity<String>}
+     * @return {@link ResponseEntity<String>} with status code ok
      */
     @PostMapping(path = "/scrape")
     public ResponseEntity<String> fetchAdditionalModuleData() {

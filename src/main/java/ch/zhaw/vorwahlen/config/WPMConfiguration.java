@@ -8,8 +8,16 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.Map;
 
+/**
+ * Profile configuration for running the application in development or production mode.
+ */
 @Configuration
 public class WPMConfiguration {
+
+    /**
+     * Run the application with {@link AuthFilter} in development mode.
+     * @return the AuthFilter with the dev user.
+     */
     @Profile("dev")
     @Qualifier("authFilter")
     @Bean
@@ -29,6 +37,10 @@ public class WPMConfiguration {
         return filter;
     }
 
+    /**
+     * Run the application with the {@link AuthFilter} in production mode
+     * @return the AuthFilter
+     */
     @Profile("prod")
     @Qualifier("authFilter")
     @Bean

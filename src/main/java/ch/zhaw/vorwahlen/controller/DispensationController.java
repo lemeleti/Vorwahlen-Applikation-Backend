@@ -21,7 +21,7 @@ public class DispensationController {
     /**
      * Import dispensation list from Excel.
      * @param file the Excel file.
-     * @return {@link ResponseEntity<String>}
+     * @return {@link ResponseEntity<String>} with status code ok or bad request when the provided file is not there
      */
     @PostMapping(path = {"/", ""})
     public ResponseEntity<String> saveDispensationListFromExcel(@RequestParam("file") MultipartFile file,

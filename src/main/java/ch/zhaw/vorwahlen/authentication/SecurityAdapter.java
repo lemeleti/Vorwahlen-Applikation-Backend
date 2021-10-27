@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+/**
+ * Configure the permissions and filter the incoming requests.
+ */
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor

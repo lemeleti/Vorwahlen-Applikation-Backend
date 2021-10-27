@@ -8,6 +8,9 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 
+/**
+ * Model object of a user for the login. (Shibboleth).
+ */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data @Builder
 public class User implements Serializable {

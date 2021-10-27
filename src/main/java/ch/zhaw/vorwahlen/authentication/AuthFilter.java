@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class filters the request and response based on the {@link CustomAuthToken}.
+ * If the Authentication does not exist it will be created with the user provided in the request.
+ */
 @RequiredArgsConstructor
 @Setter
 public class AuthFilter extends OncePerRequestFilter {

@@ -13,11 +13,18 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
+/**
+ * This class provides the authentication token with the correct roles and permissions.
+ */
 @Component
 @PropertySource("classpath:settings.properties")
 public class CustomAuthProvider implements AuthenticationProvider {
     private final String[] admins;
 
+    /**
+     * Create instance.
+     * @param admins Admins from the environment variable "ADMIN"
+     */
     public CustomAuthProvider(@Value("${admin}") String[] admins) {
         this.admins = admins;
     }

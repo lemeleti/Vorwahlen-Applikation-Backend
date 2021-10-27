@@ -24,7 +24,7 @@ public class ClassListController {
 
     /**
      * Return all class lists.
-     * @return {@link ResponseEntity<List<StudentDTO>>}
+     * @return {@link ResponseEntity<List<StudentDTO>>} with status code ok
      */
     @GetMapping(path = {"/", ""})
     public ResponseEntity<List<StudentDTO>> getAllClassLists() {
@@ -34,7 +34,7 @@ public class ClassListController {
     /**
      * Import class list from Excel.
      * @param file the Excel file.
-     * @return {@link ResponseEntity<String>}
+     * @return {@link ResponseEntity<String>} with status code ok or bad request if the provided file is not there
      */
     @PostMapping(path = {"/", ""})
     public ResponseEntity<String> saveClassListsFromExcel(@RequestParam("file") MultipartFile file,

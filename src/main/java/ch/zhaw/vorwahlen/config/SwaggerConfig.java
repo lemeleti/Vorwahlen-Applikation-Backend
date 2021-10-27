@@ -12,8 +12,9 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Api documentation as json under: https://vorwahlen.cloudlab.zhaw.ch/v2/api-docs
- * Swagger UI: https://vorwahlen.cloudlab.zhaw.ch/swagger-ui/index.html
+ * Enable Swagger with this config class.<br><br>
+ * Api documentation as json under: https://vorwahlen.cloudlab.zhaw.ch/api/v2/api-docs <br>
+ * Swagger UI: https://vorwahlen.cloudlab.zhaw.ch/api/swagger-ui/index.html
  */
 @Configuration
 @EnableSwagger2
