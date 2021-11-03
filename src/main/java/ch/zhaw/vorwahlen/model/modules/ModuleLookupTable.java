@@ -20,7 +20,9 @@ public enum ModuleLookupTable implements LookupTable<ModuleLookupTable> {
     IP("IP-Modul", -1),
     INSTITUTE("Institut/Zentrum", -1),
     CREDITS("Credits/SWL", -1),
-    LANGUAGE("Unterrichtssprache", -1);
+    LANGUAGE("Unterrichtssprache", -1),
+    SEMESTER_FULL_TIME("IT-VZ", -1),
+    SEMESTER_PART_TIME("IT-TZ", -1);
 
     private final String cellHeaderName;
     @Setter

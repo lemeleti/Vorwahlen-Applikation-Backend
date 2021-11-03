@@ -30,5 +30,6 @@ public class Module {
     private String institute;
     private byte credits;
     private String language;
-    // Todo add Durchführungssemester für VZ + TZ
+    private String fullTimeSemester;
+    private String partTimeSemester;
 }

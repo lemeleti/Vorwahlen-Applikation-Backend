@@ -6,6 +6,9 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static ch.zhaw.vorwahlen.model.modules.ModuleLookupTable.GROUP;
 
@@ -56,6 +59,9 @@ public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
             case INSTITUTE -> builder.institute(data.toUpperCase());
             case CREDITS -> builder.credits((byte) Double.parseDouble(data));
             case LANGUAGE -> builder.language(data);
+            case SEMESTER_FULL_TIME -> builder.fullTimeSemester(data);
+            case SEMESTER_PART_TIME -> builder.partTimeSemester(data);
         }
     }
+
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -57,10 +58,31 @@ public class ModuleService {
      * @return a list of {@link ModuleDTO}.
      */
     public List<ModuleDTO> getAllModules() {
+        Function<Module, ModuleDTO> mapModuleToDto = module -> ModuleDTO.builder()
+                .moduleNo(module.getModuleNo())
+                .shortModuleNo(module.getShortModuleNo())
+                .moduleTitle(module.getModuleTitle())
+                .moduleGroup(module.getModuleGroup())
+                .isIPModule(module.isIPModule())
+                .institute(module.getInstitute())
+                .credits(module.getCredits())
+                .language(module.getLanguage())
+                .fullTimeSemesterList(parseSemesterListData(module.getFullTimeSemester()))
+                .partTimeSemesterList(parseSemesterListData(module.getPartTimeSemester()))
+                .build();
+
         return moduleRepository
                 .findAll()
                 .stream()
-                .map(module -> new ModuleDTO(module.getModuleNo(), module.getModuleTitle(), module.getLanguage()))
+                .map(mapModuleToDto)
+                .toList();
+    }
+
+    private List<Integer> parseSemesterListData(String data) {
+        var stringList = data.split(";");
+        return Arrays.stream(stringList)
+                .map(Double::parseDouble)
+                .map(Double::intValue)
                 .toList();
     }
 
