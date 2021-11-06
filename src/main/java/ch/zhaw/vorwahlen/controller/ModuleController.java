@@ -5,6 +5,8 @@ import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.service.ModuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -63,5 +66,13 @@ public class ModuleController {
     public ResponseEntity<String> fetchAdditionalModuleData() {
         moduleService.fetchAdditionalModuleData();
         return ResponseEntity.ok().build();
+    }
+
+    @MessageMapping("/save")
+    @SendTo("/module/electionStatus")
+    public boolean isElectionValid(String[] moduleIds) {
+        // Todo implement
+        System.out.println("Received new save instruction for " + Arrays.toString(moduleIds));
+        return moduleIds.length > 0;
     }
 }
