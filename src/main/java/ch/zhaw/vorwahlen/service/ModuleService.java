@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,6 +63,18 @@ public class ModuleService {
                 .stream()
                 .map(DTOMapper.mapModuleToDto)
                 .toList();
+    }
+
+    /**
+     * Get module from the database by id.
+     * @return {@link ModuleDTO}.
+     */
+    public Optional<ModuleDTO> getModuleById(String id) {
+        return moduleRepository
+                .findById(id)
+                .stream()
+                .map(DTOMapper.mapModuleToDto)
+                .findFirst();
     }
 
     /**

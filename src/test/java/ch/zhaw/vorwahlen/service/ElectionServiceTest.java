@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +44,7 @@ class ElectionServiceTest {
     }
 
     @Test
+    @Sql("classpath:sql/modules_election.sql")
     void testValidateElectionFullTime() {
         var studentDTOMock = mock(StudentDTO.class);
         var moduleElectionMock = mock(ModuleElection.class);
@@ -98,7 +100,7 @@ class ElectionServiceTest {
         var iterator = set.iterator();
         while(iterator.hasNext() && removedCredits < dispensation) {
             var module = iterator.next();
-            if(module.getCredits() == 4 && ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup())) {
+            if(module.getCredits() == 4 && ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getShortModuleNo(), module.getModuleGroup())) {
                 removedCredits += module.getCredits();
                 iterator.remove();
             }
@@ -118,7 +120,7 @@ class ElectionServiceTest {
 
             var index = random.nextInt(possibleContextPrefixes.size());
             var prefix = possibleContextPrefixes.get(index);
-            when(module.getModuleNo()).thenReturn(prefix);
+            when(module.getShortModuleNo()).thenReturn(prefix);
 
             when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_5);
             when(module.getLanguage()).thenReturn("Deutsch");
@@ -126,7 +128,7 @@ class ElectionServiceTest {
 
         for(var module: interdisciplinaryModuleSet) {
             when(module.getCredits()).thenReturn((byte) 4);
-            when(module.getModuleNo()).thenReturn("WM.");
+            when(module.getShortModuleNo()).thenReturn("WM.");
             when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
             when(module.getLanguage()).thenReturn("Deutsch");
         }
@@ -135,7 +137,7 @@ class ElectionServiceTest {
         for(var module: subjectModuleSet) {
             when(module.getCredits()).thenReturn((byte) 4);
             var index = random.nextInt(possibleSubjectPrefixes.size());
-            when(module.getModuleNo()).thenReturn(possibleSubjectPrefixes.get(index));
+            when(module.getShortModuleNo()).thenReturn(possibleSubjectPrefixes.get(index));
             when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
 
             index = random.nextInt(Integer.MAX_VALUE);
@@ -176,7 +178,7 @@ class ElectionServiceTest {
          */
         while(removeCounter < 4 && iter.hasNext()) {
             var module = iter.next();
-            if(ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup())
+            if(ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getShortModuleNo(), module.getModuleGroup())
                 && "Englisch".equals(module.getLanguage())) {
                 iter.remove();
                 removeCounter++;
@@ -185,7 +187,7 @@ class ElectionServiceTest {
     }
 
     private void addModule(Set<Module> set, String moduleNo, Module module) {
-        when(module.getModuleNo()).thenReturn(moduleNo);
+        when(module.getShortModuleNo()).thenReturn(moduleNo);
         set.add(module);
     }
 
@@ -194,7 +196,7 @@ class ElectionServiceTest {
         var iter = set.iterator();
         while(!removed && iter.hasNext()) {
             var module = iter.next();
-            if(moduleCategory == ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup())) {
+            if(moduleCategory == ModuleCategory.parse(module.getShortModuleNo(), module.getModuleGroup())) {
                 removed = true;
                 iter.remove();
             }

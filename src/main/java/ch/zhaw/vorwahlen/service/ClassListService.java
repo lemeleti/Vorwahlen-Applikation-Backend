@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Optional;
 
 /**
  * Business logic for the modules.
@@ -52,6 +52,19 @@ public class ClassListService {
                 .stream()
                 .map(DTOMapper.mapStudentToDto)
                 .toList();
+    }
+
+    /**
+     * Get student from the database by id.
+     * @param id the id for the student
+     * @return Optional<StudentDTO>
+     */
+    public Optional<StudentDTO> getStudentById(String id) {
+        return classListRepository
+                .findById(id)
+                .stream()
+                .map(DTOMapper.mapStudentToDto)
+                .findFirst();
     }
 
 }

@@ -1,15 +1,20 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
+import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -25,8 +30,18 @@ public class ElectionService {
 
     private final ElectionRepository electionRepository;
 
-    public Optional<ModuleElection> getModuleElectionByStudent(StudentDTO studentDTO) {
-        return electionRepository.findById(studentDTO.getEmail());
+    public Optional<ModuleElectionDTO> getModuleElectionByStudent(StudentDTO studentDTO) {
+        var optional = electionRepository.findById(studentDTO.getEmail());
+        if (optional.isPresent()) {
+            return Optional.of(DTOMapper.mapElectionToDto.apply(optional.get()));
+        }
+        return Optional.empty();
+    }
+
+    public boolean saveElection(StudentDTO studentDTO, ModuleElection moduleElection) {
+        // todo: implement
+        // optional todo: test double modules like MC1/MC2 (not one missing)
+        return false;
     }
 
     public boolean validateElection(StudentDTO studentDTO, ModuleElection moduleElection) {
@@ -79,7 +94,7 @@ public class ElectionService {
     private long countModuleCategory(ModuleElection moduleElection, ModuleCategory moduleCategory) {
         return moduleElection.getElectedModules()
                 .stream()
-                .map(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()))
+                .map(module -> ModuleCategory.parse(module.getShortModuleNo(), module.getModuleGroup()))
                 .filter(category -> category == moduleCategory)
                 .count();
     }
