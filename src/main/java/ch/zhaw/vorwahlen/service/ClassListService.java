@@ -1,8 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
-import ch.zhaw.vorwahlen.model.DTOMapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;

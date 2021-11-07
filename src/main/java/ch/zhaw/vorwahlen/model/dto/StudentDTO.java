@@ -23,6 +23,8 @@ public class StudentDTO {
     private int paDispensation;
     @JsonProperty("dispensation_wpm")
     private int wpmDispensation;
-
+    @JsonProperty("is_ip")
     private boolean isIP;
+    @JsonProperty("is_tz")
+    private boolean isTZ;
 }

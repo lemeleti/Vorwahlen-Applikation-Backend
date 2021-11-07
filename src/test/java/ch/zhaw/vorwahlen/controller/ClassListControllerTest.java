@@ -88,6 +88,7 @@ class ClassListControllerTest {
                     .andExpect(jsonPath("$.[*].dispensation_wpm").isNotEmpty())
                     .andExpect(jsonPath("$.[*].dispensation_wpm", anyOf(hasItem(PA_DISPENSATION))))
                     .andDo(print());
+            // todo: test ip and tz flag
         } catch (Exception e) {
             fail(e);
         }

@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model;
+package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
@@ -6,7 +6,6 @@ import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.service.ClassListService;
 import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
@@ -16,7 +15,7 @@ import java.util.function.Function;
 @UtilityClass
 public class DTOMapper {
 
-    public final Function<Student, StudentDTO> mapStudentToDto = student -> StudentDTO.builder()
+    final Function<Student, StudentDTO> mapStudentToDto = student -> StudentDTO.builder()
             .email(student.getEmail())
             .name(student.getName())
             .clazz(student.getClazz())
@@ -25,7 +24,7 @@ public class DTOMapper {
             .isIP(student.isIP())
             .build();
 
-    public final Function<Module, ModuleDTO> mapModuleToDto = module -> ModuleDTO.builder()
+    final Function<Module, ModuleDTO> mapModuleToDto = module -> ModuleDTO.builder()
             .moduleNo(module.getModuleNo())
             .shortModuleNo(module.getShortModuleNo())
             .moduleTitle(module.getModuleTitle())
@@ -38,7 +37,7 @@ public class DTOMapper {
             .partTimeSemesterList(parseSemesterListData(module.getPartTimeSemester()))
             .build();
 
-    private List<Integer> parseSemesterListData(String data) {
+    List<Integer> parseSemesterListData(String data) {
         var stringList = data.split(";");
         return Arrays.stream(stringList)
                 .map(Double::parseDouble)
@@ -46,7 +45,7 @@ public class DTOMapper {
                 .toList();
     }
 
-    public final Function<EventoData, EventoDataDTO> mapEventoDataToDto = eventoData -> EventoDataDTO.builder()
+    final Function<EventoData, EventoDataDTO> mapEventoDataToDto = eventoData -> EventoDataDTO.builder()
             .moduleStructure(eventoData.getModuleStructure())
             .learningObjectives(eventoData.getLearningObjectives())
             .shortDescription(eventoData.getShortDescription())

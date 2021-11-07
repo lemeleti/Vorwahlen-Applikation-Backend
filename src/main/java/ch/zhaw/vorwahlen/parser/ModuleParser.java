@@ -6,9 +6,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static ch.zhaw.vorwahlen.model.modules.ModuleLookupTable.GROUP;
 
@@ -17,8 +14,8 @@ import static ch.zhaw.vorwahlen.model.modules.ModuleLookupTable.GROUP;
  */
 public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
 
-    private static final String MODULE_GROUP_IT_5 = "IT5";
-    private static final String MODULE_GROUP_IT_6 = "IT6";
+    public static final String MODULE_GROUP_IT_5 = "IT5";
+    public static final String MODULE_GROUP_IT_6 = "IT6";
 
     /**
      * Create instance.

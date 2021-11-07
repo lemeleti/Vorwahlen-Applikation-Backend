@@ -41,7 +41,7 @@ class DispensationServiceTest {
         // prepare
         var expected = List.of(
                 Student.builder().name("Anna Muster").email("musteranna@students.zhaw.ch").clazz("IT19a_WIN").paDispensation(6).build(),
-                Student.builder().name("Bob Meier").email("meierbob@students.zhaw.ch").clazz("IT19ta_WIN").wpmDispensation(8).build()
+                Student.builder().name("Bob Meier").email("meierbob@students.zhaw.ch").clazz("IT19ta_WIN").wpmDispensation(8).isTZ(true).build()
         );
         var fis = getClass().getClassLoader().getResourceAsStream(DISPENSATION_FILE_NAME);
         var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, DISPENSATION_FILE_NAME, "", fis);

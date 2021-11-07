@@ -1,6 +1,5 @@
 package ch.zhaw.vorwahlen.service;
 
-import ch.zhaw.vorwahlen.model.DTOMapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
