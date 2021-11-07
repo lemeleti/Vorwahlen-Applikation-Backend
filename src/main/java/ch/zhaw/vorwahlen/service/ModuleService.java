@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.model.DTOMapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -58,48 +58,21 @@ public class ModuleService {
      * @return a list of {@link ModuleDTO}.
      */
     public List<ModuleDTO> getAllModules() {
-        Function<Module, ModuleDTO> mapModuleToDto = module -> ModuleDTO.builder()
-                .moduleNo(module.getModuleNo())
-                .shortModuleNo(module.getShortModuleNo())
-                .moduleTitle(module.getModuleTitle())
-                .moduleGroup(module.getModuleGroup())
-                .isIPModule(module.isIPModule())
-                .institute(module.getInstitute())
-                .credits(module.getCredits())
-                .language(module.getLanguage())
-                .fullTimeSemesterList(parseSemesterListData(module.getFullTimeSemester()))
-                .partTimeSemesterList(parseSemesterListData(module.getPartTimeSemester()))
-                .build();
-
         return moduleRepository
                 .findAll()
                 .stream()
-                .map(mapModuleToDto)
+                .map(DTOMapper.mapModuleToDto)
                 .toList();
     }
 
-    private List<Integer> parseSemesterListData(String data) {
-        var stringList = data.split(";");
-        return Arrays.stream(stringList)
-                .map(Double::parseDouble)
-                .map(Double::intValue)
-                .toList();
-    }
-
+    /**
+     * Get additional information by the module id
+     * @param id module id
+     * @return additional data as {@link EventoDataDTO}
+     */
     public EventoDataDTO getEventoDataById(String id) {
         var eventoData = eventoDataRepository.getById(id);
-        return EventoDataDTO.builder()
-                .moduleStructure(eventoData.getModuleStructure())
-                .learningObjectives(eventoData.getLearningObjectives())
-                .shortDescription(eventoData.getShortDescription())
-                .suppLiterature(eventoData.getSuppLiterature())
-                .coordinator(eventoData.getCoordinator())
-                .exams(eventoData.getExams())
-                .literature(eventoData.getLiterature())
-                .moduleContents(eventoData.getModuleContents())
-                .prerequisites(eventoData.getPrerequisites())
-                .remarks(eventoData.getRemarks())
-                .build();
+        return DTOMapper.mapEventoDataToDto.apply(eventoData);
     }
 
     /**

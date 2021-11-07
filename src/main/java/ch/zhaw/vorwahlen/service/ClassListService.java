@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.model.DTOMapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
@@ -48,19 +49,10 @@ public class ClassListService {
      * @return a list of {@link StudentDTO}.
      */
     public List<StudentDTO> getAllClassLists() {
-        Function<Student, StudentDTO> mapStudentToDto = student -> StudentDTO.builder()
-                .email(student.getEmail())
-                .name(student.getName())
-                .clazz(student.getClazz())
-                .paDispensation(PA_DISPENSATION)
-                .wpmDispensation(WPM_DISPENSATION)
-                .isIP(student.isIP())
-                .build();
-
         return classListRepository
                 .findAll()
                 .stream()
-                .map(mapStudentToDto)
+                .map(DTOMapper.mapStudentToDto)
                 .toList();
     }
 
