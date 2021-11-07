@@ -12,7 +12,7 @@ import java.util.Map;
  * Profile configuration for running the application in development or production mode.
  */
 @Configuration
-public class WPMConfiguration {
+public class WPMConfig {
 
     /**
      * Run the application with {@link AuthFilter} in development mode.
