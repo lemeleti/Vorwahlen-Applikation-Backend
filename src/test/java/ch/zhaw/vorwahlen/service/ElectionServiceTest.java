@@ -67,6 +67,24 @@ class ElectionServiceTest {
     // ================================================================================================================
 
     @Test
+    void testGetModuleElectionByStudent() {
+        when(studentDTOMock.getEmail()).thenReturn("test@mail.com");
+        when(studentDTOMock.getWpmDispensation()).thenReturn(0);
+        when(studentDTOMock.isTZ()).thenReturn(false);
+        when(studentDTOMock.isIP()).thenReturn(false);
+
+        assertTrue(electionService.getModuleElectionByStudent(studentDTOMock).isEmpty());
+
+        var validElection = validElectionSet();
+        var moduleElection = new ModuleElection();
+        moduleElection.setElectedModules(validElection);
+        moduleElection.setOverflowedElectedModules(new HashSet<>());
+
+        electionService.saveElection(studentDTOMock, moduleElection);
+        assertTrue(electionService.getModuleElectionByStudent(studentDTOMock).isPresent());
+    }
+
+    @Test
     void testSaveElection() {
         when(studentDTOMock.getEmail()).thenReturn("test@mail.com");
         when(studentDTOMock.getWpmDispensation()).thenReturn(0);

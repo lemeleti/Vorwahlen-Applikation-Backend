@@ -28,10 +28,7 @@ public class ElectionService {
 
     public Optional<ModuleElectionDTO> getModuleElectionByStudent(StudentDTO studentDTO) {
         var optional = electionRepository.findById(studentDTO.getEmail());
-        if (optional.isPresent()) {
-            return Optional.of(DTOMapper.mapElectionToDto.apply(optional.get()));
-        }
-        return Optional.empty();
+        return optional.map(DTOMapper.mapElectionToDto);
     }
 
     public boolean saveElection(StudentDTO studentDTO, ModuleElection moduleElection) {

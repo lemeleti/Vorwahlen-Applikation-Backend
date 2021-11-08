@@ -1,16 +1,20 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,6 +70,44 @@ class ModuleServiceTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(75, result.size());
+    }
+
+    @Test
+    @Sql("classpath:sql/modules.sql")
+    void testGetModuleById() {
+        var expected = ModuleDTO.builder()
+                .fullTimeSemesterList(List.of(5))
+                .partTimeSemesterList(List.of(7))
+                .moduleNo("t.BA.WM.DHEAL-EN.19HS")
+                .credits((byte) 4)
+                .institute("INIT")
+                .isIPModule(true)
+                .language("Englisch")
+                .moduleGroup("DS6,ET5,IT6,MT7,ST5,WI6")
+                .moduleTitle("Digital Health")
+                .shortModuleNo("WM.DHEAL-EN")
+                .build();
+        var result = moduleService.getModuleById(expected.getModuleNo());
+        assertTrue(result.isPresent());
+        assertEquals(expected, result.get());
+    }
+
+    @Test
+    void testGetModuleById_Null() {
+        assertThrows(InvalidDataAccessApiUsageException.class, () -> moduleService.getModuleById(null));
+    }
+
+    @Test
+    void testGetModuleById_Not_Existing() {
+        var result = assertDoesNotThrow(() -> moduleService.getModuleById("invalid"));
+        assertFalse(result.isPresent());
+    }
+
+    @Disabled
+    @Test
+    @Sql("classpath:sql/")
+    void testGetEventoDataById() {
+        // todo: create sql data
     }
 
 }
