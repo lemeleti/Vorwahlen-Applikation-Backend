@@ -35,9 +35,16 @@ public class ElectionService {
     }
 
     public boolean saveElection(StudentDTO studentDTO, ModuleElection moduleElection) {
-        // todo: implement
         // optional todo: test double modules like MC1/MC2 (not one missing)
-        return false;
+        if(studentDTO == null || moduleElection == null
+                || studentDTO.getEmail() == null || studentDTO.getEmail().isBlank()) {
+            return false;
+        }
+        var isValid = validateElection(studentDTO, moduleElection);
+        moduleElection.setStudentEmail(studentDTO.getEmail());
+        moduleElection.setElectionValid(isValid);
+        electionRepository.save(moduleElection);
+        return true;
     }
 
     public boolean validateElection(StudentDTO studentDTO, ModuleElection moduleElection) {
