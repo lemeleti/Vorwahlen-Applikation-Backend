@@ -2,65 +2,82 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.user.User;
 import ch.zhaw.vorwahlen.service.ClassListService;
-import ch.zhaw.vorwahlen.service.DTOMapper;
 import ch.zhaw.vorwahlen.service.ElectionService;
-import ch.zhaw.vorwahlen.service.ModuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Controller;
-
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * Controller for a module.
  */
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("election")
 public class ModuleElectionController {
-    private final ModuleService moduleService;
+
+    public static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
     private final ElectionService electionService;
     private final ClassListService classListService;
 
     /**
-     *
-     * @return
+     * Validates current election from student in session.
+     * @return true - if election is valid <br>
+     *         false -  if election is invalid or session not found
      */
     @MessageMapping("/validate")
-    @SendTo("/module/electionStatus")
-    public boolean isElectionValid() {
-        var student = getStudent();
-        return electionService.validateElection(student);
+    @SendToUser("/queue/electionStatus")
+    public boolean isElectionValid(SimpMessageHeaderAccessor headerAccessor) {
+        var sessionAttributes = headerAccessor.getSessionAttributes();
+        if(sessionAttributes != null) {
+            var context = (SecurityContextImpl) sessionAttributes.get(SPRING_SECURITY_CONTEXT);
+            var student = getStudent(context);
+            return electionService.validateElection(student);
+        }
+        return false;
     }
 
     /**
-     *
-     * @param moduleElectionDTO
-     * @return
+     * Stores the selection from student in session.
+     * @param moduleElectionDTO the election from user in session.
+     * @return true - if election could be saved <br>
+     *         false - if election could not be saved or session not found
      */
     @MessageMapping("/save")
-    @SendTo("/module/electionSaveStatus")
-    public boolean saveElection(ModuleElectionDTO moduleElectionDTO) {
-        var student = getStudent();
-        return electionService.saveElection(student, moduleElectionDTO);
+    @SendToUser("/queue/electionSaveStatus")
+    public boolean saveElection(SimpMessageHeaderAccessor headerAccessor, ModuleElectionDTO moduleElectionDTO) {
+        // todo: return jackson json containing save status and validation status
+        var sessionAttributes = headerAccessor.getSessionAttributes();
+        if(sessionAttributes != null) {
+            var context = (SecurityContextImpl) sessionAttributes.get(SPRING_SECURITY_CONTEXT);
+            var student = getStudent(context);
+            return electionService.saveElection(student, moduleElectionDTO);
+        }
+        return false;
     }
 
-
-    public List<String> getElectedModules() {
-        return List.of();
+    /**
+     * Returns the stored selection from student in session.
+     * @return List of module ids (example: "t.BA.WM.RASOP-EN.19HS")
+     */
+    @GetMapping(path = {"", "/" })
+    public ModuleElectionDTO getElectedModules() {
+        var context = SecurityContextHolder.getContext();
+        var student = getStudent(context);
+        return electionService.getModuleElectionByStudent(student);
     }
 
-    private StudentDTO getStudent() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
+    private StudentDTO getStudent(SecurityContext context) {
+        var auth = context.getAuthentication();
         var user = getUserFromAuth(auth);
         if (user == null) {
             // todo throw exception

@@ -79,7 +79,7 @@ class ElectionServiceTest {
         when(studentDTOMock.isTZ()).thenReturn(false);
         when(studentDTOMock.isIP()).thenReturn(false);
 
-        assertTrue(electionService.getModuleElectionByStudent(studentDTOMock).isEmpty());
+        assertNull(electionService.getModuleElectionByStudent(studentDTOMock));
 
         var validElection = validElectionSetForElectionDTO();
         var moduleElection = new ModuleElectionDTO();
@@ -87,7 +87,7 @@ class ElectionServiceTest {
         moduleElection.setOverflowedElectedModules(new HashSet<>());
 
         electionService.saveElection(studentDTOMock, moduleElection);
-        assertTrue(electionService.getModuleElectionByStudent(studentDTOMock).isPresent());
+        assertNotNull(electionService.getModuleElectionByStudent(studentDTOMock));
     }
 
     @Test

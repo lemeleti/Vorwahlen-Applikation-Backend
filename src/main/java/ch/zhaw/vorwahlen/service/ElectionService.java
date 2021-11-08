@@ -12,11 +12,13 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Business logic for the election.
+ */
 @RequiredArgsConstructor
 @Service
 @Log
@@ -40,11 +42,26 @@ public class ElectionService {
                                         .collect(Collectors.toSet());
     }
 
-    public Optional<ModuleElectionDTO> getModuleElectionByStudent(StudentDTO studentDTO) {
+    /**
+     * Gets the stored election from student.
+     * @param studentDTO student in session
+     * @return current election
+     */
+    public ModuleElectionDTO getModuleElectionByStudent(StudentDTO studentDTO) {
         var optional = electionRepository.findById(studentDTO.getEmail());
-        return optional.map(DTOMapper.mapElectionToDto);
+        if(optional.isPresent()) {
+            return optional.map(DTOMapper.mapElectionToDto).get();
+        }
+        return null;
     }
 
+    /**
+     * Saves the election to the database.
+     * @param studentDTO student in session
+     * @param moduleElectionDTO his current election
+     * @return true - if save successful<br>
+     *         false - if arguments invalid
+     */
     public boolean saveElection(StudentDTO studentDTO, ModuleElectionDTO moduleElectionDTO) {
         // optional todo: test double modules like MC1/MC2 (not one missing)
         if(studentDTO == null || moduleElectionDTO == null
@@ -61,15 +78,28 @@ public class ElectionService {
         return true;
     }
 
+    /**
+     * Validates the election in the database.
+     * @param studentDTO student in session
+     * @return true - if election is valid<br>
+     *         false - if election is invalid or no election was made
+     */
     public boolean validateElection(StudentDTO studentDTO) {
         var storedElection = getModuleElectionByStudent(studentDTO);
-        if (storedElection.isEmpty()) {
+        if (storedElection == null) {
             return false;
         }
-        var moduleElection = DTOMapper.mapDtoToModuleElection(storedElection.get(), studentDTO, mapModuleSet);
+        var moduleElection = DTOMapper.mapDtoToModuleElection(storedElection, studentDTO, mapModuleSet);
         return validateElection(studentDTO, moduleElection);
     }
 
+    /**
+     * Validates the election.
+     * @param studentDTO student in session
+     * @param moduleElection his current selection
+     * @return true - if election is valid<br>
+     *         false - if election is invalid
+     */
     public boolean validateElection(StudentDTO studentDTO, ModuleElection moduleElection) {
         var isValid = false;
         if(studentDTO.isTZ()) {
@@ -157,4 +187,5 @@ public class ElectionService {
         }
         return moduleElection.getOverflowedElectedModules().size() == 0;
     }
+
 }

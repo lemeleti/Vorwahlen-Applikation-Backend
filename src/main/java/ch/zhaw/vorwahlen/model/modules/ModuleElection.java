@@ -8,6 +8,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.util.Set;
 
+/**
+ * Model / Entity class for a module election.
+ */
 @Entity
 @Data
 @NoArgsConstructor

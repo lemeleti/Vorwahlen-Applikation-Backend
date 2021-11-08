@@ -21,7 +21,6 @@ public class DTOMapper {
 
     public static final String SEMESTER_LIST_DELIMITER = ";";
 
-
     final Function<ModuleElection, ModuleElectionDTO> mapElectionToDto = election -> ModuleElectionDTO.builder()
             .isElectionValid(election.isElectionValid())
             .electedModules(mapModuleSetToModuleNo(election.getElectedModules()))
@@ -54,25 +53,6 @@ public class DTOMapper {
             .partTimeSemesterList(parseSemesterListData(module.getPartTimeSemester()))
             .build();
 
-    public final Function<ModuleDTO, Module> mapDtoToModule = moduleDTO -> Module.builder()
-            .moduleNo(moduleDTO.getModuleNo())
-            .shortModuleNo(moduleDTO.getShortModuleNo())
-            .moduleTitle(moduleDTO.getModuleTitle())
-            .moduleGroup(moduleDTO.getModuleGroup())
-            .isIPModule(moduleDTO.isIPModule())
-            .institute(moduleDTO.getInstitute())
-            .credits(moduleDTO.getCredits())
-            .language(moduleDTO.getLanguage())
-            .fullTimeSemester(parseSemesterListToString(moduleDTO.getFullTimeSemesterList()))
-            .partTimeSemester(parseSemesterListToString(moduleDTO.getPartTimeSemesterList()))
-            .build();
-
-    private String parseSemesterListToString(List<Integer> list) {
-        return list.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(SEMESTER_LIST_DELIMITER));
-    }
-
     private List<Integer> parseSemesterListData(String data) {
         var stringList = data.split(SEMESTER_LIST_DELIMITER);
         return Arrays.stream(stringList)
@@ -93,7 +73,6 @@ public class DTOMapper {
             .prerequisites(eventoData.getPrerequisites())
             .remarks(eventoData.getRemarks())
             .build();
-
 
     ModuleElection mapDtoToModuleElection(ModuleElectionDTO moduleElectionDTO, StudentDTO studentDTO, Function<Set<String>, Set<Module>> mapModuleSet) {
         var moduleElection = new ModuleElection();
