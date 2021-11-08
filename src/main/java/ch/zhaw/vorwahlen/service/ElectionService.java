@@ -6,11 +6,16 @@ import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
+import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -25,23 +30,44 @@ public class ElectionService {
     public static final int CREDIT_PER_SUBJECT_MODULE = 4;
 
     private final ElectionRepository electionRepository;
+    private final Function<Set<String>, Set<Module>> mapModuleSet;
+
+    @Autowired
+    public ElectionService(ElectionRepository electionRepository, ModuleRepository moduleRepository) {
+        this.electionRepository = electionRepository;
+        this.mapModuleSet = list -> list.stream()
+                                        .map(moduleRepository::getById)
+                                        .collect(Collectors.toSet());
+    }
 
     public Optional<ModuleElectionDTO> getModuleElectionByStudent(StudentDTO studentDTO) {
         var optional = electionRepository.findById(studentDTO.getEmail());
         return optional.map(DTOMapper.mapElectionToDto);
     }
 
-    public boolean saveElection(StudentDTO studentDTO, ModuleElection moduleElection) {
+    public boolean saveElection(StudentDTO studentDTO, ModuleElectionDTO moduleElectionDTO) {
         // optional todo: test double modules like MC1/MC2 (not one missing)
-        if(studentDTO == null || moduleElection == null
+        if(studentDTO == null || moduleElectionDTO == null
                 || studentDTO.getEmail() == null || studentDTO.getEmail().isBlank()) {
             return false;
         }
+        var moduleElection = DTOMapper.mapDtoToModuleElection(moduleElectionDTO, studentDTO, mapModuleSet);
+
         var isValid = validateElection(studentDTO, moduleElection);
         moduleElection.setStudentEmail(studentDTO.getEmail());
         moduleElection.setElectionValid(isValid);
+        moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
         electionRepository.save(moduleElection);
         return true;
+    }
+
+    public boolean validateElection(StudentDTO studentDTO) {
+        var storedElection = getModuleElectionByStudent(studentDTO);
+        if (storedElection.isEmpty()) {
+            return false;
+        }
+        var moduleElection = DTOMapper.mapDtoToModuleElection(storedElection.get(), studentDTO, mapModuleSet);
+        return validateElection(studentDTO, moduleElection);
     }
 
     public boolean validateElection(StudentDTO studentDTO, ModuleElection moduleElection) {
@@ -94,7 +120,7 @@ public class ElectionService {
     private long countModuleCategory(ModuleElection moduleElection, ModuleCategory moduleCategory) {
         return moduleElection.getElectedModules()
                 .stream()
-                .map(module -> ModuleCategory.parse(module.getShortModuleNo(), module.getModuleGroup()))
+                .map(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()))
                 .filter(category -> category == moduleCategory)
                 .count();
     }

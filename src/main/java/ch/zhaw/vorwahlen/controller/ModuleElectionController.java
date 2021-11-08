@@ -14,7 +14,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * Controller for a module.
  */
 @RequiredArgsConstructor
-@RestController
+@Controller
 public class ModuleElectionController {
     private final ModuleService moduleService;
     private final ElectionService electionService;
@@ -39,12 +39,7 @@ public class ModuleElectionController {
     @SendTo("/module/electionStatus")
     public boolean isElectionValid() {
         var student = getStudent();
-        var storedElection = electionService.getModuleElectionByStudent(student);
-        if (storedElection.isEmpty()) {
-            return false;
-        }
-        var moduleElection = mapDtoToModuleElection(storedElection.get(), student);
-        return electionService.validateElection(student, moduleElection);
+        return electionService.validateElection(student);
     }
 
     /**
@@ -56,23 +51,7 @@ public class ModuleElectionController {
     @SendTo("/module/electionSaveStatus")
     public boolean saveElection(ModuleElectionDTO moduleElectionDTO) {
         var student = getStudent();
-        var moduleElection = mapDtoToModuleElection(moduleElectionDTO, student);
-        return electionService.saveElection(student, moduleElection);
-    }
-
-    private ModuleElection mapDtoToModuleElection(ModuleElectionDTO moduleElectionDTO, StudentDTO studentDTO) {
-        Function<Set<String>, Set<Module>> mapModuleSet = list ->
-                list.stream()
-                        .map(moduleNo -> moduleService.getModuleById(moduleNo).get())
-                        .map(DTOMapper.mapDtoToModule)
-                        .collect(Collectors.toSet());
-
-        var moduleElection = new ModuleElection();
-        moduleElection.setStudentEmail(studentDTO.getEmail());
-        moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
-        moduleElection.setElectedModules(mapModuleSet.apply(moduleElectionDTO.getElectedModules()));
-        moduleElection.setOverflowedElectedModules(mapModuleSet.apply(moduleElectionDTO.getOverflowedElectedModules()));
-        return moduleElection;
+        return electionService.saveElection(student, moduleElectionDTO);
     }
 
 

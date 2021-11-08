@@ -1,6 +1,12 @@
 
 INSERT INTO `modules` (`full_time_semester`, `part_time_semester`, `module_no`, `credits`, `institute`, `isipmodule`, `language`, `module_group`, `module_id`, `module_title`, `short_module_no`) VALUES
 ('5.0', '7.0', 't.BA.WM.DAST-EN.19HS', 4, 'INIT', b'1', 'Englisch', 'AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6', 1653939, 'Digital Assistive Technologies', 'WM.DAST-EN'),
+('5.0', '7.0', 't.BA.WM.DHEAL-EN.19HS', 4, 'INIT', b'1', 'Englisch', 'DS6,ET5,IT6,MT7,ST5,WI6', 1653946, 'Digital Health', 'WM.DHEAL-EN'),
+('5.0', '7.0', 't.BA.WM.EMOB.19HS', 4, 'INE', b'0', 'Deutsch', 'AV6,DS6,EU6,IT6,MT7,VS6,WI6', 1653193, 'Technologien und Systeme der Elektromobilität', 'WM.EMOB'),
+('5.0', '7.0', 't.BA.WM.HANA.19HS', 4, 'IAMP', b'0', 'Deutsch', 'AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6', 1555716, 'Höhere Analysis und Numerik', 'WM.HANA'),
+('5.0', '7.0', 't.BA.WM.LABVIEW.19HS', 4, 'IMS', b'0', 'Deutsch', 'AV6,DS6,ET5,EU6,IT6,MT7,ST5,WI6', 1653086, 'Realtime Daten-Erfassung/-Analyse mit LabVIEW', 'WM.LABVIEW'),
+('5.0', '7.0', 't.BA.WM.PHMOD.19HS', 4, 'IAMP', b'0', 'Deutsch', 'AV6,DS6,ET5,EU6,IT6,MT7,VS6,WI6', 1555714, 'Moderne Physik', 'WM.PHMOD'),
+('5.0', '7.0', 't.BA.WM.PREAN.19HS', 4, 'IDP', b'0', 'Deutsch', 'AV6,DS6,EU6,IT6,MT7,ST5,VS6,WI6', 1653068, 'Predictive Analytics', 'WM.PREAN'),
 ('5.0', '5;7', 't.BA.WV.AI1-EN.19HS', 4, 'INIT', b'1', 'Englisch', 'IT6', 1558834, 'Artificial Intelligence 1', 'WV.AI1-EN'),
 ('6.0', '6;8', 't.BA.WV.AI2-EN.19HS', 4, 'INIT', b'1', 'Englisch', 'IT6', 1558830, 'Artificial Intelligence 2', 'WV.AI2-EN'),
 ('5.0', '5;7', 't.BA.WV.CCP1-EN.19HS', 4, 'INIT', b'1', 'Englisch', 'IT6', 1558141, 'Cloud Computing 1', 'WV.CCP1-EN'),

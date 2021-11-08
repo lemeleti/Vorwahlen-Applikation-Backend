@@ -1,11 +1,13 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
+import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -33,14 +36,15 @@ class ElectionServiceTest {
 
     public static final String LANGUAGE_DEUTSCH = "Deutsch";
     public static final String LANGUAGE_ENGLISCH = "Englisch";
-    public static final String INTERDISCIPLINARY_PREFIX_WM = "WM.";
+    public static final String INTERDISCIPLINARY_PREFIX_WM = "t.BA.WM.";
 
     public static final double CHANCE_TO_GET_GERMAN = 0.75;
 
-    private final List<String> possibleContextPrefixes = List.of("WVK.", "WVK.SIC", "XXK.", "XX.");
-    private final List<String> possibleSubjectPrefixes = List.of("WV.", "XX.");
+    private final List<String> possibleContextPrefixes = List.of("t.BA.WVK.", "t.BA.WVK.SIC", "t.BA.XXK.", "t.BA.XX.");
+    private final List<String> possibleSubjectPrefixes = List.of("t.BA.WV.", "t.BA.XX.");
 
     private final ElectionRepository electionRepository;
+    private final ModuleRepository moduleRepository;
 
     private ElectionService electionService;
 
@@ -48,14 +52,15 @@ class ElectionServiceTest {
     private final ModuleElection moduleElectionMock = mock(ModuleElection.class);
 
     @Autowired
-    public ElectionServiceTest(ElectionRepository electionRepository) {
+    public ElectionServiceTest(ElectionRepository electionRepository, ModuleRepository moduleRepository) {
         this.electionRepository = electionRepository;
+        this.moduleRepository = moduleRepository;
     }
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        electionService = new ElectionService(electionRepository);
+        electionService = new ElectionService(electionRepository, moduleRepository);
     }
 
     @AfterEach
@@ -67,6 +72,7 @@ class ElectionServiceTest {
     // ================================================================================================================
 
     @Test
+    @Sql("classpath:sql/modules_test_election.sql")
     void testGetModuleElectionByStudent() {
         when(studentDTOMock.getEmail()).thenReturn("test@mail.com");
         when(studentDTOMock.getWpmDispensation()).thenReturn(0);
@@ -75,8 +81,8 @@ class ElectionServiceTest {
 
         assertTrue(electionService.getModuleElectionByStudent(studentDTOMock).isEmpty());
 
-        var validElection = validElectionSet();
-        var moduleElection = new ModuleElection();
+        var validElection = validElectionSetForElectionDTO();
+        var moduleElection = new ModuleElectionDTO();
         moduleElection.setElectedModules(validElection);
         moduleElection.setOverflowedElectedModules(new HashSet<>());
 
@@ -85,34 +91,38 @@ class ElectionServiceTest {
     }
 
     @Test
+    @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection() {
         when(studentDTOMock.getEmail()).thenReturn("test@mail.com");
+        // case VZ, Non-IP, No dispensations
         when(studentDTOMock.getWpmDispensation()).thenReturn(0);
         when(studentDTOMock.isTZ()).thenReturn(false);
         when(studentDTOMock.isIP()).thenReturn(false);
 
-        var validElection = validElectionSet();
-        var moduleElection = new ModuleElection();
+        var validElection = validElectionSetForElectionDTO();
+        var moduleElection = new ModuleElectionDTO();
         moduleElection.setElectedModules(validElection);
         moduleElection.setOverflowedElectedModules(new HashSet<>());
 
         assertTrue(electionService.saveElection(studentDTOMock, moduleElection));
         assertTrue(moduleElection.isElectionValid());
 
-        var extraModuleMock = mock(Module.class);
-        when(extraModuleMock.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
-        when(extraModuleMock.getShortModuleNo()).thenReturn(INTERDISCIPLINARY_PREFIX_WM);
-        when(extraModuleMock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
-        when(extraModuleMock.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
+        moduleElection.setOverflowedElectedModules(
+                moduleRepository.findAll().stream()
+                        .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.INTERDISCIPLINARY_MODULE)
+                        .filter(module -> !validElection.contains(module.getModuleNo()))
+                        .findAny()
+                        .map(Module::getModuleNo)
+                        .stream()
+                        .collect(Collectors.toSet()));
 
-        moduleElection.setOverflowedElectedModules(Set.of(extraModuleMock));
-
+        assertFalse(moduleElection.getOverflowedElectedModules().isEmpty());
         assertTrue(electionService.saveElection(studentDTOMock, moduleElection));
         assertFalse(moduleElection.isElectionValid());
     }
 
     @Test
-    @Sql("classpath:sql/modules_election.sql")
+    @Sql("classpath:sql/modules_test_election.sql")
     void testValidateElectionFullTime() {
         var validElection = validElectionSet();
 
@@ -166,11 +176,68 @@ class ElectionServiceTest {
         var iterator = set.iterator();
         while(iterator.hasNext() && removedCredits < ElectionServiceTest.WPM_DISPENSATION) {
             var module = iterator.next();
-            if(module.getCredits() == CREDITS_PER_SUBJECT_MODULE && ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getShortModuleNo(), module.getModuleGroup())) {
+            if(module.getCredits() == CREDITS_PER_SUBJECT_MODULE && ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup())) {
                 removedCredits += module.getCredits();
                 iterator.remove();
             }
         }
+    }
+
+    private Set<String> validElectionSetForElectionDTO() {
+        var set = new HashSet<String>();
+        var random = new Random(RANDOM_SEED);
+
+        var allModules = moduleRepository.findAll();
+
+        var contextModules = allModules.stream()
+                .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.CONTEXT_MODULE)
+                .collect(Collectors.toList());
+
+        var subjectModules = allModules.stream()
+                .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.SUBJECT_MODULE)
+                .collect(Collectors.toList());
+
+        var interdisciplinaryModules = allModules.stream()
+                .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.INTERDISCIPLINARY_MODULE)
+                .collect(Collectors.toList());
+
+        for (var i = 0; i < ElectionService.NUM_CONTEXT_MODULES; i++) {
+            var duplicate = true;
+            while (duplicate) {
+                var index = random.nextInt(contextModules.size());
+                var selected = contextModules.get(index).getModuleNo();
+                if(!set.contains(selected)) {
+                    duplicate = false;
+                }
+                set.add(selected);
+            }
+        }
+
+        for (var i = 0; i < ElectionService.NUM_SUBJECT_MODULES; i++) {
+            var duplicate = true;
+            while (duplicate) {
+                var index = random.nextInt(subjectModules.size());
+                var selected = subjectModules.get(index).getModuleNo();
+                if(!set.contains(selected)) {
+                    duplicate = false;
+                }
+                set.add(selected);
+            }
+        }
+
+        for (var i = 0; i < ElectionService.NUM_INTERDISCIPLINARY_MODULES; i++) {
+            var duplicate = true;
+            while (duplicate) {
+                var index = random.nextInt(interdisciplinaryModules.size());
+                var selected = interdisciplinaryModules.get(index).getModuleNo();
+                if(!set.contains(selected)) {
+                    duplicate = false;
+                }
+                set.add(selected);
+            }
+        }
+
+        return set;
     }
 
     private Set<Module> validElectionSet() {
@@ -185,7 +252,7 @@ class ElectionServiceTest {
 
             var index = random.nextInt(possibleContextPrefixes.size());
             var prefix = possibleContextPrefixes.get(index);
-            when(module.getShortModuleNo()).thenReturn(prefix);
+            when(module.getModuleNo()).thenReturn(prefix);
 
             when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_5);
             when(module.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
@@ -193,7 +260,7 @@ class ElectionServiceTest {
 
         for(var module: interdisciplinaryModuleSet) {
             when(module.getCredits()).thenReturn((byte) CREDITS_PER_INTERDISCIPLINARY_MODULE);
-            when(module.getShortModuleNo()).thenReturn(INTERDISCIPLINARY_PREFIX_WM);
+            when(module.getModuleNo()).thenReturn(INTERDISCIPLINARY_PREFIX_WM);
             when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
             when(module.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
         }
@@ -201,7 +268,7 @@ class ElectionServiceTest {
         for(var module: subjectModuleSet) {
             when(module.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
             var index = random.nextInt(possibleSubjectPrefixes.size());
-            when(module.getShortModuleNo()).thenReturn(possibleSubjectPrefixes.get(index));
+            when(module.getModuleNo()).thenReturn(possibleSubjectPrefixes.get(index));
             when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
 
             index = random.nextInt(Integer.MAX_VALUE);
@@ -242,7 +309,7 @@ class ElectionServiceTest {
          */
         while(removeCounter < CREDITS_PER_SUBJECT_MODULE && iter.hasNext()) {
             var module = iter.next();
-            if(ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getShortModuleNo(), module.getModuleGroup())
+            if(ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup())
                 && LANGUAGE_ENGLISCH.equals(module.getLanguage())) {
                 iter.remove();
                 removeCounter++;
@@ -251,7 +318,7 @@ class ElectionServiceTest {
     }
 
     private void addModule(Set<Module> set, String moduleNo, Module module) {
-        when(module.getShortModuleNo()).thenReturn(moduleNo);
+        when(module.getModuleNo()).thenReturn(moduleNo);
         set.add(module);
     }
 
@@ -260,7 +327,7 @@ class ElectionServiceTest {
         var iter = set.iterator();
         while(!removed && iter.hasNext()) {
             var module = iter.next();
-            if(moduleCategory == ModuleCategory.parse(module.getShortModuleNo(), module.getModuleGroup())) {
+            if(moduleCategory == ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup())) {
                 removed = true;
                 iter.remove();
             }
@@ -285,13 +352,14 @@ class ElectionServiceTest {
     // ================================================================================================================
 
     @Test
+    @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection_Null_Student() {
-        var validElection = validElectionSet();
-        var moduleElection = new ModuleElection();
-        moduleElection.setElectedModules(validElection);
-        moduleElection.setOverflowedElectedModules(new HashSet<>());
+        var validElection = validElectionSetForElectionDTO();
+        var moduleElectionDTO = new ModuleElectionDTO();
+        moduleElectionDTO.setElectedModules(validElection);
+        moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
-        assertFalse(electionService.saveElection(null, moduleElection));
+        assertFalse(electionService.saveElection(null, moduleElectionDTO));
     }
 
     @Test
@@ -305,33 +373,35 @@ class ElectionServiceTest {
     }
 
     @Test
+    @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection_Null_Email() {
         when(studentDTOMock.getEmail()).thenReturn(null);
         when(studentDTOMock.getWpmDispensation()).thenReturn(0);
         when(studentDTOMock.isTZ()).thenReturn(false);
         when(studentDTOMock.isIP()).thenReturn(false);
 
-        var validElection = validElectionSet();
-        var moduleElection = new ModuleElection();
-        moduleElection.setElectedModules(validElection);
-        moduleElection.setOverflowedElectedModules(new HashSet<>());
+        var validElection = validElectionSetForElectionDTO();
+        var moduleElectionDTO = new ModuleElectionDTO();
+        moduleElectionDTO.setElectedModules(validElection);
+        moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
-        assertFalse(electionService.saveElection(studentDTOMock, moduleElection));
+        assertFalse(electionService.saveElection(studentDTOMock, moduleElectionDTO));
     }
 
     @Test
+    @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection_Blank_Email() {
         when(studentDTOMock.getEmail()).thenReturn("  ");
         when(studentDTOMock.getWpmDispensation()).thenReturn(0);
         when(studentDTOMock.isTZ()).thenReturn(false);
         when(studentDTOMock.isIP()).thenReturn(false);
 
-        var validElection = validElectionSet();
-        var moduleElection = new ModuleElection();
-        moduleElection.setElectedModules(validElection);
-        moduleElection.setOverflowedElectedModules(new HashSet<>());
+        var validElection = validElectionSetForElectionDTO();
+        var moduleElectionDTO = new ModuleElectionDTO();
+        moduleElectionDTO.setElectedModules(validElection);
+        moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
-        assertFalse(electionService.saveElection(studentDTOMock, moduleElection));
+        assertFalse(electionService.saveElection(studentDTOMock, moduleElectionDTO));
     }
 
     // rest is tested with validatieElection(.., ..)

@@ -93,4 +93,14 @@ public class DTOMapper {
             .prerequisites(eventoData.getPrerequisites())
             .remarks(eventoData.getRemarks())
             .build();
+
+
+    ModuleElection mapDtoToModuleElection(ModuleElectionDTO moduleElectionDTO, StudentDTO studentDTO, Function<Set<String>, Set<Module>> mapModuleSet) {
+        var moduleElection = new ModuleElection();
+        moduleElection.setStudentEmail(studentDTO.getEmail());
+        moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
+        moduleElection.setElectedModules(mapModuleSet.apply(moduleElectionDTO.getElectedModules()));
+        moduleElection.setOverflowedElectedModules(mapModuleSet.apply(moduleElectionDTO.getOverflowedElectedModules()));
+        return moduleElection;
+    }
 }
