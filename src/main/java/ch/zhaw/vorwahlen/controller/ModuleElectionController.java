@@ -19,6 +19,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.transaction.Transactional;
+
 /**
  * Controller for a module.
  */
@@ -56,6 +58,7 @@ public class ModuleElectionController {
      */
     @MessageMapping("/save")
     @SendToUser("/queue/electionSaveStatus")
+    @Transactional
     public ObjectNode saveElection(SimpMessageHeaderAccessor headerAccessor, ModuleElectionDTO moduleElectionDTO) {
         var node = new ObjectMapper().createObjectNode();
         var sessionAttributes = headerAccessor.getSessionAttributes();
