@@ -1,25 +1,21 @@
 package ch.zhaw.vorwahlen.controller;
 
+import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.user.User;
 import ch.zhaw.vorwahlen.service.ClassListService;
 import ch.zhaw.vorwahlen.service.ElectionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.StringMessageConverter;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
@@ -28,6 +24,7 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -106,7 +103,39 @@ class ModuleElectionControllerTest {
     }
 
     @Test
-    void testSaveElection() {
+    void testSaveElection() throws InterruptedException, ExecutionException, TimeoutException {
+        var blockingQueue = new ArrayBlockingQueue<ObjectNode>(1);
+
+        webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
+        var session = webSocketStompClient
+                .connect(CONNECT_URL, new StompSessionHandlerAdapter() {})
+                .get(1, TimeUnit.SECONDS);
+
+        session.subscribe("/user/queue/electionSaveStatus", new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return ObjectNode.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                blockingQueue.add((ObjectNode) payload);
+            }
+        });
+
+        var jsonNode = new ObjectMapper().createObjectNode();
+        jsonNode.put("election_saved", true);
+        jsonNode.put("election_valid", false);
+        when(electionService.saveElection(any(), any())).thenReturn(jsonNode);
+
+        var moduleElectionDto = ModuleElectionDTO.builder()
+                .electedModules(Set.of("t.BA.WM.RASOP-EN.19HS", "t.BA.WV.ESE.19HS"))
+                .overflowedElectedModules(Set.of("t.BA.WM.SASEN-EN.19HS"))
+                .build();
+
+        session.send("/app/save", moduleElectionDto);
+        assertEquals(jsonNode, blockingQueue.poll(5, TimeUnit.SECONDS));
     }
 
     /* **************************************************************************************************************

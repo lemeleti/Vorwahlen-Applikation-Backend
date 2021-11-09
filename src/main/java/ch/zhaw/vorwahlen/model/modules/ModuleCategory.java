@@ -16,7 +16,7 @@ public enum ModuleCategory {
      * Categorize modules by module id.
      * @param moduleNo the module id (t.BA.WM.RASOP-EN.19HS)
      * @param moduleGroup the module group (example: IT5 or IT6)
-     * @return
+     * @return ModuleCategory or null
      */
     public static ModuleCategory parse(String moduleNo, String moduleGroup) {
         ModuleCategory moduleCategory = null;

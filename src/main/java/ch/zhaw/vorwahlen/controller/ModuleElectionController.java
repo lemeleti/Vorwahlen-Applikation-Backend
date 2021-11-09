@@ -5,6 +5,8 @@ import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.user.User;
 import ch.zhaw.vorwahlen.service.ClassListService;
 import ch.zhaw.vorwahlen.service.ElectionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -54,15 +56,15 @@ public class ModuleElectionController {
      */
     @MessageMapping("/save")
     @SendToUser("/queue/electionSaveStatus")
-    public boolean saveElection(SimpMessageHeaderAccessor headerAccessor, ModuleElectionDTO moduleElectionDTO) {
-        // todo: return jackson json containing save status and validation status
+    public ObjectNode saveElection(SimpMessageHeaderAccessor headerAccessor, ModuleElectionDTO moduleElectionDTO) {
+        var node = new ObjectMapper().createObjectNode();
         var sessionAttributes = headerAccessor.getSessionAttributes();
         if(sessionAttributes != null) {
             var context = (SecurityContextImpl) sessionAttributes.get(SPRING_SECURITY_CONTEXT);
             var student = getStudent(context);
-            return electionService.saveElection(student, moduleElectionDTO);
+            node = electionService.saveElection(student, moduleElectionDTO);
         }
-        return false;
+        return node;
     }
 
     /**

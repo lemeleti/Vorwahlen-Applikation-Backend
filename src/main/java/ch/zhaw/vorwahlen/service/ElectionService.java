@@ -7,6 +7,8 @@ import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +64,11 @@ public class ElectionService {
      * @return true - if save successful<br>
      *         false - if arguments invalid
      */
-    public boolean saveElection(StudentDTO studentDTO, ModuleElectionDTO moduleElectionDTO) {
+    public ObjectNode saveElection(StudentDTO studentDTO, ModuleElectionDTO moduleElectionDTO) {
         // optional todo: test double modules like MC1/MC2 (not one missing)
         if(studentDTO == null || moduleElectionDTO == null
                 || studentDTO.getEmail() == null || studentDTO.getEmail().isBlank()) {
-            return false;
+            return createSaveStatusBundle(false, false);
         }
         var moduleElection = DTOMapper.mapDtoToModuleElection(moduleElectionDTO, studentDTO, mapModuleSet);
 
@@ -75,7 +77,16 @@ public class ElectionService {
         moduleElection.setElectionValid(isValid);
         moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
         electionRepository.save(moduleElection);
-        return true;
+
+        return createSaveStatusBundle(true, isValid);
+    }
+
+    private ObjectNode createSaveStatusBundle(boolean saveSuccess, boolean validElection) {
+        var mapper = new ObjectMapper();
+        var node = mapper.createObjectNode();
+        node.put("election_saved", saveSuccess);
+        node.put("election_valid", validElection);
+        return node;
     }
 
     /**

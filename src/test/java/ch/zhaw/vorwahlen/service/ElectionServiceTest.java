@@ -8,6 +8,7 @@ import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -104,9 +105,14 @@ class ElectionServiceTest {
         moduleElection.setElectedModules(validElection);
         moduleElection.setOverflowedElectedModules(new HashSet<>());
 
-        assertTrue(electionService.saveElection(studentDTOMock, moduleElection));
+        var jsonNode = new ObjectMapper().createObjectNode();
+        jsonNode.put("election_saved", true);
+        jsonNode.put("election_valid", true);
+
+        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElection));
         assertTrue(moduleElection.isElectionValid());
 
+        jsonNode.put("election_valid", false);
         moduleElection.setOverflowedElectedModules(
                 moduleRepository.findAll().stream()
                         .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.INTERDISCIPLINARY_MODULE)
@@ -117,7 +123,7 @@ class ElectionServiceTest {
                         .collect(Collectors.toSet()));
 
         assertFalse(moduleElection.getOverflowedElectedModules().isEmpty());
-        assertTrue(electionService.saveElection(studentDTOMock, moduleElection));
+        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElection));
         assertFalse(moduleElection.isElectionValid());
     }
 
@@ -359,7 +365,11 @@ class ElectionServiceTest {
         moduleElectionDTO.setElectedModules(validElection);
         moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
-        assertFalse(electionService.saveElection(null, moduleElectionDTO));
+        var jsonNode = new ObjectMapper().createObjectNode();
+        jsonNode.put("election_saved", false);
+        jsonNode.put("election_valid", false);
+
+        assertEquals(jsonNode, electionService.saveElection(null, moduleElectionDTO));
     }
 
     @Test
@@ -369,7 +379,11 @@ class ElectionServiceTest {
         when(studentDTOMock.isTZ()).thenReturn(false);
         when(studentDTOMock.isIP()).thenReturn(false);
 
-        assertFalse(electionService.saveElection(studentDTOMock, null));
+        var jsonNode = new ObjectMapper().createObjectNode();
+        jsonNode.put("election_saved", false);
+        jsonNode.put("election_valid", false);
+
+        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, null));
     }
 
     @Test
@@ -385,7 +399,11 @@ class ElectionServiceTest {
         moduleElectionDTO.setElectedModules(validElection);
         moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
-        assertFalse(electionService.saveElection(studentDTOMock, moduleElectionDTO));
+        var jsonNode = new ObjectMapper().createObjectNode();
+        jsonNode.put("election_saved", false);
+        jsonNode.put("election_valid", false);
+
+        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElectionDTO));
     }
 
     @Test
@@ -401,7 +419,11 @@ class ElectionServiceTest {
         moduleElectionDTO.setElectedModules(validElection);
         moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
-        assertFalse(electionService.saveElection(studentDTOMock, moduleElectionDTO));
+        var jsonNode = new ObjectMapper().createObjectNode();
+        jsonNode.put("election_saved", false);
+        jsonNode.put("election_valid", false);
+
+        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElectionDTO));
     }
 
     // rest is tested with validatieElection(.., ..)
