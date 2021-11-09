@@ -22,10 +22,7 @@ public class ModuleElectionDTO {
     @Setter(onMethod_=@JsonIgnore)
     private boolean isElectionValid;
 
-    @JsonProperty("electedModules")
     private Set<String> electedModules;
-
-    @JsonProperty("additionalModules")
     private Set<String> overflowedElectedModules;
 
 }
