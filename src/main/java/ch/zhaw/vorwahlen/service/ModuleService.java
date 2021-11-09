@@ -10,13 +10,16 @@ import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.scraper.EventoScraper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,12 +48,38 @@ public class ModuleService {
             var moduleParser = new ModuleParser(file.getInputStream(), worksheet);
             var modules = moduleParser.parseModulesFromXLSX();
             moduleRepository.saveAll(modules);
+            var updatedModules = setConsecutiveModules(modules);
+            moduleRepository.saveAll(updatedModules);
         } catch (IOException e) {
             var message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
                     file.getOriginalFilename(), e.getMessage());
             log.severe(message);
             // Todo throw custom Exception
         }
+    }
+
+    private Set<Module> setConsecutiveModules(List<Module> modules) {
+        var consecutiveSet = new HashSet<Module>();
+        for (var m1: modules) {
+            for(var m2: modules) {
+                if(!m1.equals(m2)
+                        && m1.getModuleNo().length() == m2.getModuleNo().length()
+                        && m1.getConsecutiveModule() == null && m2.getConsecutiveModule() == null) {
+
+                    var difference = StringUtils.difference(m1.getModuleNo(), m2.getModuleNo());
+                    var differenceIndex = StringUtils.indexOfDifference(m1.getModuleNo(), m2.getModuleNo());
+                    var diffLength = m1.getModuleNo().length() - differenceIndex;
+
+                    if(difference.length() == diffLength && StringUtils.isNumeric(String.valueOf(difference.charAt(0)))) {
+                        consecutiveSet.add(m1);
+                        consecutiveSet.add(m2);
+                        m1.setConsecutiveModule(m2);
+                        m2.setConsecutiveModule(m1);
+                    }
+                }
+            }
+        }
+        return consecutiveSet;
     }
 
     /**

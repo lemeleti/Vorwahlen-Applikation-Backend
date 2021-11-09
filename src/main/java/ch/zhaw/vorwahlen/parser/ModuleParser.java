@@ -33,7 +33,7 @@ public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
         if (moduleGroupCell != null && belongsToWantedModuleGroup(moduleGroupCell)) {
             var builder = Module.builder();
             for (var field : ModuleLookupTable.values()) {
-                setModuleField(builder, field, row.getCell(field.getCellNumber()).toString());
+                setModuleField(builder, field, row.getCell(field.getCellNumber()).toString().trim());
             }
             module = builder.build();
         }

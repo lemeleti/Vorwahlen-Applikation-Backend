@@ -34,4 +34,6 @@ public class ModuleDTO {
     private List<Integer> fullTimeSemesterList;
     @JsonProperty("part_time_semester_list")
     private List<Integer> partTimeSemesterList;
+    @JsonProperty("consecutive_module_no")
+    private String consecutiveModuleNo;
 }

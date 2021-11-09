@@ -51,6 +51,7 @@ public class DTOMapper {
             .language(module.getLanguage())
             .fullTimeSemesterList(parseSemesterListData(module.getFullTimeSemester()))
             .partTimeSemesterList(parseSemesterListData(module.getPartTimeSemester()))
+            .consecutiveModuleNo(module.getConsecutiveModule() == null ? "" : module.getConsecutiveModule().getModuleNo())
             .build();
 
     private List<Integer> parseSemesterListData(String data) {

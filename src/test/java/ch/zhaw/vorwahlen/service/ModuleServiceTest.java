@@ -64,12 +64,14 @@ class ModuleServiceTest {
         // execute
         assertDoesNotThrow(() -> moduleService.importModuleExcel(mockMultipartFile, WORK_SHEET_NAME));
 
+        // todo check consecutive modules
 
         // verify
         var result = moduleService.getAllModules();
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(75, result.size());
+        assertEquals(22, result.stream().filter(moduleDTO -> !moduleDTO.getConsecutiveModuleNo().isBlank()).count());
     }
 
     @Test
@@ -86,6 +88,7 @@ class ModuleServiceTest {
                 .moduleGroup("DS6,ET5,IT6,MT7,ST5,WI6")
                 .moduleTitle("Digital Health")
                 .shortModuleNo("WM.DHEAL-EN")
+                .consecutiveModuleNo("")
                 .build();
         var result = moduleService.getModuleById(expected.getModuleNo());
         assertTrue(result.isPresent());
