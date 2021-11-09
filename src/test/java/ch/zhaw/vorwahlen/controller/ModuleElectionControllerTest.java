@@ -30,9 +30,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 /**
  * https://rieckpil.de/write-integration-tests-for-your-spring-websocket-endpoints/
@@ -72,36 +73,6 @@ class ModuleElectionControllerTest {
         when(classListService.getStudentById(anyString())).thenReturn(Optional.of(studentDTO));
     }
 
-    /* **************************************************************************************************************
-     * Positive tests
-     * ************************************************************************************************************** */
-
-    @Test
-    void testIsElectionValid() throws ExecutionException, InterruptedException, TimeoutException {
-        var blockingQueue = new ArrayBlockingQueue<Boolean>(1);
-
-        webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
-
-        var session = webSocketStompClient
-                .connect(CONNECT_URL, new StompSessionHandlerAdapter() {})
-                .get(1, TimeUnit.SECONDS);
-
-        session.subscribe("/user/queue/electionStatus", new StompFrameHandler() {
-            @Override
-            public Type getPayloadType(StompHeaders headers) {
-                return Boolean.class;
-            }
-
-            @Override
-            public void handleFrame(StompHeaders headers, Object payload) {
-                blockingQueue.add((Boolean) payload);
-            }
-        });
-
-        session.send("/app/validate", "{}");
-        assertFalse(blockingQueue.poll(1, TimeUnit.SECONDS));
-    }
-
     @Test
     void testSaveElection() throws InterruptedException, ExecutionException, TimeoutException {
         var blockingQueue = new ArrayBlockingQueue<ObjectNode>(1);
@@ -137,9 +108,4 @@ class ModuleElectionControllerTest {
         session.send("/app/save", moduleElectionDto);
         assertEquals(jsonNode, blockingQueue.poll(5, TimeUnit.SECONDS));
     }
-
-    /* **************************************************************************************************************
-     * Negative tests
-     * ************************************************************************************************************** */
-
 }

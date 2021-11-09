@@ -34,23 +34,6 @@ public class ModuleElectionController {
     private final ClassListService classListService;
 
     /**
-     * Validates current election from student in session.
-     * @return true - if election is valid <br>
-     *         false -  if election is invalid or session not found
-     */
-    @MessageMapping("/validate")
-    @SendToUser("/queue/electionStatus")
-    public boolean isElectionValid(SimpMessageHeaderAccessor headerAccessor) {
-        var sessionAttributes = headerAccessor.getSessionAttributes();
-        if(sessionAttributes != null) {
-            var context = (SecurityContextImpl) sessionAttributes.get(SPRING_SECURITY_CONTEXT);
-            var student = getStudent(context);
-            return electionService.validateElection(student);
-        }
-        return false;
-    }
-
-    /**
      * Stores the selection from student in session.
      * @param moduleElectionDTO the election from user in session.
      * @return true - if election could be saved <br>
