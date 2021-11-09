@@ -90,21 +90,6 @@ public class ElectionService {
     }
 
     /**
-     * Validates the election in the database.
-     * @param studentDTO student in session
-     * @return true - if election is valid<br>
-     *         false - if election is invalid or no election was made
-     */
-    public boolean validateElection(StudentDTO studentDTO) {
-        var storedElection = getModuleElectionByStudent(studentDTO);
-        if (storedElection == null) {
-            return false;
-        }
-        var moduleElection = DTOMapper.mapDtoToModuleElection(storedElection, studentDTO, mapModuleSet);
-        return validateElection(studentDTO, moduleElection);
-    }
-
-    /**
      * Validates the election.
      * @param studentDTO student in session
      * @param moduleElection his current selection

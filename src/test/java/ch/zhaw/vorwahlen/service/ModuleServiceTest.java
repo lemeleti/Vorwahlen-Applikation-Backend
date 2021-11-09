@@ -65,8 +65,6 @@ class ModuleServiceTest {
         // execute
         assertDoesNotThrow(() -> moduleService.importModuleExcel(mockMultipartFile, WORK_SHEET_NAME));
 
-        // todo check consecutive modules
-
         // verify
         var result = moduleService.getAllModules();
         assertNotNull(result);

@@ -64,7 +64,7 @@ public class ModuleService {
             for(var m2: modules) {
                 if(!m1.equals(m2)
                         && m1.getModuleNo().length() == m2.getModuleNo().length()
-                        && m1.getConsecutiveModule() == null && m2.getConsecutiveModule() == null) {
+                        && isModuleConsecutiveFieldNotSet(m1) && isModuleConsecutiveFieldNotSet(m2)) {
 
                     var difference = StringUtils.difference(m1.getModuleNo(), m2.getModuleNo());
                     var differenceIndex = StringUtils.indexOfDifference(m1.getModuleNo(), m2.getModuleNo());
@@ -73,13 +73,17 @@ public class ModuleService {
                     if(difference.length() == diffLength && StringUtils.isNumeric(String.valueOf(difference.charAt(0)))) {
                         consecutiveSet.add(m1);
                         consecutiveSet.add(m2);
-                        m1.setConsecutiveModule(m2);
-                        m2.setConsecutiveModule(m1);
+                        m1.setConsecutiveModuleNo(m2.getModuleNo());
+                        m2.setConsecutiveModuleNo(m1.getModuleNo());
                     }
                 }
             }
         }
         return consecutiveSet;
+    }
+
+    private boolean isModuleConsecutiveFieldNotSet(Module module) {
+        return module.getConsecutiveModuleNo() == null || module.getConsecutiveModuleNo().isBlank();
     }
 
     /**
