@@ -6,6 +6,7 @@ import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import lombok.experimental.UtilityClass;
@@ -45,6 +46,7 @@ public class DTOMapper {
             .shortModuleNo(module.getShortModuleNo())
             .moduleTitle(module.getModuleTitle())
             .moduleGroup(module.getModuleGroup())
+            .category(ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()))
             .isIPModule(module.isIPModule())
             .institute(module.getInstitute())
             .credits(module.getCredits())

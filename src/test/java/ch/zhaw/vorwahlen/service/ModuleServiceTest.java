@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
+import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -81,6 +82,7 @@ class ModuleServiceTest {
                 .fullTimeSemesterList(List.of(5))
                 .partTimeSemesterList(List.of(7))
                 .moduleNo("t.BA.WM.DHEAL-EN.19HS")
+                .category(ModuleCategory.INTERDISCIPLINARY_MODULE)
                 .credits((byte) 4)
                 .institute("INIT")
                 .isIPModule(true)
