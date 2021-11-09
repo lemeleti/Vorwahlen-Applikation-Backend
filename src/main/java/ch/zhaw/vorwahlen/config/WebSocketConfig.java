@@ -24,10 +24,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // todo: duplicated allowed origin with CORSAdvidce
-
         registry.addEndpoint("/stomp-ws-endpoint")
-                .setAllowedOrigins("http://localhost:8081")
+                .setAllowedOrigins(CORSAdvice.ALLOWED_ORIGINS)
                 .setHandshakeHandler(new DefaultHandshakeHandler())
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
                 .withSockJS();
