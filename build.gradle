@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.apache.poi:poi:5.0.0'
 	implementation 'org.apache.poi:poi-ooxml:5.0.0'
 	implementation 'org.apache.commons:commons-lang3:3.0'
+	implementation 'org.apache.commons:commons-text:1.9'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'

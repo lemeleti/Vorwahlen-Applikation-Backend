@@ -54,8 +54,11 @@ class ElectionServiceTest {
     private final ModuleElection moduleElectionMock = mock(ModuleElection.class);
 
     private final List<String> interdisciplinaryModules = List.of("t.BA.WM.PHMOD.19HS");
+    private final List<String> interdisciplinaryModulesShort = List.of("WM.PHMOD");
     private final List<String> contextModules = List.of("t.BA.XXK.FUPRE.19HS", "t.BA.WVK.ZURO.20HS", "t.BA.WVK.SIC-TAF.20HS");
+    private final List<String> contextModulesShort = List.of("XXK.FUPRE", "WVK.ZURO", "WVK.SIC-TAF");
     private final List<String> subjectModules = List.of("t.BA.WV.ESE.19HS", "t.BA.WV.FUP.19HS");
+    private final List<String> subjectModulesShort = List.of("WV.ESE", "WV.FUP");
     private final List<String> consecutiveSubjectModules = List.of(
             "t.BA.WV.AI2-EN.19HS",
             "t.BA.WV.AI1-EN.19HS",
@@ -63,6 +66,14 @@ class ElectionServiceTest {
             "t.BA.WV.CCP1-EN.19HS",
             "t.BA.WV.DIP2-EN.20HS",
             "t.BA.WV.DIP-EN.19HS"
+    );
+    private final List<String> consecutiveSubjectModulesShort = List.of(
+            "WV.AI2-EN",
+            "WV.AI1-EN",
+            "WV.CCP2-EN",
+            "WV.CCP1-EN",
+            "WV.DIP2-EN",
+            "WV.DIP-EN"
     );
     @Autowired
     public ElectionServiceTest(ElectionRepository electionRepository, ModuleRepository moduleRepository) {
@@ -221,6 +232,9 @@ class ElectionServiceTest {
         assertEquals(contextModules.size(), contextModuleMockList.size());
         assertEquals(subjectModules.size() + consecutiveSubjectModules.size(), subjectModuleMockList.size());
         assertEquals(0, consecutiveSubjectModules.size() % 2);
+        assertEquals(contextModules.size(), contextModulesShort.size());
+        assertEquals(interdisciplinaryModules.size(), interdisciplinaryModulesShort.size());
+        assertEquals(subjectModules.size(), subjectModulesShort.size());
 
         for (var i = 0; i < contextModuleMockList.size(); i++) {
             var mock = contextModuleMockList.get(i);
@@ -228,6 +242,7 @@ class ElectionServiceTest {
             when(mock.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
             when(mock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_5);
             when(mock.getModuleNo()).thenReturn(contextModules.get(i));
+            when(mock.getShortModuleNo()).thenReturn(contextModulesShort.get(i));
         }
 
         for (var i = 0; i < interdisciplinaryModuleMockList.size(); i++) {
@@ -236,11 +251,12 @@ class ElectionServiceTest {
             when(mock.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
             when(mock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
             when(mock.getModuleNo()).thenReturn(interdisciplinaryModules.get(i));
+            when(mock.getShortModuleNo()).thenReturn(interdisciplinaryModulesShort.get(i));
         }
 
         var random = new Random(RANDOM_SEED);
         var mockCounter = 0;
-        for (String subjectModule : subjectModules) {
+        for (var i = 0; i < subjectModules.size(); i++) {
             var index = random.nextInt(Integer.MAX_VALUE);
             var language = index > CHANCE_TO_GET_GERMAN * Integer.MAX_VALUE
                     ? LANGUAGE_DEUTSCH
@@ -251,7 +267,8 @@ class ElectionServiceTest {
             when(mock.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
             when(mock.getLanguage()).thenReturn(language);
             when(mock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
-            when(mock.getModuleNo()).thenReturn(subjectModule);
+            when(mock.getModuleNo()).thenReturn(subjectModules.get(i));
+            when(mock.getShortModuleNo()).thenReturn(subjectModulesShort.get(i));
         }
 
         for (var i = 1; i < consecutiveSubjectModules.size(); i += 2) {
@@ -265,6 +282,7 @@ class ElectionServiceTest {
             when(mock1.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
             when(mock1.getLanguage()).thenReturn(language);
             when(mock1.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
+            when(mock1.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(i - 1));
             when(mock1.getModuleNo()).thenReturn(consecutiveSubjectModules.get(i - 1));
             when(mock1.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModules.get(i));
 
@@ -273,10 +291,10 @@ class ElectionServiceTest {
             when(mock2.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
             when(mock2.getLanguage()).thenReturn(language);
             when(mock2.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
+            when(mock2.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(i));
             when(mock2.getModuleNo()).thenReturn(consecutiveSubjectModules.get(i));
             when(mock2.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModules.get(i - 1));
         }
-
 
         var set = new HashSet<Module>();
         set.addAll(contextModuleMockList);
