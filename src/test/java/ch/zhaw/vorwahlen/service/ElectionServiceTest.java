@@ -282,8 +282,6 @@ class ElectionServiceTest {
         set.addAll(contextModuleMockList);
         set.addAll(interdisciplinaryModuleMockList);
         set.addAll(subjectModuleMockList);
-        set.forEach(module -> System.out.println(module.getModuleNo() + " - " + module.getConsecutiveModuleNo()));
-        System.out.println("-------------");
         return set;
     }
 
