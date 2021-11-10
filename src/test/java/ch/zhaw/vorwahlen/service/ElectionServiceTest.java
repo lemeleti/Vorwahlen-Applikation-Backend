@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -52,6 +53,17 @@ class ElectionServiceTest {
     private final StudentDTO studentDTOMock = mock(StudentDTO.class);
     private final ModuleElection moduleElectionMock = mock(ModuleElection.class);
 
+    private final List<String> interdisciplinaryModules = List.of("t.BA.WM.PHMOD.19HS");
+    private final List<String> contextModules = List.of("t.BA.XXK.FUPRE.19HS", "t.BA.WVK.ZURO.20HS", "t.BA.WVK.SIC-TAF.20HS");
+    private final List<String> subjectModules = List.of("t.BA.WV.ESE.19HS", "t.BA.WV.FUP.19HS");
+    private final List<String> consecutiveSubjectModules = List.of(
+            "t.BA.WV.AI2-EN.19HS",
+            "t.BA.WV.AI1-EN.19HS",
+            "t.BA.WV.CCP2-EN.19HS",
+            "t.BA.WV.CCP1-EN.19HS",
+            "t.BA.WV.DIP2-EN.20HS",
+            "t.BA.WV.DIP-EN.19HS"
+    );
     @Autowired
     public ElectionServiceTest(ElectionRepository electionRepository, ModuleRepository moduleRepository) {
         this.electionRepository = electionRepository;
@@ -162,7 +174,7 @@ class ElectionServiceTest {
             assertInvalidElection(moduleElectionMock, studentDTOMock, mode);
         }
 
-        // Case VZ, Non-IP, No Dispensations (To much selected)
+        // Case VZ, Non-IP, No Dispensations (Too much selected)
         for (var mode = 4; mode < 7; mode++) {
             assertInvalidElection(moduleElectionMock, studentDTOMock, mode);
         }
@@ -182,7 +194,9 @@ class ElectionServiceTest {
         var iterator = set.iterator();
         while(iterator.hasNext() && removedCredits < ElectionServiceTest.WPM_DISPENSATION) {
             var module = iterator.next();
-            if(module.getCredits() == CREDITS_PER_SUBJECT_MODULE && ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup())) {
+            if(module.getCredits() == CREDITS_PER_SUBJECT_MODULE
+                    && ModuleCategory.SUBJECT_MODULE == ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup())
+                    && (module.getConsecutiveModuleNo() == null || module.getConsecutiveModuleNo().isBlank())) {
                 removedCredits += module.getCredits();
                 iterator.remove();
             }
@@ -191,103 +205,85 @@ class ElectionServiceTest {
 
     private Set<String> validElectionSetForElectionDTO() {
         var set = new HashSet<String>();
-        var random = new Random(RANDOM_SEED);
-
-        var allModules = moduleRepository.findAll();
-
-        var contextModules = allModules.stream()
-                .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.CONTEXT_MODULE)
-                .collect(Collectors.toList());
-
-        var subjectModules = allModules.stream()
-                .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.SUBJECT_MODULE)
-                .collect(Collectors.toList());
-
-        var interdisciplinaryModules = allModules.stream()
-                .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.INTERDISCIPLINARY_MODULE)
-                .collect(Collectors.toList());
-
-        for (var i = 0; i < ElectionService.NUM_CONTEXT_MODULES; i++) {
-            var duplicate = true;
-            while (duplicate) {
-                var index = random.nextInt(contextModules.size());
-                var selected = contextModules.get(index).getModuleNo();
-                if(!set.contains(selected)) {
-                    duplicate = false;
-                }
-                set.add(selected);
-            }
-        }
-
-        for (var i = 0; i < ElectionService.NUM_SUBJECT_MODULES; i++) {
-            var duplicate = true;
-            while (duplicate) {
-                var index = random.nextInt(subjectModules.size());
-                var selected = subjectModules.get(index).getModuleNo();
-                if(!set.contains(selected)) {
-                    duplicate = false;
-                }
-                set.add(selected);
-            }
-        }
-
-        for (var i = 0; i < ElectionService.NUM_INTERDISCIPLINARY_MODULES; i++) {
-            var duplicate = true;
-            while (duplicate) {
-                var index = random.nextInt(interdisciplinaryModules.size());
-                var selected = interdisciplinaryModules.get(index).getModuleNo();
-                if(!set.contains(selected)) {
-                    duplicate = false;
-                }
-                set.add(selected);
-            }
-        }
-
+        set.addAll(interdisciplinaryModules);
+        set.addAll(contextModules);
+        set.addAll(subjectModules);
+        set.addAll(consecutiveSubjectModules);
         return set;
     }
 
     private Set<Module> validElectionSet() {
-        var contextModuleSet = generateModuleMockSet(ElectionService.NUM_CONTEXT_MODULES);
-        var interdisciplinaryModuleSet = generateModuleMockSet(ElectionService.NUM_INTERDISCIPLINARY_MODULES);
-        var subjectModuleSet = generateModuleMockSet(ElectionService.NUM_SUBJECT_MODULES);
+        var contextModuleMockList = generateModuleMockSet(ElectionService.NUM_CONTEXT_MODULES);
+        var interdisciplinaryModuleMockList = generateModuleMockSet(ElectionService.NUM_INTERDISCIPLINARY_MODULES);
+        var subjectModuleMockList = generateModuleMockSet(ElectionService.NUM_SUBJECT_MODULES);
+
+        assertEquals(interdisciplinaryModules.size(), interdisciplinaryModuleMockList.size());
+        assertEquals(contextModules.size(), contextModuleMockList.size());
+        assertEquals(subjectModules.size() + consecutiveSubjectModules.size(), subjectModuleMockList.size());
+        assertEquals(0, consecutiveSubjectModules.size() % 2);
+
+        for (var i = 0; i < contextModuleMockList.size(); i++) {
+            var mock = contextModuleMockList.get(i);
+            when(mock.getCredits()).thenReturn((byte) CREDITS_PER_CONTEXT_MODULE);
+            when(mock.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
+            when(mock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_5);
+            when(mock.getModuleNo()).thenReturn(contextModules.get(i));
+        }
+
+        for (var i = 0; i < interdisciplinaryModuleMockList.size(); i++) {
+            var mock = interdisciplinaryModuleMockList.get(i);
+            when(mock.getCredits()).thenReturn((byte) CREDITS_PER_INTERDISCIPLINARY_MODULE);
+            when(mock.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
+            when(mock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
+            when(mock.getModuleNo()).thenReturn(interdisciplinaryModules.get(i));
+        }
 
         var random = new Random(RANDOM_SEED);
-
-        for(var module: contextModuleSet) {
-            when(module.getCredits()).thenReturn((byte) CREDITS_PER_CONTEXT_MODULE);
-
-            var index = random.nextInt(possibleContextPrefixes.size());
-            var prefix = possibleContextPrefixes.get(index);
-            when(module.getModuleNo()).thenReturn(prefix);
-
-            when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_5);
-            when(module.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
-        }
-
-        for(var module: interdisciplinaryModuleSet) {
-            when(module.getCredits()).thenReturn((byte) CREDITS_PER_INTERDISCIPLINARY_MODULE);
-            when(module.getModuleNo()).thenReturn(INTERDISCIPLINARY_PREFIX_WM);
-            when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
-            when(module.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
-        }
-
-        for(var module: subjectModuleSet) {
-            when(module.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
-            var index = random.nextInt(possibleSubjectPrefixes.size());
-            when(module.getModuleNo()).thenReturn(possibleSubjectPrefixes.get(index));
-            when(module.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
-
-            index = random.nextInt(Integer.MAX_VALUE);
+        var mockCounter = 0;
+        for (String subjectModule : subjectModules) {
+            var index = random.nextInt(Integer.MAX_VALUE);
             var language = index > CHANCE_TO_GET_GERMAN * Integer.MAX_VALUE
                     ? LANGUAGE_DEUTSCH
                     : LANGUAGE_ENGLISCH;
-            when(module.getLanguage()).thenReturn(language);
+
+            var mock = subjectModuleMockList.get(mockCounter);
+            mockCounter++;
+            when(mock.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
+            when(mock.getLanguage()).thenReturn(language);
+            when(mock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
+            when(mock.getModuleNo()).thenReturn(subjectModule);
         }
 
+        for (var i = 1; i < consecutiveSubjectModules.size(); i += 2) {
+            var index = random.nextInt(Integer.MAX_VALUE);
+            var language = index > CHANCE_TO_GET_GERMAN * Integer.MAX_VALUE
+                    ? LANGUAGE_DEUTSCH
+                    : LANGUAGE_ENGLISCH;
+
+            var mock1 = subjectModuleMockList.get(mockCounter);
+            mockCounter++;
+            when(mock1.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
+            when(mock1.getLanguage()).thenReturn(language);
+            when(mock1.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
+            when(mock1.getModuleNo()).thenReturn(consecutiveSubjectModules.get(i - 1));
+            when(mock1.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModules.get(i));
+
+            var mock2 = subjectModuleMockList.get(mockCounter);
+            mockCounter++;
+            when(mock2.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
+            when(mock2.getLanguage()).thenReturn(language);
+            when(mock2.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
+            when(mock2.getModuleNo()).thenReturn(consecutiveSubjectModules.get(i));
+            when(mock2.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModules.get(i - 1));
+        }
+
+
         var set = new HashSet<Module>();
-        set.addAll(contextModuleSet);
-        set.addAll(interdisciplinaryModuleSet);
-        set.addAll(subjectModuleSet);
+        set.addAll(contextModuleMockList);
+        set.addAll(interdisciplinaryModuleMockList);
+        set.addAll(subjectModuleMockList);
+        set.forEach(module -> System.out.println(module.getModuleNo() + " - " + module.getConsecutiveModuleNo()));
+        System.out.println("-------------");
         return set;
     }
 
@@ -340,12 +336,12 @@ class ElectionServiceTest {
         }
     }
 
-    private Set<Module> generateModuleMockSet(int numElements) {
-        var set = new HashSet<Module>();
+    private List<Module> generateModuleMockSet(int numElements) {
+        var list = new ArrayList<Module>();
         for (var i = 0; i < numElements; i++) {
-            set.add(mock(Module.class));
+            list.add(mock(Module.class));
         }
-        return set;
+        return list;
     }
 
     @Test

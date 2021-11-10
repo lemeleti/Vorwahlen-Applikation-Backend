@@ -14,6 +14,9 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -124,10 +127,49 @@ public class ElectionService {
                     && validContextModuleElection(moduleElection)
                     && validSubjectModuleElection(moduleElection, studentDTO)
                     && validInterdisciplinaryModuleElection(moduleElection)
-                    && validIpModuleElection(moduleElection, studentDTO);
-            // todo: test double modules like MC1/MC2 (not one missing at least two of them in VT)
+                    && validIpModuleElection(moduleElection, studentDTO)
+                    && validConsecutiveModuleElection(moduleElection);
         }
         return isValid;
+    }
+
+    private boolean validConsecutiveModuleElection(ModuleElection moduleElection) {
+        var consecutiveMap = new HashMap<Module, Module>();
+        for(var m1: moduleElection.getElectedModules()) {
+            for(var m2: moduleElection.getElectedModules()) {
+                if(!m1.equals(m2) && areModulesConsecutive(m1, m2)) {
+                    consecutiveMap.putIfAbsent(m1, null);
+                    if (ModuleService.doTheModulesDifferOnlyInTheNumber(m1, m2)){
+                        consecutiveMap.put(m1, m2);
+                    }
+                }
+            }
+        }
+
+        var countConsecutiveMissingPart = consecutiveMap.values().stream()
+                .filter(Objects::isNull)
+                .count();
+
+        return consecutiveMap.size() != 0 && countConsecutiveMissingPart == 0 &&
+                hasAtLeastTwoConsecutiveModules(moduleElection, consecutiveMap);
+    }
+
+    private boolean hasAtLeastTwoConsecutiveModules(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
+        return consecutiveMap.size() > 2 ||
+                (consecutiveMap.size() == 1
+                    && containsModule(moduleElection.getElectedModules(), "t.BA.WV.PSPP.19HS")
+                    && containsModule(moduleElection.getElectedModules(), "t.BA.WV.FUP.19HS"));
+    }
+
+    private boolean areModulesConsecutive(Module m1, Module m2) {
+        return m1.getConsecutiveModuleNo() != null && !m1.getConsecutiveModuleNo().isBlank()
+                && m2.getConsecutiveModuleNo() != null && !m2.getConsecutiveModuleNo().isBlank();
+    }
+
+    private boolean containsModule(Set<Module> modules, String moduleNo) {
+        return modules.stream()
+                .filter(module -> moduleNo.equals(module.getModuleNo()))
+                .count() == 1;
     }
 
     private boolean validIpModuleElection(ModuleElection moduleElection, StudentDTO studentDTO) {

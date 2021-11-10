@@ -35,6 +35,7 @@ import java.util.function.Function;
 public class ModuleService {
 
     private static final int MAX_THREAD_NUMBER = 10;
+    private static final int DIFF_INDEX_OFFSET = 1;
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
@@ -63,23 +64,49 @@ public class ModuleService {
         for (var m1: modules) {
             for(var m2: modules) {
                 if(!m1.equals(m2)
-                        && m1.getModuleNo().length() == m2.getModuleNo().length()
-                        && isModuleConsecutiveFieldNotSet(m1) && isModuleConsecutiveFieldNotSet(m2)) {
-
-                    var difference = StringUtils.difference(m1.getModuleNo(), m2.getModuleNo());
-                    var differenceIndex = StringUtils.indexOfDifference(m1.getModuleNo(), m2.getModuleNo());
-                    var diffLength = m1.getModuleNo().length() - differenceIndex;
-
-                    if(difference.length() == diffLength && StringUtils.isNumeric(String.valueOf(difference.charAt(0)))) {
-                        consecutiveSet.add(m1);
-                        consecutiveSet.add(m2);
-                        m1.setConsecutiveModuleNo(m2.getModuleNo());
-                        m2.setConsecutiveModuleNo(m1.getModuleNo());
-                    }
+                        && isModuleConsecutiveFieldNotSet(m1)
+                        && isModuleConsecutiveFieldNotSet(m2)
+                        && doTheModulesDifferOnlyInTheNumber(m1, m2)) {
+                    consecutiveSet.add(m1);
+                    consecutiveSet.add(m2);
+                    m1.setConsecutiveModuleNo(m2.getModuleNo());
+                    m2.setConsecutiveModuleNo(m1.getModuleNo());
                 }
             }
         }
         return consecutiveSet;
+    }
+
+    public static boolean doTheModulesDifferOnlyInTheNumber(Module m1, Module m2) {
+        // t.BA.WV.AI1-EN.19HS, t.BA.WV.AI2-EN.20HS -> 2-EN.20HS
+        var difference1 = StringUtils.difference(m1.getModuleNo(), m2.getModuleNo());
+
+        // 2-EN.20HS -> 2-EN
+        var semesterYearPartIndex = difference1.lastIndexOf(".");
+        var restDifference1 = difference1.substring(0, semesterYearPartIndex);
+
+        // t.BA.WV.AI2-EN.20HS, t.BA.WV.AI1-EN.19HS -> 1-EN.19HS
+        var difference2 = StringUtils.difference(m2.getModuleNo(), m1.getModuleNo());
+
+        // 1-EN.19HS -> 1-EN
+        semesterYearPartIndex = difference2.lastIndexOf(".");
+        var restDifference2 = difference2.substring(0, semesterYearPartIndex);
+
+        var absoluteDifference = Math.abs(restDifference1.length() - restDifference2.length());
+
+        var isValid = false;
+        var isDiff1FirstCharNumeric = StringUtils.isNumeric(String.valueOf(difference1.charAt(0)));
+        var isDiff2FirstCharNumeric = StringUtils.isNumeric(String.valueOf(difference2.charAt(0)));
+        if(absoluteDifference == 0) {
+            // example case t.BA.WV.AI1-EN.19HS, t.BA.WV.AI2-EN.20HS
+            isValid = isDiff1FirstCharNumeric && isDiff2FirstCharNumeric;
+        } else if (absoluteDifference == 1) {
+            // example case t.BA.WV.DIP-EN.19HS, t.BA.WV.DIP2-EN.20HS
+            isValid = difference1.length() > difference2.length() // diff1 = 2-EN, diff2 = -EN
+                    ? isDiff1FirstCharNumeric
+                    : isDiff2FirstCharNumeric;
+        }
+        return isValid;
     }
 
     private boolean isModuleConsecutiveFieldNotSet(Module module) {

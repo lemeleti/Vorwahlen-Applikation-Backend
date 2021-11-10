@@ -70,7 +70,7 @@ class ModuleServiceTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(75, result.size());
-        assertEquals(22, result.stream().filter(moduleDTO -> !moduleDTO.getConsecutiveModuleNo().isBlank()).count());
+        assertEquals(24, result.stream().filter(moduleDTO -> !moduleDTO.getConsecutiveModuleNo().isBlank()).count());
     }
 
     @Test
