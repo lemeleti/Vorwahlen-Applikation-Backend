@@ -25,7 +25,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
 class ElectionServiceTest {
@@ -129,13 +130,13 @@ class ElectionServiceTest {
         moduleElection.setOverflowedElectedModules(new HashSet<>());
 
         var jsonNode = new ObjectMapper().createObjectNode();
-        jsonNode.put("election_saved", true);
-        jsonNode.put("election_valid", true);
+        jsonNode.put("electionSaved", true);
+        jsonNode.put("electionValid", true);
 
         assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElection));
         assertTrue(moduleElection.isElectionValid());
 
-        jsonNode.put("election_valid", false);
+        jsonNode.put("electionValid", false);
         moduleElection.setOverflowedElectedModules(
                 moduleRepository.findAll().stream()
                         .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.INTERDISCIPLINARY_MODULE)
@@ -378,8 +379,8 @@ class ElectionServiceTest {
         moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
         var jsonNode = new ObjectMapper().createObjectNode();
-        jsonNode.put("election_saved", false);
-        jsonNode.put("election_valid", false);
+        jsonNode.put("electionSaved", false);
+        jsonNode.put("electionValid", false);
 
         assertEquals(jsonNode, electionService.saveElection(null, moduleElectionDTO));
     }
@@ -392,8 +393,8 @@ class ElectionServiceTest {
         when(studentDTOMock.isIP()).thenReturn(false);
 
         var jsonNode = new ObjectMapper().createObjectNode();
-        jsonNode.put("election_saved", false);
-        jsonNode.put("election_valid", false);
+        jsonNode.put("electionSaved", false);
+        jsonNode.put("electionValid", false);
 
         assertEquals(jsonNode, electionService.saveElection(studentDTOMock, null));
     }
@@ -412,8 +413,8 @@ class ElectionServiceTest {
         moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
         var jsonNode = new ObjectMapper().createObjectNode();
-        jsonNode.put("election_saved", false);
-        jsonNode.put("election_valid", false);
+        jsonNode.put("electionSaved", false);
+        jsonNode.put("electionValid", false);
 
         assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElectionDTO));
     }
@@ -432,8 +433,8 @@ class ElectionServiceTest {
         moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
 
         var jsonNode = new ObjectMapper().createObjectNode();
-        jsonNode.put("election_saved", false);
-        jsonNode.put("election_valid", false);
+        jsonNode.put("electionSaved", false);
+        jsonNode.put("electionValid", false);
 
         assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElectionDTO));
     }

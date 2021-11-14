@@ -87,8 +87,8 @@ public class ElectionService {
     private ObjectNode createSaveStatusBundle(boolean saveSuccess, boolean validElection) {
         var mapper = new ObjectMapper();
         var node = mapper.createObjectNode();
-        node.put("election_saved", saveSuccess);
-        node.put("election_valid", validElection);
+        node.put("electionSaved", saveSuccess);
+        node.put("electionValid", validElection);
         return node;
     }
 
