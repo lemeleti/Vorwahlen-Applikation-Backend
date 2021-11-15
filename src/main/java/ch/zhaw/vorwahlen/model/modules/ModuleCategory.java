@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 public enum ModuleCategory {
     SUBJECT_MODULE,
     INTERDISCIPLINARY_MODULE,
-    CONTEXT_MODULE;
+    CONTEXT_MODULE,
+    PROJECT_MODULE,
+    BACHELOR_MODULE;
 
     /**
      * Categorize modules by module id.
