@@ -5,6 +5,11 @@ import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleElement;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructure;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructurePartTime;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -38,13 +44,24 @@ public class ElectionService {
 
     private final ElectionRepository electionRepository;
     private final Function<Set<String>, Set<Module>> mapModuleSet;
+    private final ModuleStructureFullTime structureFullTime;
+    private final ModuleStructurePartTime structurePartTime;
 
     @Autowired
-    public ElectionService(ElectionRepository electionRepository, ModuleRepository moduleRepository) {
+    public ElectionService(ElectionRepository electionRepository, ModuleRepository moduleRepository,
+                           ModuleStructureFullTime structureFullTime, ModuleStructurePartTime structurePartTime) {
         this.electionRepository = electionRepository;
         this.mapModuleSet = list -> list.stream()
                                         .map(moduleRepository::getById)
                                         .collect(Collectors.toSet());
+        this.structureFullTime = structureFullTime;
+        this.structurePartTime = structurePartTime;
+    }
+
+    public List<ModuleElement> getModuleStructure(StudentDTO student) {
+        ModuleStructure structure = student.isTZ() ? structurePartTime : structureFullTime;
+        ModuleElection election = electionRepository.getById(student.getEmail());
+        return new ModuleStructureGenerator(structure).generateStructure(student, election);
     }
 
     /**

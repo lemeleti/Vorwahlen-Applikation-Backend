@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleElement;
 import ch.zhaw.vorwahlen.model.user.User;
 import ch.zhaw.vorwahlen.service.ClassListService;
 import ch.zhaw.vorwahlen.service.ElectionService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 /**
  * Controller for a module.
@@ -62,6 +64,12 @@ public class ModuleElectionController {
         var context = SecurityContextHolder.getContext();
         var student = getStudent(context);
         return electionService.getModuleElectionByStudent(student);
+    }
+
+    @GetMapping(path = {"/structure", "/structure/"})
+    public List<ModuleElement> getFullTimeModuleStructure() {
+        var context = SecurityContextHolder.getContext();
+        return electionService.getModuleStructure(getStudent(context));
     }
 
     private StudentDTO getStudent(SecurityContext context) {
