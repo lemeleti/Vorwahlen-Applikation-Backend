@@ -36,8 +36,8 @@ public class DTOMapper {
             .email(student.getEmail())
             .name(student.getName())
             .clazz(student.getClazz())
-            .paDispensation(ClassListService.PA_DISPENSATION)
-            .wpmDispensation(ClassListService.WPM_DISPENSATION)
+            .paDispensation(student.getPaDispensation())
+            .wpmDispensation(student.getWpmDispensation())
             .isIP(student.isIP())
             .build();
 
