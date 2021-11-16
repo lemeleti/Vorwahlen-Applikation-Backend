@@ -5,6 +5,8 @@ import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructurePartTime;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
@@ -49,6 +51,12 @@ class ElectionServiceTest {
     private final ElectionRepository electionRepository;
     private final ModuleRepository moduleRepository;
 
+    @Autowired
+    private ModuleStructureFullTime structureFullTime;
+    @Autowired
+    private ModuleStructurePartTime structurePartTime;
+
+
     private ElectionService electionService;
 
     private final StudentDTO studentDTOMock = mock(StudentDTO.class);
@@ -85,7 +93,7 @@ class ElectionServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        electionService = new ElectionService(electionRepository, moduleRepository);
+        electionService = new ElectionService(electionRepository, moduleRepository, structureFullTime, structurePartTime);
     }
 
     @AfterEach
