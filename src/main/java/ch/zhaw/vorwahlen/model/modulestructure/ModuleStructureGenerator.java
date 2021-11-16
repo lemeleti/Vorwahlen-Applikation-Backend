@@ -1,61 +1,57 @@
 package ch.zhaw.vorwahlen.model.modulestructure;
 
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public class ModuleStructureGenerator {
     private final ModuleStructure moduleStructure;
     private final List<ModuleElement> structure = new ArrayList<>();
-    private List<Module> electedModules;
-    private List<Module> overflowedElectedModules;
+    private final ModuleElection election;
+    private final List<Module> electedModules = new ArrayList<>();
+    private final List<Module> overflowedElectedModules = new ArrayList<>();
+    private boolean hasElectedModules;
 
-    public List<ModuleElement> generateStructure(StudentDTO student, ModuleElection election) {
-        generateFillerModule(moduleStructure.contextModules(), ModuleCategory.CONTEXT_MODULE);
-        generateFillerModule(moduleStructure.projectModule(), ModuleCategory.PROJECT_MODULE);
-        generateFillerModule(moduleStructure.subjectModules(), ModuleCategory.SUBJECT_MODULE);
-        generateFillerModule(moduleStructure.interdisciplinaryModules(), ModuleCategory.INTERDISCIPLINARY_MODULE);
-        generateFillerModule(moduleStructure.bachelorModule(), ModuleCategory.BACHELOR_MODULE);
+    public Map<String, List<?>> generateStructure() {
+        Map<String, List<?>> structureMap = new HashMap<>();
+        if (election != null) {
+            electedModules.addAll(election.getElectedModules());
+            overflowedElectedModules.addAll(election.getOverflowedElectedModules());
+            hasElectedModules = true;
+        }
 
-        electedModules = election.getElectedModules().stream().toList();
-        overflowedElectedModules = election.getOverflowedElectedModules().stream().toList();
-        return structure;
+        generateModuleElements(moduleStructure.contextModules(), ModuleCategory.CONTEXT_MODULE);
+        generateModuleElements(moduleStructure.projectModule(), ModuleCategory.PROJECT_MODULE);
+        generateModuleElements(moduleStructure.subjectModules(), ModuleCategory.SUBJECT_MODULE);
+        generateModuleElements(moduleStructure.interdisciplinaryModules(), ModuleCategory.INTERDISCIPLINARY_MODULE);
+        generateModuleElements(moduleStructure.bachelorModule(), ModuleCategory.BACHELOR_MODULE);
+
+        structureMap.put("electedModules", structure);
+        structureMap.put("overflowedModules", overflowedElectedModules);
+
+        return structureMap;
     }
 
-    private void generateFillerModule(Map<Integer, Integer> modules, ModuleCategory category) {
-        Module electedModule;
+    private void generateModuleElements(Map<Integer, Integer> modules, ModuleCategory category) {
         for (Map.Entry<Integer, Integer> entry : modules.entrySet()) {
             for (var i = 0; i < entry.getValue(); i++) {
-                electedModule = findModuleByCategory(category);
+                var semester = entry.getKey();
+                Optional<Module> moduleOptional = Optional.ofNullable(findModuleByCategory(category, semester));
                 ModuleElement element;
 
-                if (electedModule == null) {
-                    element = new ModuleElement(
-                            null,
-                            getNameForCategory(category),
-                            "N/A",
-                            true,
-                            entry.getKey(),
-                            category,
-                            getCreditsForCategory(category)
-                    );
+                if (hasElectedModules && moduleOptional.isPresent()) {
+                    element = createModule(moduleOptional.get(), category, semester);
                 } else {
-                    var semester = Integer.parseInt(electedModule.getFullTimeSemester()); //todo teilzeit abfangen
-                    element = new ModuleElement(null,
-                            electedModule.getModuleTitle(),
-                            electedModule.getModuleNo(),
-                            false,
-                            semester, // todo
-                            category,
-                            electedModule.getCredits());
+                    element = createFillerModule(category, semester);
                 }
                 structure.add(element);
             }
@@ -75,22 +71,49 @@ public class ModuleStructureGenerator {
         return switch (category) {
             case CONTEXT_MODULE -> "Kontext Wahlpflichmodul";
             case SUBJECT_MODULE -> "Fachliches Wahlpflichmodul";
-            case INTERDISCIPLINARY_MODULE -> "Ueberfachliches Wahlpflichmodul";
+            case INTERDISCIPLINARY_MODULE -> "Überfachliches Wahlpflichmodul";
             case PROJECT_MODULE -> "Projektarbeit in der Informatik";
             case BACHELOR_MODULE -> "Bachelorarbeit in der Informatik";
         };
     }
 
-    private Module findModuleByCategory(ModuleCategory category) {
+    private Module findModuleByCategory(ModuleCategory category, int semester) {
         Module module = null;
-        Optional<Module> moduleOptional = electedModules.stream()
-                .filter(m -> ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup()).equals(category))
-                .findFirst();
-        if (moduleOptional.isPresent()) {
-            module = moduleOptional.get();
-            electedModules.remove(module);
-        }
+        Predicate<Module> hasModuleForCategory = m ->
+                ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup()).equals(category) &&
+                (int) Float.parseFloat(m.getFullTimeSemester()) == semester;
 
+        if (hasElectedModules) {
+            Optional<Module> moduleOptional = electedModules.stream()
+                    .filter(hasModuleForCategory)
+                    .findFirst();
+            if (moduleOptional.isPresent()) {
+                module = moduleOptional.get();
+                electedModules.remove(module);
+            }
+        }
         return module;
+    }
+
+    private ModuleElement createFillerModule(ModuleCategory category, int semester) {
+        return new ModuleElement(
+                null,
+                getNameForCategory(category),
+                "N/A",
+                true,
+                semester,
+                category,
+                getCreditsForCategory(category)
+        );
+    }
+
+    private ModuleElement createModule(Module electedModule, ModuleCategory category, int semester) {
+        return new ModuleElement(null,
+                electedModule.getModuleTitle(),
+                electedModule.getModuleNo(),
+                false,
+                semester,
+                category,
+                electedModule.getCredits());
     }
 }

@@ -1,3 +1,4 @@
+
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
@@ -5,7 +6,6 @@ import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
-import ch.zhaw.vorwahlen.model.modulestructure.ModuleElement;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructure;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
@@ -58,10 +58,13 @@ public class ElectionService {
         this.structurePartTime = structurePartTime;
     }
 
-    public List<ModuleElement> getModuleStructure(StudentDTO student) {
+    public Map<String, List<?>> getModuleStructure(StudentDTO student) {
         ModuleStructure structure = student.isTZ() ? structurePartTime : structureFullTime;
-        ModuleElection election = electionRepository.getById(student.getEmail());
-        return new ModuleStructureGenerator(structure).generateStructure(student, election);
+        ModuleElection election = null;
+        if (electionRepository.existsById(student.getEmail())) {
+            election = electionRepository.getById(student.getEmail());
+        }
+        return new ModuleStructureGenerator(structure, election).generateStructure();
     }
 
     /**
