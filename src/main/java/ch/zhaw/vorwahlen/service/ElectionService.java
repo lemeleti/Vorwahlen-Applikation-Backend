@@ -64,7 +64,7 @@ public class ElectionService {
         if (electionRepository.existsById(student.getEmail())) {
             election = electionRepository.getById(student.getEmail());
         }
-        return new ModuleStructureGenerator(structure, election).generateStructure();
+        return new ModuleStructureGenerator(structure, election, student).generateStructure();
     }
 
     /**
