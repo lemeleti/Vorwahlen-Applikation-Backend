@@ -12,7 +12,9 @@ public enum ModuleCategory {
     INTERDISCIPLINARY_MODULE,
     CONTEXT_MODULE,
     PROJECT_MODULE,
-    BACHELOR_MODULE;
+    BACHELOR_MODULE,
+    DISPENSED_PA_MODULE,
+    DISPENSED_WPM_MODULE;
 
     /**
      * Categorize modules by module id.
