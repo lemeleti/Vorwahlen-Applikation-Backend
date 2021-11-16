@@ -11,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,8 +27,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("election")
 public class ModuleElectionController {
-
-    public static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
     private final ElectionService electionService;
     private final ClassListService classListService;
 
@@ -44,12 +39,12 @@ public class ModuleElectionController {
     @MessageMapping("/save")
     @SendToUser("/queue/electionSaveStatus")
     @Transactional
-    public ObjectNode saveElection(SimpMessageHeaderAccessor headerAccessor, ModuleElectionDTO moduleElectionDTO) {
+    public ObjectNode saveElection(SimpMessageHeaderAccessor headerAccessor,
+                                   ModuleElectionDTO moduleElectionDTO, @AuthenticationPrincipal User user) {
         var node = new ObjectMapper().createObjectNode();
         var sessionAttributes = headerAccessor.getSessionAttributes();
         if(sessionAttributes != null) {
-            var context = (SecurityContextImpl) sessionAttributes.get(SPRING_SECURITY_CONTEXT);
-            var student = getStudent(context);
+            var student = getStudent(user);
             node = electionService.saveElection(student, moduleElectionDTO);
         }
         return node;
@@ -60,21 +55,17 @@ public class ModuleElectionController {
      * @return List of module ids (example: "t.BA.WM.RASOP-EN.19HS")
      */
     @GetMapping(path = {"", "/" })
-    public ModuleElectionDTO getElectedModules() {
-        var context = SecurityContextHolder.getContext();
-        var student = getStudent(context);
+    public ModuleElectionDTO getElectedModules(@AuthenticationPrincipal User user) {
+        var student = getStudent(user);
         return electionService.getModuleElectionByStudent(student);
     }
 
     @GetMapping(path = {"/structure", "/structure/"})
-    public Map<String, List<?>> getFullTimeModuleStructure() {
-        var context = SecurityContextHolder.getContext();
-        return electionService.getModuleStructure(getStudent(context));
+    public Map<String, List<?>> getFullTimeModuleStructure(@AuthenticationPrincipal User user) {
+        return electionService.getModuleStructure(getStudent(user));
     }
 
-    private StudentDTO getStudent(SecurityContext context) {
-        var auth = context.getAuthentication();
-        var user = getUserFromAuth(auth);
+    private StudentDTO getStudent(User user) {
         if (user == null) {
             // todo throw exception
         }
@@ -83,17 +74,5 @@ public class ModuleElectionController {
             // todo throw exception
         }
         return student.get();
-    }
-
-    private User getUserFromAuth(Authentication auth) {
-        User user = null;
-        try {
-            if (auth != null && auth.getPrincipal() != null) {
-                user = (User) auth.getPrincipal();
-            }
-        } catch (ClassCastException ignored) {
-            // Has to be empty, do nothing
-        }
-        return user;
     }
 }
