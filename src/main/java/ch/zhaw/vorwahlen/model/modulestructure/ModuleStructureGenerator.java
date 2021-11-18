@@ -42,7 +42,6 @@ public class ModuleStructureGenerator {
     }
 
     private void generateModuleElements(Map<Integer, Integer> modules, ModuleCategory category) {
-        ModuleElementFactory factory = new ModuleElementFactory();
         var paDispensationCredits = student.getPaDispensation();
         var wpmDispensationCredits = student.getWpmDispensation();
         ModuleCategory backup = category;
@@ -59,8 +58,9 @@ public class ModuleStructureGenerator {
                     category = ModuleCategory.DISPENSED_WPM_MODULE;
                     wpmDispensationCredits -= ModuleCategory.DISPENSED_WPM_MODULE.getCredits();
                 }
-
-                structure.add(factory.createModuleElement(findModuleByCategory(category, semester), category, semester));
+                Module module = findModuleByCategory(category, semester);
+                ModuleStructureElement element = createStructureElement(module, category, semester);
+                structure.add(element);
                 category = backup;
             }
         }
@@ -83,4 +83,27 @@ public class ModuleStructureGenerator {
         }
         return module;
     }
-}
+
+    private ModuleStructureElement createStructureElement(Module module,
+                                                          ModuleCategory category, int semester) {
+
+        String name = category.getDescription();
+        String moduleId = "N/A";
+        boolean isFiller = true;
+
+        if (module != null) {
+            name = module.getModuleTitle();
+            moduleId = module.getModuleNo();
+            isFiller = false;
+        }
+
+        return new ModuleStructureElement(
+                name,
+                moduleId,
+                isFiller,
+                semester,
+                category,
+                category.getCredits()
+        );
+    }
+ }
