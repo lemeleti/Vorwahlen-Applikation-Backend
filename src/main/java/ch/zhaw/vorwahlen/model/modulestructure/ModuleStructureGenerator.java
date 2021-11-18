@@ -25,7 +25,6 @@ public class ModuleStructureGenerator {
     private boolean hasElectedModules;
 
     public ModuleStructureDTO generateStructure() {
-        Map<String, List<?>> structureMap = new HashMap<>();
         if (election != null) {
             electedModules.addAll(election.getElectedModules());
             overflowedElectedModules.addAll(election.getOverflowedElectedModules());
