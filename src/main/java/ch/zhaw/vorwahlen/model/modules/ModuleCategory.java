@@ -1,20 +1,25 @@
 package ch.zhaw.vorwahlen.model.modules;
 
 import ch.zhaw.vorwahlen.parser.ModuleParser;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
  * Categorize modules by module id.
  */
 @RequiredArgsConstructor
+@Getter
 public enum ModuleCategory {
-    SUBJECT_MODULE,
-    INTERDISCIPLINARY_MODULE,
-    CONTEXT_MODULE,
-    PROJECT_MODULE,
-    BACHELOR_MODULE,
-    DISPENSED_PA_MODULE,
-    DISPENSED_WPM_MODULE;
+    SUBJECT_MODULE(4, "Fachliches Wahlpflichmodul"),
+    INTERDISCIPLINARY_MODULE(4, "Überfachliches Wahlpflichmodul"),
+    CONTEXT_MODULE(2, "Kontext Wahlpflichmodul"),
+    PROJECT_MODULE(6, "Projektarbeit in der Informatik"),
+    BACHELOR_MODULE(12, "Bachelorarbeit in der Informatik"),
+    DISPENSED_PA_MODULE(6, "Projektarbeit in der Informatik - Dispensiert"),
+    DISPENSED_WPM_MODULE(4, "Fachliches Wahlpflichmodul - Dispensiert");
+
+    private final int credits;
+    private final String description;
 
     /**
      * Categorize modules by module id.

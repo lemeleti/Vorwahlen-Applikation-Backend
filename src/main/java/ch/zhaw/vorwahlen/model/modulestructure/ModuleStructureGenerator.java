@@ -57,7 +57,7 @@ public class ModuleStructureGenerator {
 
                 if (ModuleCategory.SUBJECT_MODULE.equals(category) && wpmDispensationCredits > 0) {
                     category = ModuleCategory.DISPENSED_WPM_MODULE;
-                    wpmDispensationCredits -= 4;
+                    wpmDispensationCredits -= ModuleCategory.DISPENSED_WPM_MODULE.getCredits();
                 }
 
                 structure.add(factory.createModuleElement(findModuleByCategory(category, semester), category, semester));
