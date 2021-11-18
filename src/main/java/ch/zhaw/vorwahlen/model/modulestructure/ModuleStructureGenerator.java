@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor
 public class ModuleStructureGenerator {
     private final ModuleStructure moduleStructure;
-    private final List<ModuleElement> structure = new ArrayList<>();
+    private final List<ModuleStructureElement> structure = new ArrayList<>();
     private final ModuleElection election;
     private final List<Module> electedModules = new ArrayList<>();
     private final List<Module> overflowedElectedModules = new ArrayList<>();
