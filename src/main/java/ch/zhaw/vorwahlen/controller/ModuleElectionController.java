@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
+import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.user.User;
 import ch.zhaw.vorwahlen.service.ClassListService;
@@ -61,7 +62,7 @@ public class ModuleElectionController {
     }
 
     @GetMapping(path = {"/structure", "/structure/"})
-    public Map<String, List<?>> getFullTimeModuleStructure(@AuthenticationPrincipal User user) {
+    public ModuleStructureDTO getFullTimeModuleStructure(@AuthenticationPrincipal User user) {
         return electionService.getModuleStructure(getStudent(user));
     }
 

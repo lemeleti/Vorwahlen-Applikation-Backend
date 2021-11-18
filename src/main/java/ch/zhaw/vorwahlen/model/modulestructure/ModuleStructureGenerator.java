@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.model.modulestructure;
 
+import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
@@ -23,7 +24,7 @@ public class ModuleStructureGenerator {
     private final StudentDTO student; //todo replace with Student class
     private boolean hasElectedModules;
 
-    public Map<String, List<?>> generateStructure() {
+    public ModuleStructureDTO generateStructure() {
         Map<String, List<?>> structureMap = new HashMap<>();
         if (election != null) {
             electedModules.addAll(election.getElectedModules());
@@ -37,10 +38,7 @@ public class ModuleStructureGenerator {
         generateModuleElements(moduleStructure.interdisciplinaryModules(), ModuleCategory.INTERDISCIPLINARY_MODULE);
         generateModuleElements(moduleStructure.bachelorModule(), ModuleCategory.BACHELOR_MODULE);
 
-        structureMap.put("electedModules", structure);
-        structureMap.put("overflowedModules", overflowedElectedModules);
-
-        return structureMap;
+        return new ModuleStructureDTO(structure, overflowedElectedModules);
     }
 
     private void generateModuleElements(Map<Integer, Integer> modules, ModuleCategory category) {

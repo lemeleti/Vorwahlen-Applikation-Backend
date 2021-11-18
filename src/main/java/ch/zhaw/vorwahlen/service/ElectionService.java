@@ -2,6 +2,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
+import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
@@ -58,7 +59,7 @@ public class ElectionService {
         this.structurePartTime = structurePartTime;
     }
 
-    public Map<String, List<?>> getModuleStructure(StudentDTO student) {
+    public ModuleStructureDTO getModuleStructure(StudentDTO student) {
         ModuleStructure structure = student.isTZ() ? structurePartTime : structureFullTime;
         ModuleElection election = null;
         if (electionRepository.existsById(student.getEmail())) {
