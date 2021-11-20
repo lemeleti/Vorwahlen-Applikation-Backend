@@ -77,17 +77,12 @@ class ModuleServiceTest {
     @Sql("classpath:sql/modules.sql")
     void testGetModuleById() {
         var expected = ModuleDTO.builder()
-                .fullTimeSemesterList(List.of(5))
-                .partTimeSemesterList(List.of(7))
+                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5), List.of(7)))
                 .moduleNo("t.BA.WM.DHEAL-EN.19HS")
                 .category(ModuleCategory.INTERDISCIPLINARY_MODULE)
                 .credits((byte) 4)
-                .institute("INIT")
-                .isIPModule(true)
                 .language("Englisch")
-                .moduleGroup("DS6,ET5,IT6,MT7,ST5,WI6")
                 .moduleTitle("Digital Health")
-                .shortModuleNo("WM.DHEAL-EN")
                 .consecutiveModuleNo("")
                 .build();
         var result = moduleService.getModuleById(expected.getModuleNo());

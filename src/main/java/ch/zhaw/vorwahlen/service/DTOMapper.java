@@ -43,16 +43,12 @@ public class DTOMapper {
 
     final Function<Module, ModuleDTO> mapModuleToDto = module -> ModuleDTO.builder()
             .moduleNo(module.getModuleNo())
-            .shortModuleNo(module.getShortModuleNo())
             .moduleTitle(module.getModuleTitle())
-            .moduleGroup(module.getModuleGroup())
             .category(ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()))
-            .isIPModule(module.isIPModule())
-            .institute(module.getInstitute())
             .credits(module.getCredits())
             .language(module.getLanguage())
-            .fullTimeSemesterList(parseSemesterListData(module.getFullTimeSemester()))
-            .partTimeSemesterList(parseSemesterListData(module.getPartTimeSemester()))
+            .executionSemester(new ModuleDTO.ExecutionSemester(parseSemesterListData(module.getFullTimeSemester()),
+                    parseSemesterListData(module.getPartTimeSemester())))
             .consecutiveModuleNo(module.getConsecutiveModuleNo() == null ? "" : module.getConsecutiveModuleNo())
             .build();
 

@@ -63,14 +63,14 @@ class ModuleControllerTest {
         // prepare
         var expectedList = new ArrayList<ModuleDTO>();
         expectedList.add(ModuleDTO.builder().moduleNo("nr1").moduleTitle("title1").language(LANGUAGE_DE).credits((byte) CREDIT_2)
-                                 .fullTimeSemesterList(FULL_TIME_SEMESTER_LIST_5)
-                                 .partTimeSemesterList(PART_TIME_SEMESTER_LIST_5_7).build());
+                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5, PART_TIME_SEMESTER_LIST_5_7))
+                                 .build());
         expectedList.add(ModuleDTO.builder().moduleNo("nr2").moduleTitle("title2").language(LANGUAGE_EN).credits((byte) CREDIT_4)
-                                 .fullTimeSemesterList(FULL_TIME_SEMESTER_LIST_5_6)
-                                 .partTimeSemesterList(PART_TIME_SEMESTER_LIST_5_7).build());
+                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5_6, PART_TIME_SEMESTER_LIST_5_7 ))
+                                 .build());
         expectedList.add(ModuleDTO.builder().moduleNo("nr3").moduleTitle("title3").language(LANGUAGE_DE).credits((byte) CREDIT_6)
-                                 .fullTimeSemesterList(FULL_TIME_SEMESTER_LIST_5)
-                                 .partTimeSemesterList(PART_TIME_SEMESTER_LIST_6_8).build());
+                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5, PART_TIME_SEMESTER_LIST_6_8))
+                                 .build());
 
         when(moduleService.getAllModules()).thenReturn(expectedList);
 
@@ -81,38 +81,17 @@ class ModuleControllerTest {
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").exists())
-                    .andExpect(jsonPath("$.[*].module_no").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].module_no", anyOf(
+                    .andExpect(jsonPath("$.[*].moduleNo").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].moduleNo", anyOf(
                             hasItem(expectedList.get(0).getModuleNo()),
                             hasItem(expectedList.get(1).getModuleNo()),
                             hasItem(expectedList.get(2).getModuleNo())
                     )))
-                    .andExpect(jsonPath("$.[*].short_module_no").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].short_module_no", anyOf(
-                            hasItem(expectedList.get(0).getShortModuleNo()),
-                            hasItem(expectedList.get(1).getShortModuleNo()),
-                            hasItem(expectedList.get(2).getShortModuleNo())
-                    )))
-                    .andExpect(jsonPath("$.[*].module_title").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].module_title", anyOf(
+                    .andExpect(jsonPath("$.[*].moduleTitle").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].moduleTitle", anyOf(
                             hasItem(expectedList.get(0).getModuleTitle()),
                             hasItem(expectedList.get(1).getModuleTitle()),
                             hasItem(expectedList.get(2).getModuleTitle())
-                    )))
-                    .andExpect(jsonPath("$.[*].module_group").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].module_group", anyOf(
-                            hasItem(expectedList.get(0).getModuleGroup()),
-                            hasItem(expectedList.get(1).getModuleGroup()),
-                            hasItem(expectedList.get(2).getModuleGroup())
-                    )))
-                    .andExpect(jsonPath("$.[*].is_ip_module", anyOf(
-                            hasItem(false)
-                    )))
-                    .andExpect(jsonPath("$.[*].institute").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].institute", anyOf(
-                            hasItem(expectedList.get(0).getInstitute()),
-                            hasItem(expectedList.get(1).getInstitute()),
-                            hasItem(expectedList.get(2).getInstitute())
                     )))
                     .andExpect(jsonPath("$.[*].credits").isNotEmpty())
                     .andExpect(jsonPath("$.[*].credits", anyOf(
@@ -125,29 +104,30 @@ class ModuleControllerTest {
                             hasItem(LANGUAGE_DE),
                             hasItem(LANGUAGE_EN)
                     )))
-                    .andExpect(jsonPath("$.[*].full_time_semester_list").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].full_time_semester_list.[*]").isNotEmpty())
-                    .andExpect(jsonPath("$.[0].full_time_semester_list.[*]", anyOf(
+                    .andExpect(jsonPath("$.[*].executionSemester").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].executionSemester.fullTimeSemesterList").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].executionSemester.fullTimeSemesterList.[*]").isNotEmpty())
+                    .andExpect(jsonPath("$.[0].executionSemester.fullTimeSemesterList.[*]", anyOf(
                             hasItem(FULL_TIME_SEMESTER_LIST_5.get(0))
                     )))
-                    .andExpect(jsonPath("$.[1].full_time_semester_list.[*]", anyOf(
+                    .andExpect(jsonPath("$.[1].executionSemester.fullTimeSemesterList.[*]", anyOf(
                             hasItem(FULL_TIME_SEMESTER_LIST_5_6.get(0)),
                             hasItem(FULL_TIME_SEMESTER_LIST_5_6.get(1))
                     )))
-                    .andExpect(jsonPath("$.[2].full_time_semester_list.[*]", anyOf(
+                    .andExpect(jsonPath("$.[2].executionSemester.fullTimeSemesterList.[*]", anyOf(
                             hasItem(FULL_TIME_SEMESTER_LIST_5.get(0))
                     )))
-                    .andExpect(jsonPath("$.[*].part_time_semester_list").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].part_time_semester_list.[*]").isNotEmpty())
-                    .andExpect(jsonPath("$.[0].part_time_semester_list.[*]", anyOf(
+                    .andExpect(jsonPath("$.[*].executionSemester.partTimeSemesterList").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].executionSemester.partTimeSemesterList.[*]").isNotEmpty())
+                    .andExpect(jsonPath("$.[0].executionSemester.partTimeSemesterList.[*]", anyOf(
                             hasItem(PART_TIME_SEMESTER_LIST_5_7.get(0)),
                             hasItem(PART_TIME_SEMESTER_LIST_5_7.get(1))
                     )))
-                    .andExpect(jsonPath("$.[1].part_time_semester_list.[*]", anyOf(
+                    .andExpect(jsonPath("$.[1].executionSemester.partTimeSemesterList.[*]", anyOf(
                             hasItem(PART_TIME_SEMESTER_LIST_5_7.get(0)),
                             hasItem(PART_TIME_SEMESTER_LIST_5_7.get(1))
                     )))
-                    .andExpect(jsonPath("$.[2].part_time_semester_list.[*]", anyOf(
+                    .andExpect(jsonPath("$.[2].executionSemester.partTimeSemesterList.[*]", anyOf(
                             hasItem(PART_TIME_SEMESTER_LIST_6_8.get(0)),
                             hasItem(PART_TIME_SEMESTER_LIST_6_8.get(1))
                     )))
