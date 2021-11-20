@@ -8,7 +8,7 @@ import java.io.InputStream;
 
 public class ClassListParser extends ExcelParser<Student, StudentLookupTable> {
 
-    public static final String TZ_CLASS_REGEX = "[A-Za-z]+\\d{2}t[a-z]+_[A-Za-z]+";
+    public static final String TZ_CLASS_REGEX = "[A-Za-z]+(?<year>\\d{2})t[a-z]+_[A-Za-z]+";
 
     /**
      * Create instance.
