@@ -1,10 +1,16 @@
 package ch.zhaw.vorwahlen.config;
 
 import ch.zhaw.vorwahlen.authentication.AuthFilter;
+import ch.zhaw.vorwahlen.authentication.CustomAuthToken;
+import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
+import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
+import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Map;
 
@@ -48,4 +54,22 @@ public class WPMConfig {
         return new AuthFilter(true);
     }
 
+    @Bean
+    public ElectionValidator getElectionValidator() {
+        ElectionValidator validator;
+        CustomAuthToken token = (CustomAuthToken) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (token == null) {
+            //todo use custom exception
+           throw new RuntimeException("User is not authenticated");
+        }
+
+        Student student = token.getUser().getStudent();
+        if (student.isTZ()) {
+           validator = new PartTimeElectionValidator(student);
+        } else {
+           validator = new FullTimeElectionValidator(student);
+        }
+        return validator;
+    }
 }
