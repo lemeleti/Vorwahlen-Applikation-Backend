@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.model.user;
 
+import ch.zhaw.vorwahlen.model.modules.Student;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,4 +23,5 @@ public class User implements Serializable {
     private String homeOrg;
     private String mail;
     private String role;
+    private Student student;
 }
