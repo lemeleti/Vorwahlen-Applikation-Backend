@@ -25,9 +25,6 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     public static final int CREDIT_PER_SUBJECT_MODULE = 4;
     private final Student student;
 
-    @Override
-    abstract boolean validate(ModuleElection election);
-
     protected boolean validConsecutiveModuleElection(ModuleElection moduleElection) {
         var consecutiveMap = new HashMap<Module, Module>();
         for(var m1: moduleElection.getElectedModules()) {
