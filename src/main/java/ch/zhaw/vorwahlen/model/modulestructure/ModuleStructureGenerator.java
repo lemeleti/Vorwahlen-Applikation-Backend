@@ -1,14 +1,13 @@
 package ch.zhaw.vorwahlen.model.modulestructure;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.Student;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,7 +20,7 @@ public class ModuleStructureGenerator {
     private final ModuleElection election;
     private final List<Module> electedModules = new ArrayList<>();
     private final List<Module> overflowedElectedModules = new ArrayList<>();
-    private final StudentDTO student; //todo replace with Student class
+    private final Student student;
     private boolean hasElectedModules;
 
     public ModuleStructureDTO generateStructure() {

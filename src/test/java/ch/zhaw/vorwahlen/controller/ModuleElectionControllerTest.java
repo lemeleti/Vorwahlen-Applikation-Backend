@@ -63,7 +63,7 @@ class ModuleElectionControllerTest {
     void setUp() {
         this.webSocketStompClient = new WebSocketStompClient(new SockJsClient(List.of(new WebSocketTransport(new StandardWebSocketClient()))));
 
-        controller = new ModuleElectionController(electionService, classListService);
+        controller = new ModuleElectionController(electionService);
 
         var studentDTO = StudentDTO.builder()
                 .name("dev")

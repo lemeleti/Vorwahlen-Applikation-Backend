@@ -3,7 +3,6 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
@@ -40,8 +39,8 @@ public class ElectionService {
 
     private final ElectionRepository electionRepository;
     private final Function<Set<String>, Set<Module>> mapModuleSet;
-    private final ModuleStructureFullTime structureFullTime;
-    private final ModuleStructurePartTime structurePartTime;
+    private final ModuleStructure structureFullTime;
+    private final ModuleStructure structurePartTime;
 
     @Autowired
     public ElectionService(ElectionRepository electionRepository, ModuleRepository moduleRepository,
@@ -54,8 +53,8 @@ public class ElectionService {
         this.structurePartTime = structurePartTime;
     }
 
-    public ModuleStructureDTO getModuleStructure(StudentDTO student) {
-        ModuleStructure structure = student.isTZ() ? structurePartTime : structureFullTime;
+    public ModuleStructureDTO getModuleStructure(Student student) {
+        var structure = student.isTZ() ? structurePartTime : structureFullTime;
         ModuleElection election = null;
         if (electionRepository.existsById(student.getEmail())) {
             election = electionRepository.getById(student.getEmail());
@@ -65,11 +64,11 @@ public class ElectionService {
 
     /**
      * Gets the stored election from student.
-     * @param studentDTO student in session
+     * @param student student in session
      * @return current election
      */
-    public ModuleElectionDTO getModuleElectionByStudent(StudentDTO studentDTO) {
-        var optional = electionRepository.findById(studentDTO.getEmail());
+    public ModuleElectionDTO getModuleElectionByStudent(Student student) {
+        var optional = electionRepository.findById(student.getEmail());
         if(optional.isPresent()) {
             return optional.map(DTOMapper.mapElectionToDto).get();
         }
@@ -78,25 +77,16 @@ public class ElectionService {
 
     /**
      * Saves the election to the database.
-     * @param studentDTO student in session
+     * @param student student in session
      * @param moduleElectionDTO his current election
      * @return true - if save successful<br>
      *         false - if arguments invalid
      */
-    public ObjectNode saveElection(StudentDTO studentDTO, ModuleElectionDTO moduleElectionDTO) {
-        if(studentDTO == null || moduleElectionDTO == null
-                || studentDTO.getEmail() == null || studentDTO.getEmail().isBlank()) {
+    public ObjectNode saveElection(Student student, ModuleElectionDTO moduleElectionDTO) {
+        if(student == null || moduleElectionDTO == null
+                || student.getEmail() == null || student.getEmail().isBlank()) {
             return createSaveStatusBundle(false, false);
         }
-
-        var student = new Student();
-        student.setEmail(studentDTO.getEmail());
-        student.setTZ(studentDTO.isTZ());
-        student.setIP(studentDTO.isIP());
-        student.setClazz(studentDTO.getClazz());
-        student.setName(studentDTO.getName());
-        student.setPaDispensation(studentDTO.getPaDispensation());
-        student.setWpmDispensation(studentDTO.getWpmDispensation());
 
         var moduleElection = DTOMapper.mapDtoToModuleElection(moduleElectionDTO, student, mapModuleSet);
 

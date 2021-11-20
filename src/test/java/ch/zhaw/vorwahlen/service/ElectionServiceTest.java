@@ -1,20 +1,17 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructurePartTime;
-import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
@@ -42,7 +39,7 @@ class ElectionServiceTest {
 
     private ElectionService electionService;
 
-    private final StudentDTO studentDTOMock = mock(StudentDTO.class);
+    private final Student studentMock = mock(Student.class);
 
     private final List<String> interdisciplinaryModules = List.of("t.BA.WM.PHMOD.19HS");
     private final List<String> contextModules = List.of("t.BA.XXK.FUPRE.19HS", "t.BA.WVK.ZURO.20HS", "t.BA.WVK.SIC-TAF.20HS");
@@ -78,30 +75,30 @@ class ElectionServiceTest {
     @Test
     @Sql("classpath:sql/modules_test_election.sql")
     void testGetModuleElectionByStudent() {
-        when(studentDTOMock.getEmail()).thenReturn("test@mail.com");
-        when(studentDTOMock.getWpmDispensation()).thenReturn(0);
-        when(studentDTOMock.isTZ()).thenReturn(false);
-        when(studentDTOMock.isIP()).thenReturn(false);
+        when(studentMock.getEmail()).thenReturn("test@mail.com");
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+        when(studentMock.isTZ()).thenReturn(false);
+        when(studentMock.isIP()).thenReturn(false);
 
-        assertNull(electionService.getModuleElectionByStudent(studentDTOMock));
+        assertNull(electionService.getModuleElectionByStudent(studentMock));
 
         var validElection = validElectionSetForElectionDTO();
         var moduleElection = new ModuleElectionDTO();
         moduleElection.setElectedModules(validElection);
         moduleElection.setOverflowedElectedModules(new HashSet<>());
 
-        electionService.saveElection(studentDTOMock, moduleElection);
-        assertNotNull(electionService.getModuleElectionByStudent(studentDTOMock));
+        electionService.saveElection(studentMock, moduleElection);
+        assertNotNull(electionService.getModuleElectionByStudent(studentMock));
     }
 
     @Test
     @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection() {
-        when(studentDTOMock.getEmail()).thenReturn("test@mail.com");
+        when(studentMock.getEmail()).thenReturn("test@mail.com");
         // case VZ, Non-IP, No dispensations
-        when(studentDTOMock.getWpmDispensation()).thenReturn(0);
-        when(studentDTOMock.isTZ()).thenReturn(false);
-        when(studentDTOMock.isIP()).thenReturn(false);
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+        when(studentMock.isTZ()).thenReturn(false);
+        when(studentMock.isIP()).thenReturn(false);
 
         var validElection = validElectionSetForElectionDTO();
         var moduleElection = new ModuleElectionDTO();
@@ -112,7 +109,7 @@ class ElectionServiceTest {
         jsonNode.put("electionSaved", true);
         jsonNode.put("electionValid", true);
 
-        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElection));
+        assertEquals(jsonNode, electionService.saveElection(studentMock, moduleElection));
         assertTrue(moduleElection.isElectionValid());
 
         jsonNode.put("electionValid", false);
@@ -126,7 +123,7 @@ class ElectionServiceTest {
                         .collect(Collectors.toSet()));
 
         assertFalse(moduleElection.getOverflowedElectedModules().isEmpty());
-        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElection));
+        assertEquals(jsonNode, electionService.saveElection(studentMock, moduleElection));
         assertFalse(moduleElection.isElectionValid());
     }
 
@@ -160,25 +157,25 @@ class ElectionServiceTest {
 
     @Test
     void testSaveElection_Null_Election() {
-        when(studentDTOMock.getEmail()).thenReturn("test@mail.com");
-        when(studentDTOMock.getWpmDispensation()).thenReturn(0);
-        when(studentDTOMock.isTZ()).thenReturn(false);
-        when(studentDTOMock.isIP()).thenReturn(false);
+        when(studentMock.getEmail()).thenReturn("test@mail.com");
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+        when(studentMock.isTZ()).thenReturn(false);
+        when(studentMock.isIP()).thenReturn(false);
 
         var jsonNode = new ObjectMapper().createObjectNode();
         jsonNode.put("electionSaved", false);
         jsonNode.put("electionValid", false);
 
-        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, null));
+        assertEquals(jsonNode, electionService.saveElection(studentMock, null));
     }
 
     @Test
     @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection_Null_Email() {
-        when(studentDTOMock.getEmail()).thenReturn(null);
-        when(studentDTOMock.getWpmDispensation()).thenReturn(0);
-        when(studentDTOMock.isTZ()).thenReturn(false);
-        when(studentDTOMock.isIP()).thenReturn(false);
+        when(studentMock.getEmail()).thenReturn(null);
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+        when(studentMock.isTZ()).thenReturn(false);
+        when(studentMock.isIP()).thenReturn(false);
 
         var validElection = validElectionSetForElectionDTO();
         var moduleElectionDTO = new ModuleElectionDTO();
@@ -189,16 +186,16 @@ class ElectionServiceTest {
         jsonNode.put("electionSaved", false);
         jsonNode.put("electionValid", false);
 
-        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElectionDTO));
+        assertEquals(jsonNode, electionService.saveElection(studentMock, moduleElectionDTO));
     }
 
     @Test
     @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection_Blank_Email() {
-        when(studentDTOMock.getEmail()).thenReturn("  ");
-        when(studentDTOMock.getWpmDispensation()).thenReturn(0);
-        when(studentDTOMock.isTZ()).thenReturn(false);
-        when(studentDTOMock.isIP()).thenReturn(false);
+        when(studentMock.getEmail()).thenReturn("  ");
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+        when(studentMock.isTZ()).thenReturn(false);
+        when(studentMock.isIP()).thenReturn(false);
 
         var validElection = validElectionSetForElectionDTO();
         var moduleElectionDTO = new ModuleElectionDTO();
@@ -209,7 +206,7 @@ class ElectionServiceTest {
         jsonNode.put("electionSaved", false);
         jsonNode.put("electionValid", false);
 
-        assertEquals(jsonNode, electionService.saveElection(studentDTOMock, moduleElectionDTO));
+        assertEquals(jsonNode, electionService.saveElection(studentMock, moduleElectionDTO));
     }
 
 }

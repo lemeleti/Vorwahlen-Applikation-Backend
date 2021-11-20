@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.user.User;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +19,9 @@ public class SessionController {
      * Get the user information of the current session
      * @return {@link ResponseEntity<User>} with status code ok
      */
+    // todo base path would be better than info
     @GetMapping(path = "info")
-    public ResponseEntity<User> getSessionInfo() {
-        var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public ResponseEntity<User> getSessionInfo(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(user);
     }
 
@@ -29,6 +29,7 @@ public class SessionController {
      * Destroy the current session.
      * @return {@link ResponseEntity<Void>} with status code ok
      */
+    //todo delete mapping would be better
     @GetMapping(path = "destroy")
     public ResponseEntity<Void> destroySession() {
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -40,9 +41,7 @@ public class SessionController {
      * @return {@link ResponseEntity<Boolean>} with status code ok
      */
     @GetMapping(path = "is-admin")
-    public ResponseEntity<Boolean> isUserAdmin() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        var user = getUserFromAuth(auth);
+    public ResponseEntity<Boolean> isUserAdmin(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(user != null && "ADMIN".equals(user.getRole()));
     }
 
@@ -51,22 +50,7 @@ public class SessionController {
      * @return {@link ResponseEntity<Boolean>} with status code ok
      */
     @GetMapping(path = "/is-authenticated")
-    public ResponseEntity<Boolean> isUserAuthenticated() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        var user = getUserFromAuth(auth);
+    public ResponseEntity<Boolean> isUserAuthenticated(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(user != null);
     }
-
-    private User getUserFromAuth(Authentication auth) {
-        User user = null;
-        try {
-            if (auth != null && auth.getPrincipal() != null) {
-                user = (User) auth.getPrincipal();
-            }
-        } catch (ClassCastException ignored) {
-            // Has to be empty, do nothing
-        }
-        return user;
-    }
-
 }
