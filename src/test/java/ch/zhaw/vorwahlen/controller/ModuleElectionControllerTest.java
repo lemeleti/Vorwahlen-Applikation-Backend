@@ -96,8 +96,8 @@ class ModuleElectionControllerTest {
         });
 
         var jsonNode = new ObjectMapper().createObjectNode();
-        jsonNode.put("election_saved", true);
-        jsonNode.put("election_valid", false);
+        jsonNode.put("electionSaved", true);
+        jsonNode.put("electionValid", false);
         when(electionService.saveElection(any(), any())).thenReturn(jsonNode);
 
         var moduleElectionDto = ModuleElectionDTO.builder()

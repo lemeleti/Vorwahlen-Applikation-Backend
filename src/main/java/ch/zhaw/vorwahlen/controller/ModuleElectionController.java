@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.controller;
 
+import ch.zhaw.vorwahlen.authentication.CustomAuthToken;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
@@ -18,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Controller for a module.
@@ -41,7 +40,10 @@ public class ModuleElectionController {
     @SendToUser("/queue/electionSaveStatus")
     @Transactional
     public ObjectNode saveElection(SimpMessageHeaderAccessor headerAccessor,
-                                   ModuleElectionDTO moduleElectionDTO, @AuthenticationPrincipal User user) {
+                                   ModuleElectionDTO moduleElectionDTO) {
+        // todo improve
+        CustomAuthToken token = ((CustomAuthToken) headerAccessor.getUser());
+        User user = token != null ? token.getUser() : null;
         var node = new ObjectMapper().createObjectNode();
         var sessionAttributes = headerAccessor.getSessionAttributes();
         if(sessionAttributes != null) {
