@@ -11,6 +11,8 @@ import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructure;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructurePartTime;
+import ch.zhaw.vorwahlen.modulevalidation.AbstractElectionValidator;
+import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,16 +49,19 @@ public class ElectionService {
     private final Function<Set<String>, Set<Module>> mapModuleSet;
     private final ModuleStructureFullTime structureFullTime;
     private final ModuleStructurePartTime structurePartTime;
+    private final ElectionValidator electionValidator;
 
     @Autowired
     public ElectionService(ElectionRepository electionRepository, ModuleRepository moduleRepository,
-                           ModuleStructureFullTime structureFullTime, ModuleStructurePartTime structurePartTime) {
+                           ModuleStructureFullTime structureFullTime, ModuleStructurePartTime structurePartTime,
+                           ElectionValidator electionValidator) {
         this.electionRepository = electionRepository;
         this.mapModuleSet = list -> list.stream()
                                         .map(moduleRepository::getById)
                                         .collect(Collectors.toSet());
         this.structureFullTime = structureFullTime;
         this.structurePartTime = structurePartTime;
+        this.electionValidator = electionValidator;
     }
 
     public ModuleStructureDTO getModuleStructure(StudentDTO student) {
@@ -96,7 +101,7 @@ public class ElectionService {
         }
         var moduleElection = DTOMapper.mapDtoToModuleElection(moduleElectionDTO, studentDTO, mapModuleSet);
 
-        var isValid = validateElection(studentDTO, moduleElection);
+        var isValid = electionValidator.validate(moduleElection);
         moduleElection.setStudentEmail(studentDTO.getEmail());
         moduleElection.setElectionValid(isValid);
         moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
@@ -112,139 +117,4 @@ public class ElectionService {
         node.put("electionValid", validElection);
         return node;
     }
-
-    /**
-     * Validates the election.
-     * @param studentDTO student in session
-     * @param moduleElection his current selection
-     * @return true - if election is valid<br>
-     *         false - if election is invalid
-     */
-    public boolean validateElection(StudentDTO studentDTO, ModuleElection moduleElection) {
-        var isValid = false;
-        if(studentDTO.isTZ()) {
-            // NOTE: IP not checked because we don't store the elected modules from the previous year.
-            // todo: validation for 5/6 semester or 7/8 semester
-            /*
-             * Konsekutive Wahlpfichtmodule: (Like MC1/MC2)
-             * IT18 Teilzeit: Wenn Sie im aktuellen Studienjahr schon zwei konsekutive Module belegt haben, wählen Sie mindestens einmal zwei konsekutive Module, ansonsten mindestens zweimal zwei konsekutive Module.
-             * IT19 Teilzeit: Wählen Sie bis zu zwei konsekutive Module (empfohlen: zwei Module). Achten Sie speziell auf die nötigen Vorkenntnisse der Module.
-             *
-             * Wahlpfichtmodule: (Like AI)
-             * IT18 Teilzeit: Zusammen mit den oben gewählten konsekutiven Modulen, wählen Sie total sieben Module (mit genehmigter Dispensation aus der beruflichen Anrechnung fünf Module)
-             * IT19 Teilzeit: Zusammen mit den oben gewählten konsekutiven Modulen wählen Sie total zwei Module. In der Regel wählen Sie hier also kein Modul.
-             *
-             * Wahlmodule: (like PHMOD)
-             * IT18 Teilzeit: Sie können bis zu einem der oben gewählten Wahlpflichtmodule durch ein Wahlmodule ersetzen.
-             * IT19 Teilzeit: In der Regel wählen Sie jetzt noch keines dieser Wahlmodule, da es mit grosser Wahrscheinlichkeit mit Ihrem obligatorischen Stundenplan nicht kompatibel ist.
-             *
-             * Wirtschaft und Recht: (like RM)
-             * IT18 Teilzeit: Dies gehört zur Modulgruppe IT4. Sie können bis zu zwei dieser Module wählen. Das dritte Modul ist ein METU-Modul, das können Sie hier noch nicht vorwählen.
-             * IT19 Teilzeit: Dies gehört zur Modulgruppe IT5. Sie können bis zu zwei dieser Module für das kommende Studienjahr wählen.
-             */
-        } else {
-            isValid =  isOverflownEmpty(moduleElection)
-                    && isCreditSumValid(moduleElection, studentDTO)
-                    && validContextModuleElection(moduleElection)
-                    && validSubjectModuleElection(moduleElection, studentDTO)
-                    && validInterdisciplinaryModuleElection(moduleElection)
-                    && validIpModuleElection(moduleElection, studentDTO)
-                    && validConsecutiveModuleElection(moduleElection);
-        }
-        return isValid;
-    }
-
-    private boolean validConsecutiveModuleElection(ModuleElection moduleElection) {
-        var consecutiveMap = new HashMap<Module, Module>();
-        for(var m1: moduleElection.getElectedModules()) {
-            for(var m2: moduleElection.getElectedModules()) {
-                if(!m1.equals(m2) && areModulesConsecutive(m1, m2)) {
-                    consecutiveMap.putIfAbsent(m1, null);
-                    if (ModuleService.doTheModulesDifferOnlyInTheNumber(m1, m2)){
-                        consecutiveMap.put(m1, m2);
-                    }
-                }
-            }
-        }
-
-        var countConsecutiveMissingPart = consecutiveMap.values().stream()
-                .filter(Objects::isNull)
-                .count();
-
-        return consecutiveMap.size() != 0 && countConsecutiveMissingPart == 0 &&
-                hasAtLeastTwoConsecutiveModules(moduleElection, consecutiveMap);
-    }
-
-    private boolean hasAtLeastTwoConsecutiveModules(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
-        return consecutiveMap.size() > 2 ||
-                (consecutiveMap.size() == 1
-                    && containsModule(moduleElection.getElectedModules(), "t.BA.WV.PSPP.19HS")
-                    && containsModule(moduleElection.getElectedModules(), "t.BA.WV.FUP.19HS"));
-    }
-
-    private boolean areModulesConsecutive(Module m1, Module m2) {
-        return m1.getConsecutiveModuleNo() != null && !m1.getConsecutiveModuleNo().isBlank()
-                && m2.getConsecutiveModuleNo() != null && !m2.getConsecutiveModuleNo().isBlank();
-    }
-
-    private boolean containsModule(Set<Module> modules, String moduleNo) {
-        return modules.stream()
-                .filter(module -> moduleNo.equals(module.getModuleNo()))
-                .count() == 1;
-    }
-
-    private boolean validIpModuleElection(ModuleElection moduleElection, StudentDTO studentDTO) {
-        var isValid = true;
-        if(studentDTO.isIP()) {
-            var sum = moduleElection.getElectedModules().stream()
-                    .filter(module -> "Englisch".equals(module.getLanguage()))
-                    .mapToInt(Module::getCredits)
-                    .sum();
-            // todo: ask for dispensations in ip
-            isValid = sum + studentDTO.getWpmDispensation() >= NUM_ENGLISH_CREDITS;
-        }
-        return isValid;
-    }
-
-    private long countModuleCategory(ModuleElection moduleElection, ModuleCategory moduleCategory) {
-        return moduleElection.getElectedModules()
-                .stream()
-                .map(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()))
-                .filter(category -> category == moduleCategory)
-                .count();
-    }
-
-    private boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.INTERDISCIPLINARY_MODULE);
-        return count == NUM_INTERDISCIPLINARY_MODULES;
-    }
-
-    private boolean validSubjectModuleElection(ModuleElection moduleElection, StudentDTO studentDTO) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
-        var dispensCount = studentDTO.getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
-        return count + dispensCount == NUM_SUBJECT_MODULES;
-    }
-
-    private boolean validContextModuleElection(ModuleElection moduleElection) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
-        return count == NUM_CONTEXT_MODULES;
-    }
-
-    private boolean isCreditSumValid(ModuleElection moduleElection, StudentDTO studentDTO) {
-        // PA dispensation für die rechnung irrelevant
-        var electedModulesCreditSum = moduleElection.getElectedModules()
-                .stream()
-                .mapToInt(Module::getCredits)
-                .sum();
-        var sum = electedModulesCreditSum + studentDTO.getWpmDispensation();
-        return sum == MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA;
-    }
-
-    private boolean isOverflownEmpty(ModuleElection moduleElection) {
-        if(moduleElection.getOverflowedElectedModules() == null) {
-            return false;
-        }
-        return moduleElection.getOverflowedElectedModules().size() == 0;
-    }
-
 }
