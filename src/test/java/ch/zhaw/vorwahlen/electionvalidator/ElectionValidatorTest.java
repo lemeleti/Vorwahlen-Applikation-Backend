@@ -67,7 +67,7 @@ class ElectionValidatorTest {
     );
 
 
-    private final Student studentDTOMock = mock(Student.class);
+    private final Student studentMock = mock(Student.class);
 
     @BeforeEach
     void setUp() {
@@ -80,7 +80,7 @@ class ElectionValidatorTest {
     @Test
     @Sql("classpath:sql/modules_test_election.sql")
     void testValidateElectionFullTime() {
-        var validator = new FullTimeElectionValidator(studentDTOMock);
+        var validator = new FullTimeElectionValidator(studentMock);
 
         var validElection = validElectionSet();
 
@@ -89,27 +89,27 @@ class ElectionValidatorTest {
         when(moduleElectionMock.getElectedModules()).thenReturn(validElection);
 
         // Case VZ, Non-IP, No Dispensations
-        when(studentDTOMock.isTZ()).thenReturn(false);
-        when(studentDTOMock.isIP()).thenReturn(false);
-        when(studentDTOMock.getWpmDispensation()).thenReturn(0);
+        when(studentMock.isTZ()).thenReturn(false);
+        when(studentMock.isIP()).thenReturn(false);
+        when(studentMock.getWpmDispensation()).thenReturn(0);
         assertTrue(validator.validate(moduleElectionMock));
 
         // Case VZ, IP, No Dispensations
-        when(studentDTOMock.isIP()).thenReturn(true);
+        when(studentMock.isIP()).thenReturn(true);
         assertTrue(validator.validate(moduleElectionMock));
 
         // Case VZ, IP, Some Dispensations
         removeModulesFromSet(validElection);
-        when(studentDTOMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
+        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
         assertTrue(validator.validate(moduleElectionMock));
 
         // Case VZ, Non-IP, Some Dispensations
-        when(studentDTOMock.isIP()).thenReturn(false);
+        when(studentMock.isIP()).thenReturn(false);
         assertTrue(validator.validate(moduleElectionMock));
 
         //===== Returns invalid
         // Case VZ, Non-IP, No Dispensations (Not enough selected)
-        when(studentDTOMock.getWpmDispensation()).thenReturn(0);
+        when(studentMock.getWpmDispensation()).thenReturn(0);
         for (var mode = 1; mode < 4; mode++) {
             assertInvalidElection(moduleElectionMock, validator, mode);
         }

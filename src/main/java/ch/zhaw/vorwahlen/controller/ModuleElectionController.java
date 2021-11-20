@@ -3,9 +3,7 @@ package ch.zhaw.vorwahlen.controller;
 import ch.zhaw.vorwahlen.authentication.CustomAuthToken;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.user.User;
-import ch.zhaw.vorwahlen.service.ClassListService;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -28,7 +26,6 @@ import javax.transaction.Transactional;
 @RequestMapping("election")
 public class ModuleElectionController {
     private final ElectionService electionService;
-    private final ClassListService classListService;
 
     /**
      * Stores the selection from student in session.
@@ -46,8 +43,8 @@ public class ModuleElectionController {
         User user = token != null ? token.getUser() : null;
         var node = new ObjectMapper().createObjectNode();
         var sessionAttributes = headerAccessor.getSessionAttributes();
-        if(sessionAttributes != null) {
-            var student = getStudent(user);
+        if(sessionAttributes != null && user != null) {
+            var student = user.getStudent();
             node = electionService.saveElection(student, moduleElectionDTO);
         }
         return node;
@@ -59,23 +56,11 @@ public class ModuleElectionController {
      */
     @GetMapping(path = {"", "/" })
     public ModuleElectionDTO getElectedModules(@AuthenticationPrincipal User user) {
-        var student = getStudent(user);
-        return electionService.getModuleElectionByStudent(student);
+        return electionService.getModuleElectionByStudent(user.getStudent());
     }
 
     @GetMapping(path = {"/structure", "/structure/"})
     public ModuleStructureDTO getFullTimeModuleStructure(@AuthenticationPrincipal User user) {
-        return electionService.getModuleStructure(getStudent(user));
-    }
-
-    private StudentDTO getStudent(User user) {
-        if (user == null) {
-            // todo throw exception
-        }
-        var student = classListService.getStudentById(user.getMail()); // todo: replace with role
-        if(student.isEmpty()) {
-            // todo throw exception
-        }
-        return student.get();
+        return electionService.getModuleStructure(user.getStudent());
     }
 }
