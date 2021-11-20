@@ -54,22 +54,5 @@ public class WPMConfig {
         return new AuthFilter(true);
     }
 
-    @Bean
-    public ElectionValidator getElectionValidator() {
-        ElectionValidator validator;
-        CustomAuthToken token = (CustomAuthToken) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (token == null) {
-            //todo use custom exception
-           throw new RuntimeException("User is not authenticated");
-        }
-
-        Student student = token.getUser().getStudent();
-        if (student.isTZ()) {
-           validator = new PartTimeElectionValidator(student);
-        } else {
-           validator = new FullTimeElectionValidator(student);
-        }
-        return validator;
     }
 }

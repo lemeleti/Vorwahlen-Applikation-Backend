@@ -5,14 +5,14 @@ import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructure;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructurePartTime;
-import ch.zhaw.vorwahlen.modulevalidation.AbstractElectionValidator;
-import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
+import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
+import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,10 +22,6 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,30 +34,24 @@ import java.util.stream.Collectors;
 @Log
 public class ElectionService {
 
-    public static final int MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA = 42; // PA = 6 Credits, BA = 12 Credits
     public static final int NUM_CONTEXT_MODULES = 3;
     public static final int NUM_SUBJECT_MODULES = 8;
     public static final int NUM_INTERDISCIPLINARY_MODULES = 1;
-    public static final int NUM_ENGLISH_CREDITS = 20;
-    public static final int CREDIT_PER_SUBJECT_MODULE = 4;
 
     private final ElectionRepository electionRepository;
     private final Function<Set<String>, Set<Module>> mapModuleSet;
     private final ModuleStructureFullTime structureFullTime;
     private final ModuleStructurePartTime structurePartTime;
-    private final ElectionValidator electionValidator;
 
     @Autowired
     public ElectionService(ElectionRepository electionRepository, ModuleRepository moduleRepository,
-                           ModuleStructureFullTime structureFullTime, ModuleStructurePartTime structurePartTime,
-                           ElectionValidator electionValidator) {
+                           ModuleStructureFullTime structureFullTime, ModuleStructurePartTime structurePartTime) {
         this.electionRepository = electionRepository;
         this.mapModuleSet = list -> list.stream()
                                         .map(moduleRepository::getById)
                                         .collect(Collectors.toSet());
         this.structureFullTime = structureFullTime;
         this.structurePartTime = structurePartTime;
-        this.electionValidator = electionValidator;
     }
 
     public ModuleStructureDTO getModuleStructure(StudentDTO student) {
@@ -94,15 +84,28 @@ public class ElectionService {
      *         false - if arguments invalid
      */
     public ObjectNode saveElection(StudentDTO studentDTO, ModuleElectionDTO moduleElectionDTO) {
-        // optional todo: test double modules like MC1/MC2 (not one missing)
         if(studentDTO == null || moduleElectionDTO == null
                 || studentDTO.getEmail() == null || studentDTO.getEmail().isBlank()) {
             return createSaveStatusBundle(false, false);
         }
-        var moduleElection = DTOMapper.mapDtoToModuleElection(moduleElectionDTO, studentDTO, mapModuleSet);
+
+        var student = new Student();
+        student.setEmail(studentDTO.getEmail());
+        student.setTZ(studentDTO.isTZ());
+        student.setIP(studentDTO.isIP());
+        student.setClazz(studentDTO.getClazz());
+        student.setName(studentDTO.getName());
+        student.setPaDispensation(studentDTO.getPaDispensation());
+        student.setWpmDispensation(studentDTO.getWpmDispensation());
+
+        var moduleElection = DTOMapper.mapDtoToModuleElection(moduleElectionDTO, student, mapModuleSet);
+
+        var electionValidator = student.isTZ()
+                ? new PartTimeElectionValidator(student)
+                : new FullTimeElectionValidator(student);
 
         var isValid = electionValidator.validate(moduleElection);
-        moduleElection.setStudentEmail(studentDTO.getEmail());
+        moduleElection.setStudentEmail(student.getEmail());
         moduleElection.setElectionValid(isValid);
         moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
         electionRepository.save(moduleElection);
