@@ -3,7 +3,6 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
@@ -40,8 +39,8 @@ public class ElectionService {
 
     private final ElectionRepository electionRepository;
     private final Function<Set<String>, Set<Module>> mapModuleSet;
-    private final ModuleStructureFullTime structureFullTime;
-    private final ModuleStructurePartTime structurePartTime;
+    private final ModuleStructure structureFullTime;
+    private final ModuleStructure structurePartTime;
 
     @Autowired
     public ElectionService(ElectionRepository electionRepository, ModuleRepository moduleRepository,
@@ -55,7 +54,7 @@ public class ElectionService {
     }
 
     public ModuleStructureDTO getModuleStructure(Student student) {
-        ModuleStructure structure = student.isTZ() ? structurePartTime : structureFullTime;
+        var structure = student.isTZ() ? structurePartTime : structureFullTime;
         ModuleElection election = null;
         if (electionRepository.existsById(student.getEmail())) {
             election = electionRepository.getById(student.getEmail());
