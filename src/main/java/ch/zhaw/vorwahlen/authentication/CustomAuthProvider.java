@@ -1,6 +1,5 @@
 package ch.zhaw.vorwahlen.authentication;
 
-import ch.zhaw.vorwahlen.model.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -19,6 +18,8 @@ import java.util.ArrayList;
 @Component
 @PropertySource("classpath:settings.properties")
 public class CustomAuthProvider implements AuthenticationProvider {
+    private static final String ADMIN_ROLE = "ADMIN";
+
     private final String[] admins;
 
     /**
@@ -33,19 +34,21 @@ public class CustomAuthProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         var authToken = (CustomAuthToken) authentication;
         var authorities = new ArrayList<GrantedAuthority>();
-        User user;
 
         if (authToken.getShibbolethSession() == null || authToken.getShibbolethSession().isEmpty()) {
             throw new SessionAuthenticationException("Session could not be created");
         }
 
-        user = authToken.getUser();
+        var user = authToken.getUser();
         for (var admin : admins) {
             if (user.getMail().equals(admin)) {
-                var adminRole = "ADMIN";
-                authorities.add(new SimpleGrantedAuthority(adminRole));
-                user.setRole(adminRole);
+                authorities.add(new SimpleGrantedAuthority(ADMIN_ROLE));
+                user.setRole(ADMIN_ROLE);
             }
+        }
+
+        if (user.getStudent() == null && !ADMIN_ROLE.equals(user.getRole())) {
+            return authentication;
         }
 
         return new CustomAuthToken(authorities, authToken.getShibbolethSession(), user);

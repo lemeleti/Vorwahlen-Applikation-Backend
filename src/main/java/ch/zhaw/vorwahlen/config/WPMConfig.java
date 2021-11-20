@@ -6,10 +6,13 @@ import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;
+import ch.zhaw.vorwahlen.repository.ClassListRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Map;
@@ -18,7 +21,9 @@ import java.util.Map;
  * Profile configuration for running the application in development or production mode.
  */
 @Configuration
+@RequiredArgsConstructor
 public class WPMConfig {
+    private final ClassListRepository classListRepository;
 
     /**
      * Run the application with {@link AuthFilter} in development mode.
@@ -38,7 +43,10 @@ public class WPMConfig {
                 "role", "ADMIN"
         );
 
-        var filter = new AuthFilter(false);
+        var filter = new AuthFilter(false, classListRepository);
+        var student = new Student();
+        student.setEmail(userData.get("mail"));
+        filter.setStudent(student);
         filter.setUserData(userData);
         return filter;
     }
@@ -51,8 +59,6 @@ public class WPMConfig {
     @Qualifier("authFilter")
     @Bean
     public AuthFilter productionAuthFilter() {
-        return new AuthFilter(true);
-    }
-
+        return new AuthFilter(true, classListRepository);
     }
 }

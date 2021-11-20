@@ -1,6 +1,8 @@
 package ch.zhaw.vorwahlen.authentication;
 
+import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,8 +23,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Setter
 public class AuthFilter extends OncePerRequestFilter {
-    private Map<String, String> userData = new HashMap<>();
     private final boolean isProd;
+    private final ClassListRepository classListRepository;
+    private Map<String, String> userData = new HashMap<>();
+    private Student student;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -32,6 +36,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
         if (isProd) {
             extractUserInfoFromHeader(request);
+            findAndSetStudent(userData.get("mail"));
         }
 
         if (isUserDataNotNull() && (auth == null || !auth.isAuthenticated())) {
@@ -69,6 +74,14 @@ public class AuthFilter extends OncePerRequestFilter {
                 .homeOrg(userData.get("homeOrg"))
                 .mail(userData.get("mail"))
                 .role(userData.get("role"))
+                .student(student)
                 .build();
+    }
+
+    private void findAndSetStudent(String email) {
+        if (email != null && !email.isBlank()) {
+            var studentOptional = classListRepository.findById(userData.get("mail"));
+            studentOptional.ifPresent(value -> student = value);
+        }
     }
 }
