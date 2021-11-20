@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.model.dto;
 
+import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class ModuleDTO {
     private String moduleTitle;
     @JsonProperty("module_group")
     private String moduleGroup;
+    private ModuleCategory category;
     @JsonProperty("is_ip_module")
     private boolean isIPModule;
     private String institute;
@@ -34,4 +36,6 @@ public class ModuleDTO {
     private List<Integer> fullTimeSemesterList;
     @JsonProperty("part_time_semester_list")
     private List<Integer> partTimeSemesterList;
+    @JsonProperty("consecutive_module_no")
+    private String consecutiveModuleNo;
 }

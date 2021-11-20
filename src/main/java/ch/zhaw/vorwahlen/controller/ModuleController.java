@@ -64,4 +64,5 @@ public class ModuleController {
         moduleService.fetchAdditionalModuleData();
         return ResponseEntity.ok().build();
     }
+
 }

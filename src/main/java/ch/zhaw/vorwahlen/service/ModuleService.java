@@ -10,13 +10,17 @@ import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.scraper.EventoScraper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,6 +49,8 @@ public class ModuleService {
             var moduleParser = new ModuleParser(file.getInputStream(), worksheet);
             var modules = moduleParser.parseModulesFromXLSX();
             moduleRepository.saveAll(modules);
+            var updatedModules = setConsecutiveModules(modules);
+            moduleRepository.saveAll(updatedModules);
         } catch (IOException e) {
             var message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
                     file.getOriginalFilename(), e.getMessage());
@@ -53,53 +59,80 @@ public class ModuleService {
         }
     }
 
+    private Set<Module> setConsecutiveModules(List<Module> modules) {
+        var consecutiveSet = new HashSet<Module>();
+        for (var m1: modules) {
+            for(var m2: modules) {
+                if(!m1.equals(m2)
+                        && isModuleConsecutiveFieldNotSet(m1)
+                        && isModuleConsecutiveFieldNotSet(m2)
+                        && doTheModulesDifferOnlyInTheNumber(m1, m2)) {
+                    consecutiveSet.add(m1);
+                    consecutiveSet.add(m2);
+                    m1.setConsecutiveModuleNo(m2.getModuleNo());
+                    m2.setConsecutiveModuleNo(m1.getModuleNo());
+                }
+            }
+        }
+        return consecutiveSet;
+    }
+
+    public static boolean doTheModulesDifferOnlyInTheNumber(Module m1, Module m2) {
+        var levenshteinDistance = LevenshteinDistance.getDefaultInstance()
+                .apply(m1.getShortModuleNo(), m2.getShortModuleNo());
+        var isValid = levenshteinDistance == 1;
+
+        var difference1 = StringUtils.difference(m1.getShortModuleNo(), m2.getShortModuleNo());
+        var difference2 = StringUtils.difference(m2.getShortModuleNo(), m1.getShortModuleNo());
+        var isDiff1FirstCharNumeric = StringUtils.isNumeric(String.valueOf(difference1.charAt(0)));
+        var isDiff2FirstCharNumeric = StringUtils.isNumeric(String.valueOf(difference2.charAt(0)));
+
+        if(isValid && difference1.length() != difference2.length()) {
+            isValid = difference1.length() > difference2.length()
+                    ? isDiff1FirstCharNumeric
+                    : isDiff2FirstCharNumeric;
+        } else if(isValid) {
+            isValid = isDiff1FirstCharNumeric && isDiff2FirstCharNumeric;
+        }
+        return isValid;
+    }
+
+    private boolean isModuleConsecutiveFieldNotSet(Module module) {
+        return module.getConsecutiveModuleNo() == null || module.getConsecutiveModuleNo().isBlank();
+    }
+
     /**
      * Get all modules from the database.
      * @return a list of {@link ModuleDTO}.
      */
     public List<ModuleDTO> getAllModules() {
-        Function<Module, ModuleDTO> mapModuleToDto = module -> ModuleDTO.builder()
-                .moduleNo(module.getModuleNo())
-                .shortModuleNo(module.getShortModuleNo())
-                .moduleTitle(module.getModuleTitle())
-                .moduleGroup(module.getModuleGroup())
-                .isIPModule(module.isIPModule())
-                .institute(module.getInstitute())
-                .credits(module.getCredits())
-                .language(module.getLanguage())
-                .fullTimeSemesterList(parseSemesterListData(module.getFullTimeSemester()))
-                .partTimeSemesterList(parseSemesterListData(module.getPartTimeSemester()))
-                .build();
-
         return moduleRepository
                 .findAll()
                 .stream()
-                .map(mapModuleToDto)
+                .map(DTOMapper.mapModuleToDto)
                 .toList();
     }
 
-    private List<Integer> parseSemesterListData(String data) {
-        var stringList = data.split(";");
-        return Arrays.stream(stringList)
-                .map(Double::parseDouble)
-                .map(Double::intValue)
-                .toList();
+    /**
+     * Get module from the database by id.
+     * @return {@link ModuleDTO}.
+     */
+    public Optional<ModuleDTO> getModuleById(String id) {
+        return moduleRepository
+                .findById(id)
+                .stream()
+                .map(DTOMapper.mapModuleToDto)
+                .findFirst();
     }
 
+    /**
+     * Get additional information by the module id
+     * @param id module id
+     * @return additional data as {@link EventoDataDTO}
+     */
     public EventoDataDTO getEventoDataById(String id) {
         var eventoData = eventoDataRepository.getById(id);
-        return EventoDataDTO.builder()
-                .moduleStructure(eventoData.getModuleStructure())
-                .learningObjectives(eventoData.getLearningObjectives())
-                .shortDescription(eventoData.getShortDescription())
-                .suppLiterature(eventoData.getSuppLiterature())
-                .coordinator(eventoData.getCoordinator())
-                .exams(eventoData.getExams())
-                .literature(eventoData.getLiterature())
-                .moduleContents(eventoData.getModuleContents())
-                .prerequisites(eventoData.getPrerequisites())
-                .remarks(eventoData.getRemarks())
-                .build();
+        return DTOMapper.mapEventoDataToDto.apply(eventoData);
     }
 
     /**

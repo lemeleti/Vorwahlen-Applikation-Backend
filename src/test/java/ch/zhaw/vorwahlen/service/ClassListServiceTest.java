@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -45,6 +46,26 @@ class ClassListServiceTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(202, result.size());
+    }
+
+    @Test
+    @Sql("classpath:sql/class_list.sql")
+    void testGetStudentById() {
+        var result = classListService.getStudentById("meierbob@students.zhaw.ch");
+        assertTrue(result.isPresent());
+    }
+
+    @Test
+    @Sql("classpath:sql/class_list.sql")
+    void testGetStudentById_Null() {
+        assertThrows(InvalidDataAccessApiUsageException.class, () -> classListService.getStudentById(null));
+    }
+
+    @Test
+    @Sql("classpath:sql/class_list.sql")
+    void testGetStudentById_Blank() {
+        var result = assertDoesNotThrow(() -> classListService.getStudentById("  "));
+        assertTrue(result.isEmpty());
     }
 
     @Test

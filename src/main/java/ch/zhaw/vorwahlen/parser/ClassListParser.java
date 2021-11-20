@@ -8,6 +8,8 @@ import java.io.InputStream;
 
 public class ClassListParser extends ExcelParser<Student, StudentLookupTable> {
 
+    public static final String TZ_CLASS_REGEX = "[A-Za-z]+\\d{2}t[a-z]+_[A-Za-z]+";
+
     /**
      * Create instance.
      * @param fileLocation where the Excel file is found.
@@ -25,7 +27,10 @@ public class ClassListParser extends ExcelParser<Student, StudentLookupTable> {
             switch (field) {
                 case EMAIL -> studentBuilder.email(cellValue);
                 case NAME -> studentBuilder.name(cellValue);
-                case CLAZZ -> studentBuilder.clazz(cellValue);
+                case CLAZZ -> {
+                    studentBuilder.clazz(cellValue);
+                    studentBuilder.isTZ(cellValue.matches(TZ_CLASS_REGEX));
+                }
             }
         }
         return studentBuilder.build();

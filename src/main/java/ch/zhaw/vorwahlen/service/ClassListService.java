@@ -1,7 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Optional;
 
 /**
  * Business logic for the modules.
@@ -48,20 +47,24 @@ public class ClassListService {
      * @return a list of {@link StudentDTO}.
      */
     public List<StudentDTO> getAllClassLists() {
-        Function<Student, StudentDTO> mapStudentToDto = student -> StudentDTO.builder()
-                .email(student.getEmail())
-                .name(student.getName())
-                .clazz(student.getClazz())
-                .paDispensation(PA_DISPENSATION)
-                .wpmDispensation(WPM_DISPENSATION)
-                .isIP(student.isIP())
-                .build();
-
         return classListRepository
                 .findAll()
                 .stream()
-                .map(mapStudentToDto)
+                .map(DTOMapper.mapStudentToDto)
                 .toList();
+    }
+
+    /**
+     * Get student from the database by id.
+     * @param id the id for the student
+     * @return Optional<StudentDTO>
+     */
+    public Optional<StudentDTO> getStudentById(String id) {
+        return classListRepository
+                .findById(id)
+                .stream()
+                .map(DTOMapper.mapStudentToDto)
+                .findFirst();
     }
 
 }

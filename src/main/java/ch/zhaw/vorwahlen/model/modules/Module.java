@@ -32,4 +32,5 @@ public class Module {
     private String language;
     private String fullTimeSemester;
     private String partTimeSemester;
+    private String consecutiveModuleNo;
 }
