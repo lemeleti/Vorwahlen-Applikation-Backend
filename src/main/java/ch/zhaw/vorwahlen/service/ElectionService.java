@@ -56,7 +56,7 @@ public class ElectionService {
 
     public ModuleStructureDTO getModuleStructure(Student student) {
         var structure = student.isTZ() ? structurePartTime : structureFullTime;
-        ModuleElection election = student.getElection();
+        var election = student.getElection();
         return new ModuleStructureGenerator(structure, election, student).generateStructure();
     }
 
