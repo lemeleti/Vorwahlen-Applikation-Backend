@@ -3,8 +3,11 @@ package ch.zhaw.vorwahlen.model.modules;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,16 +17,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.Objects;
 
 /**
  * Model / Entity class for a class list entry
  */
 @Entity
 @Table(name = "students")
-@Data
+@Getter @Setter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class Student {
 
     @Id
@@ -46,4 +51,18 @@ public class Student {
     @OneToOne
     @JoinColumn(name = "election_id")
     private ModuleElection election;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        System.out.println("STUDENT HIBERNATE CHECK" + (Hibernate.getClass(this) != Hibernate.getClass(o)));
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        var student = (Student) o;
+        return email != null && Objects.equals(email, student.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
+    }
 }
