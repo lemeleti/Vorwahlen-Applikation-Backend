@@ -30,4 +30,30 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
          */
         return false;
     }
+
+    @Override
+    protected boolean validIpModuleElection(ModuleElection moduleElection) {
+        return false;
+    }
+
+    @Override
+    protected boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection) {
+        return false;
+    }
+
+    @Override
+    protected boolean validSubjectModuleElection(ModuleElection moduleElection) {
+        return false;
+    }
+
+    @Override
+    protected boolean validContextModuleElection(ModuleElection moduleElection) {
+        return false;
+    }
+
+    @Override
+    protected boolean isCreditSumValid(ModuleElection moduleElection) {
+        return false;
+    }
+
 }
