@@ -47,6 +47,11 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
 
     protected abstract boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap);
 
+    protected boolean containsSpecialConsecutiveModules(ModuleElection moduleElection) {
+        return containsModule(moduleElection.getElectedModules(), "WV.PSPP")
+                && containsModule(moduleElection.getElectedModules(), "WV.FUP");
+    }
+
     protected boolean areModulesConsecutive(Module m1, Module m2) {
         return m1.getConsecutiveModuleNo() != null && !m1.getConsecutiveModuleNo().isBlank()
                 && m2.getConsecutiveModuleNo() != null && !m2.getConsecutiveModuleNo().isBlank();

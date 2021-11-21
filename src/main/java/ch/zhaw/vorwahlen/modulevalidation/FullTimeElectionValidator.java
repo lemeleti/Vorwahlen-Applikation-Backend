@@ -35,8 +35,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
         // Die Module PSPP und FUP werden auch als konsekutive Module anerkannt.
         if (consecutiveMap.size() == 0) return false;
         if (consecutiveMap.size() >= 2) return true;
-        return containsModule(moduleElection.getElectedModules(), "WV.PSPP")
-                && containsModule(moduleElection.getElectedModules(), "WV.FUP");
+        return containsSpecialConsecutiveModules(moduleElection);
     }
 
     @Override
