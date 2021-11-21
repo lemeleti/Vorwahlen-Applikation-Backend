@@ -37,12 +37,12 @@ class AbstractElectionValidatorTest {
 
     static final String LANGUAGE_DEUTSCH = "Deutsch";
     static final String LANGUAGE_ENGLISCH = "Englisch";
-    static final double CHANCE_TO_GET_GERMAN = 0.75;
+    static final double CHANCE_TO_GET_ENGLISH = 0.6;
     public static final String CONSECUTIVE_VALUE = "consecutive";
     public static final String MODULE_WV_PSPP = "WV.PSPP";
 
     final List<String> interdisciplinaryModulesShort = List.of("WM.PHMOD");
-    final List<String> contextModulesShort = List.of("XXK.FUPRE", "WVK.ZURO", "WVK.SIC-TAF");
+    final List<String> contextModulesShort = List.of("XXK.FUPRE", "WVK.SIC-TAF", "WVK.ICAM-EN");
     final List<String> subjectModulesShort = List.of("WV.ESE", "WV.FUP");
     final List<String> consecutiveSubjectModulesShort = List.of(
             "WV.AI2-EN",
@@ -54,7 +54,7 @@ class AbstractElectionValidatorTest {
     );
 
     final List<String> interdisciplinaryModules = List.of("t.BA.WM.PHMOD.19HS");
-    final List<String> contextModules = List.of("t.BA.XXK.FUPRE.19HS", "t.BA.WVK.ZURO.20HS", "t.BA.WVK.SIC-TAF.20HS");
+    final List<String> contextModules = List.of("t.BA.XXK.FUPRE.19HS", "t.BA.WVK.SIC-TAF.20HS", "t.BA.WVK.ICAM-EN.20HS");
     final List<String> subjectModules = List.of("t.BA.WV.ESE.19HS", "t.BA.WV.FUP.19HS");
     final List<String> consecutiveSubjectModules = List.of(
             "t.BA.WV.AI2-EN.19HS",
@@ -274,7 +274,7 @@ class AbstractElectionValidatorTest {
         for (var i = 0; i < contextModuleMockList.size(); i++) {
             var mock = contextModuleMockList.get(i);
             when(mock.getCredits()).thenReturn((byte) CREDITS_PER_CONTEXT_MODULE);
-            when(mock.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
+            when(mock.getLanguage()).thenReturn(LANGUAGE_ENGLISCH);
             when(mock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_5);
             when(mock.getModuleNo()).thenReturn(contextModules.get(i));
             when(mock.getShortModuleNo()).thenReturn(contextModulesShort.get(i));
@@ -293,7 +293,7 @@ class AbstractElectionValidatorTest {
         var mockCounter = 0;
         for (var i = 0; i < subjectModules.size(); i++) {
             var index = random.nextInt(Integer.MAX_VALUE);
-            var language = index > CHANCE_TO_GET_GERMAN * Integer.MAX_VALUE
+            var language = index > CHANCE_TO_GET_ENGLISH * Integer.MAX_VALUE
                     ? LANGUAGE_DEUTSCH
                     : LANGUAGE_ENGLISCH;
 
@@ -308,7 +308,7 @@ class AbstractElectionValidatorTest {
 
         for (var i = 1; i < consecutiveSubjectModules.size(); i += 2) {
             var index = random.nextInt(Integer.MAX_VALUE);
-            var language = index > CHANCE_TO_GET_GERMAN * Integer.MAX_VALUE
+            var language = index > CHANCE_TO_GET_ENGLISH * Integer.MAX_VALUE
                     ? LANGUAGE_DEUTSCH
                     : LANGUAGE_ENGLISCH;
 

@@ -5,6 +5,8 @@ import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 
+import java.util.stream.Collectors;
+
 public class FullTimeElectionValidator extends AbstractElectionValidator {
 
     public static final int MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA = 42; // PA = 6 Credits, BA = 12 Credits
@@ -31,12 +33,19 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     protected boolean validIpModuleElection(ModuleElection moduleElection)  {
         var isValid = true;
         if(getStudent().isIP()) {
-            var sum = moduleElection.getElectedModules().stream()
+            var englishModules = moduleElection.getElectedModules().stream()
                     .filter(module -> "Englisch".equals(module.getLanguage()))
+                    .collect(Collectors.toSet());
+            var sum = englishModules.stream()
                     .mapToInt(Module::getCredits)
                     .sum();
             // TODO: module ICAM has to be in selection (for fulltime) --> ask for part time
-            isValid = sum + getStudent().getWpmDispensation() >= NUM_ENGLISH_CREDITS;
+            var isEnglishCreditSumValid = sum + getStudent().getWpmDispensation() >= NUM_ENGLISH_CREDITS;
+            var doesElectionContainModuleICAM = englishModules.stream()
+                    .filter(module -> module.getShortModuleNo().contains("WVK.ICAM-EN"))
+                    .count() == 1;
+
+            isValid = isEnglishCreditSumValid && doesElectionContainModuleICAM;
         }
         return isValid;
     }
