@@ -69,6 +69,39 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     }
 
     @Test
+    void testValidConsecutiveModulePairsInElection() {
+        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        var m1 = mock(Module.class);
+        var m2 = mock(Module.class);
+        var m3 = mock(Module.class);
+        var m4 = mock(Module.class);
+
+        // AI 1
+        when(m1.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModules.get(1));
+        when(m1.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(1));
+
+        // AI 2
+        when(m2.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModules.get(0));
+        when(m2.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(0));
+
+        // FUP
+        when(m3.getShortModuleNo()).thenReturn(subjectModulesShort.get(1));
+
+        // PSPP
+        when(m4.getShortModuleNo()).thenReturn(MODULE_WV_PSPP);
+
+        // AI1, AI2, PSPP, FUP
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
+        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        // AI1, AI2, PSPP
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m4));
+        assertFalse(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+    }
+
+    @Test
     void testValidIpModuleElection() {
         // Case Non-IP
         when(studentMock.isIP()).thenReturn(false);

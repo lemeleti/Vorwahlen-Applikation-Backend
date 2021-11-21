@@ -90,68 +90,6 @@ class AbstractElectionValidatorTest {
      * ************************************************************************************************************** */
 
     @Test
-    void testValidConsecutiveModulePairsInElection() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
-
-        var m1 = mock(Module.class);
-        var m2 = mock(Module.class);
-        var m3 = mock(Module.class);
-        var m4 = mock(Module.class);
-
-        // AI 1
-        when(m1.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModules.get(1));
-        when(m1.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(1));
-
-        // AI 2
-        when(m2.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModules.get(0));
-        when(m2.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(0));
-
-        // FUP
-        when(m3.getShortModuleNo()).thenReturn(subjectModulesShort.get(1));
-
-        // PSPP
-        when(m4.getShortModuleNo()).thenReturn(MODULE_WV_PSPP);
-
-        // AI1, AI2, PSPP, FUP
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
-        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
-
-        // AI1, AI2, PSPP
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m4));
-        assertFalse(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
-    }
-
-    @Test
-    void testAreModulesConsecutive() {
-        var moduleMock1 = mock(Module.class);
-        var moduleMock2 = mock(Module.class);
-
-        when(moduleMock1.getConsecutiveModuleNo()).thenReturn(null);
-        assertFalse(validator.areModulesConsecutive(moduleMock1, moduleMock2));
-
-        when(moduleMock1.getConsecutiveModuleNo()).thenReturn(" ");
-        assertFalse(validator.areModulesConsecutive(moduleMock1, moduleMock2));
-
-        when(moduleMock1.getConsecutiveModuleNo()).thenReturn(CONSECUTIVE_VALUE);
-        when(moduleMock2.getConsecutiveModuleNo()).thenReturn(null);
-        assertFalse(validator.areModulesConsecutive(moduleMock1, moduleMock2));
-
-        when(moduleMock2.getConsecutiveModuleNo()).thenReturn(" ");
-        assertFalse(validator.areModulesConsecutive(moduleMock1, moduleMock2));
-
-        when(moduleMock2.getConsecutiveModuleNo()).thenReturn(CONSECUTIVE_VALUE);
-        assertTrue(validator.areModulesConsecutive(moduleMock1, moduleMock2));
-
-    }
-
-    @Test
-    void testContainsModule() {
-        assertTrue(validator.containsModule(validElectionSet, consecutiveSubjectModulesShort.get(0)));
-        assertFalse(validator.containsModule(validElectionSet, NON_EXISTING_MODULE));
-    }
-
-    @Test
     void testCountModuleCategory() {
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
         assertEquals(NUM_CONTEXT_MODULES, validator.countModuleCategory(moduleElectionMock, ModuleCategory.CONTEXT_MODULE));
@@ -185,41 +123,6 @@ class AbstractElectionValidatorTest {
     void testValidConsecutiveModulePairsInElection_NullElectionSet() {
         when(moduleElectionMock.getElectedModules()).thenReturn(null);
         assertThrows(NullPointerException.class, () -> validator.validConsecutiveModulePairsInElection(moduleElectionMock));
-    }
-
-    @Test
-    void testAreModulesConsecutive_NullModule1() {
-        var moduleMock = mock(Module.class);
-        when(moduleMock.getConsecutiveModuleNo()).thenReturn(CONSECUTIVE_VALUE);
-        assertThrows(NullPointerException.class, () -> validator.areModulesConsecutive(null, moduleMock));
-    }
-
-    @Test
-    void testAreModulesConsecutive_NullModule2() {
-        var moduleMock = mock(Module.class);
-        when(moduleMock.getConsecutiveModuleNo()).thenReturn(CONSECUTIVE_VALUE);
-        assertThrows(NullPointerException.class, () -> validator.areModulesConsecutive(moduleMock, null));
-    }
-
-    @Test
-    void testContainsModule_NullSet() {
-        assertThrows(NullPointerException.class, () -> validator.containsModule(null, ""));
-    }
-
-    @Test
-    void testContainsModule_NullModuleNo() {
-        assertThrows(NullPointerException.class, () -> validator.containsModule(validElectionSet, null));
-    }
-
-    @Test
-    void testContainsModule_SetModuleNoNull() {
-        var moduleMock = mock(Module.class);
-        assertDoesNotThrow(() -> validator.containsModule(Set.of(moduleMock), ""));
-    }
-
-    @Test
-    void testContainsModule_BlankModuleNo() {
-        assertDoesNotThrow(() -> validator.containsModule(validElectionSet, ""));
     }
 
     @Test

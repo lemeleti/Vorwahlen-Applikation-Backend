@@ -1,10 +1,10 @@
 package ch.zhaw.vorwahlen.modulevalidation;
 
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FullTimeElectionValidator extends AbstractElectionValidator {
@@ -30,17 +30,28 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     }
 
     @Override
+    protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
+        // IT19 Vollzeit: Wählen Sie mindestens zweimal zwei konsekutive Module
+        // Die Module PSPP und FUP werden auch als konsekutive Module anerkannt.
+        if (consecutiveMap.size() == 0) return false;
+        if (consecutiveMap.size() >= 2) return true;
+        return containsModule(moduleElection.getElectedModules(), "WV.PSPP")
+                && containsModule(moduleElection.getElectedModules(), "WV.FUP");
+    }
+
+    @Override
     protected boolean validIpModuleElection(ModuleElection moduleElection)  {
         var isValid = true;
         if(getStudent().isIP()) {
             var englishModules = moduleElection.getElectedModules().stream()
                     .filter(module -> "Englisch".equals(module.getLanguage()))
                     .collect(Collectors.toSet());
-            var sum = englishModules.stream()
+
+            var creditSum = englishModules.stream()
                     .mapToInt(Module::getCredits)
                     .sum();
-            // TODO: module ICAM has to be in selection (for fulltime) --> ask for part time
-            var isEnglishCreditSumValid = sum + getStudent().getWpmDispensation() >= NUM_ENGLISH_CREDITS;
+
+            var isEnglishCreditSumValid = creditSum + getStudent().getWpmDispensation() >= NUM_ENGLISH_CREDITS;
             var doesElectionContainModuleICAM = englishModules.stream()
                     .filter(module -> module.getShortModuleNo().contains("WVK.ICAM-EN"))
                     .count() == 1;
@@ -52,32 +63,25 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     protected boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.INTERDISCIPLINARY_MODULE);
-        return count == NUM_INTERDISCIPLINARY_MODULES;
+        // IT19 Vollzeit: Sie müssen eines dieser Wahlmodule wählen (Sie können auch mehrere wählen, angerechnet werden kann aber nur ein Wahlmodul).
+        return validInterdisciplinaryModuleElection(moduleElection, NUM_INTERDISCIPLINARY_MODULES);
     }
 
     @Override
     protected boolean validSubjectModuleElection(ModuleElection moduleElection) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
-        var dispensCount = getStudent().getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
-        return count + dispensCount == NUM_SUBJECT_MODULES;
+        // IT 19 Vollzeit: Zusammen mit den oben gewählten konsekutiven Modulen wählen Sie total acht Module.
+        return validSubjectModuleElection(moduleElection, NUM_SUBJECT_MODULES);
     }
 
     @Override
     protected boolean validContextModuleElection(ModuleElection moduleElection) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
-        return count == NUM_CONTEXT_MODULES;
+        // IT19 Vollzeit: Dies gehört zur Modulgruppe IT5. Sie können bis zu drei dieser Module wählen.
+        return validContextModuleElection(moduleElection, NUM_CONTEXT_MODULES);
     }
 
     @Override
     protected boolean isCreditSumValid(ModuleElection moduleElection) {
-        // PA dispensation für die rechnung irrelevant
-        var electedModulesCreditSum = moduleElection.getElectedModules()
-                .stream()
-                .mapToInt(Module::getCredits)
-                .sum();
-        var sum = electedModulesCreditSum + getStudent().getWpmDispensation();
-        return sum == MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA;
+        return isCreditSumValid(moduleElection, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA);
     }
 
 }
