@@ -21,6 +21,7 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -55,10 +56,7 @@ public class ElectionService {
 
     public ModuleStructureDTO getModuleStructure(Student student) {
         var structure = student.isTZ() ? structurePartTime : structureFullTime;
-        ModuleElection election = null;
-        if (electionRepository.existsById(student.getEmail())) {
-            election = electionRepository.getById(student.getEmail());
-        }
+        ModuleElection election = student.getElection();
         return new ModuleStructureGenerator(structure, election, student).generateStructure();
     }
 
@@ -68,7 +66,7 @@ public class ElectionService {
      * @return current election
      */
     public ModuleElectionDTO getModuleElectionByStudent(Student student) {
-        var optional = electionRepository.findById(student.getEmail());
+        var optional = Optional.ofNullable(student.getElection());
         if(optional.isPresent()) {
             return optional.map(DTOMapper.mapElectionToDto).get();
         }
@@ -95,7 +93,7 @@ public class ElectionService {
                 : new FullTimeElectionValidator(student);
 
         var isValid = electionValidator.validate(moduleElection);
-        moduleElection.setStudentEmail(student.getEmail());
+        moduleElection.setStudent(student);
         moduleElection.setElectionValid(isValid);
         moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
         electionRepository.save(moduleElection);

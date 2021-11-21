@@ -75,7 +75,7 @@ public class DTOMapper {
 
     ModuleElection mapDtoToModuleElection(ModuleElectionDTO moduleElectionDTO, Student student, Function<Set<String>, Set<Module>> mapModuleSet) {
         var moduleElection = new ModuleElection();
-        moduleElection.setStudentEmail(student.getEmail());
+        moduleElection.setStudent(student);
         moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
         moduleElection.setElectedModules(mapModuleSet.apply(moduleElectionDTO.getElectedModules()));
         moduleElection.setOverflowedElectedModules(mapModuleSet.apply(moduleElectionDTO.getOverflowedElectedModules()));
