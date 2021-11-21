@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,9 +40,14 @@ class DispensationServiceTest {
     @Sql("classpath:sql/class_list_test_parse.sql")
     void testImportDispensationExcel() throws IOException {
         // prepare
+        var vzClass = new StudentClass();
+        var tzClass = new StudentClass();
+        vzClass.setName("IT19a_WIN");
+        tzClass.setName("IT19ta_WIN");
+
         var expected = List.of(
-                Student.builder().name("Anna Muster").email("musteranna@students.zhaw.ch").clazz("IT19a_WIN").paDispensation(6).build(),
-                Student.builder().name("Bob Meier").email("meierbob@students.zhaw.ch").clazz("IT19ta_WIN").wpmDispensation(8).isTZ(true).build()
+                Student.builder().name("Anna Muster").email("musteranna@students.zhaw.ch").paDispensation(6).build(),
+                Student.builder().name("Bob Meier").email("meierbob@students.zhaw.ch").wpmDispensation(8).isTZ(true).build()
         );
         var fis = getClass().getClassLoader().getResourceAsStream(DISPENSATION_FILE_NAME);
         var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, DISPENSATION_FILE_NAME, "", fis);

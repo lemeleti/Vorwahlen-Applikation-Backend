@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.service.ClassListService;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +68,7 @@ class ModuleElectionControllerTest {
 
         var studentDTO = StudentDTO.builder()
                 .name("dev")
-                .clazz("dev")
+                .clazz(new StudentClass("dev"))
                 .email("dev@zhaw.ch")
                 .build();
         when(classListService.getStudentById(anyString())).thenReturn(Optional.of(studentDTO));

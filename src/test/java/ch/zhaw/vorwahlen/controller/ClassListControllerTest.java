@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.service.ClassListService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +56,10 @@ class ClassListControllerTest {
     void testGetAllModules() {
         // prepare
         var expectedList = new ArrayList<StudentDTO>();
-        expectedList.add(StudentDTO.builder().email("mail1").name("name1").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
-        expectedList.add(StudentDTO.builder().email("mail2").name("name2").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
-        expectedList.add(StudentDTO.builder().email("mail3").name("name3").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
+        var studentClass = new StudentClass(CLASS_1);
+        expectedList.add(StudentDTO.builder().email("mail1").name("name1").clazz(studentClass).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
+        expectedList.add(StudentDTO.builder().email("mail2").name("name2").clazz(studentClass).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
+        expectedList.add(StudentDTO.builder().email("mail3").name("name3").clazz(studentClass).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
 
         when(classListService.getAllClassLists()).thenReturn(expectedList);
 
@@ -82,8 +84,8 @@ class ClassListControllerTest {
                     )))
                     .andExpect(jsonPath("$.[*].class").isNotEmpty())
                     .andExpect(jsonPath("$.[*].class", anyOf(
-                            hasItem(CLASS_1),
-                            hasItem(CLASS_2)
+                            hasItem(new StudentClass(CLASS_1)),
+                            hasItem(new StudentClass(CLASS_2))
                     )))
                     .andExpect(jsonPath("$.[*].dispensation_pa").isNotEmpty())
                     .andExpect(jsonPath("$.[*].dispensation_pa", anyOf(hasItem(PA_DISPENSATION))))
