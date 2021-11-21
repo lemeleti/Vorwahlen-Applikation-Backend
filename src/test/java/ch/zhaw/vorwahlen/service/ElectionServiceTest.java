@@ -21,9 +21,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 class ElectionServiceTest {
@@ -39,7 +41,7 @@ class ElectionServiceTest {
 
     private ElectionService electionService;
 
-    private final Student studentMock = mock(Student.class);
+    private final Student student = Student.builder().email("test@mail.com").build();
 
     private final List<String> interdisciplinaryModules = List.of("t.BA.WM.PHMOD.19HS");
     private final List<String> contextModules = List.of("t.BA.XXK.FUPRE.19HS", "t.BA.WVK.ZURO.20HS", "t.BA.WVK.SIC-TAF.20HS");
@@ -73,33 +75,24 @@ class ElectionServiceTest {
     // ================================================================================================================
 
     @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
     @Sql("classpath:sql/modules_test_election.sql")
     void testGetModuleElectionByStudent() {
-        when(studentMock.getEmail()).thenReturn("test@mail.com");
-        when(studentMock.getWpmDispensation()).thenReturn(0);
-        when(studentMock.isTZ()).thenReturn(false);
-        when(studentMock.isIP()).thenReturn(false);
-
-        assertNull(electionService.getModuleElectionByStudent(studentMock));
+        assertNull(electionService.getModuleElectionByStudent(student));
 
         var validElection = validElectionSetForElectionDTO();
         var moduleElection = new ModuleElectionDTO();
         moduleElection.setElectedModules(validElection);
         moduleElection.setOverflowedElectedModules(new HashSet<>());
 
-        electionService.saveElection(studentMock, moduleElection);
-        assertNotNull(electionService.getModuleElectionByStudent(studentMock));
+        electionService.saveElection(student, moduleElection);
+        assertNotNull(electionService.getModuleElectionByStudent(student));
     }
 
     @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
     @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection() {
-        when(studentMock.getEmail()).thenReturn("test@mail.com");
-        // case VZ, Non-IP, No dispensations
-        when(studentMock.getWpmDispensation()).thenReturn(0);
-        when(studentMock.isTZ()).thenReturn(false);
-        when(studentMock.isIP()).thenReturn(false);
-
         var validElection = validElectionSetForElectionDTO();
         var moduleElection = new ModuleElectionDTO();
         moduleElection.setElectedModules(validElection);
@@ -109,7 +102,7 @@ class ElectionServiceTest {
         jsonNode.put("electionSaved", true);
         jsonNode.put("electionValid", true);
 
-        assertEquals(jsonNode, electionService.saveElection(studentMock, moduleElection));
+        assertEquals(jsonNode, electionService.saveElection(student, moduleElection));
         assertTrue(moduleElection.isElectionValid());
 
         jsonNode.put("electionValid", false);
@@ -123,7 +116,7 @@ class ElectionServiceTest {
                         .collect(Collectors.toSet()));
 
         assertFalse(moduleElection.getOverflowedElectedModules().isEmpty());
-        assertEquals(jsonNode, electionService.saveElection(studentMock, moduleElection));
+        assertEquals(jsonNode, electionService.saveElection(student, moduleElection));
         assertFalse(moduleElection.isElectionValid());
     }
 
@@ -157,26 +150,17 @@ class ElectionServiceTest {
 
     @Test
     void testSaveElection_Null_Election() {
-        when(studentMock.getEmail()).thenReturn("test@mail.com");
-        when(studentMock.getWpmDispensation()).thenReturn(0);
-        when(studentMock.isTZ()).thenReturn(false);
-        when(studentMock.isIP()).thenReturn(false);
-
         var jsonNode = new ObjectMapper().createObjectNode();
         jsonNode.put("electionSaved", false);
         jsonNode.put("electionValid", false);
 
-        assertEquals(jsonNode, electionService.saveElection(studentMock, null));
+        assertEquals(jsonNode, electionService.saveElection(student, null));
     }
 
     @Test
     @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection_Null_Email() {
-        when(studentMock.getEmail()).thenReturn(null);
-        when(studentMock.getWpmDispensation()).thenReturn(0);
-        when(studentMock.isTZ()).thenReturn(false);
-        when(studentMock.isIP()).thenReturn(false);
-
+        var student = Student.builder().email(null).build();
         var validElection = validElectionSetForElectionDTO();
         var moduleElectionDTO = new ModuleElectionDTO();
         moduleElectionDTO.setElectedModules(validElection);
@@ -186,17 +170,13 @@ class ElectionServiceTest {
         jsonNode.put("electionSaved", false);
         jsonNode.put("electionValid", false);
 
-        assertEquals(jsonNode, electionService.saveElection(studentMock, moduleElectionDTO));
+        assertEquals(jsonNode, electionService.saveElection(student, moduleElectionDTO));
     }
 
     @Test
     @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection_Blank_Email() {
-        when(studentMock.getEmail()).thenReturn("  ");
-        when(studentMock.getWpmDispensation()).thenReturn(0);
-        when(studentMock.isTZ()).thenReturn(false);
-        when(studentMock.isIP()).thenReturn(false);
-
+        var student = Student.builder().email("").build();
         var validElection = validElectionSetForElectionDTO();
         var moduleElectionDTO = new ModuleElectionDTO();
         moduleElectionDTO.setElectedModules(validElection);
@@ -206,7 +186,7 @@ class ElectionServiceTest {
         jsonNode.put("electionSaved", false);
         jsonNode.put("electionValid", false);
 
-        assertEquals(jsonNode, electionService.saveElection(studentMock, moduleElectionDTO));
+        assertEquals(jsonNode, electionService.saveElection(student, moduleElectionDTO));
     }
 
 }
