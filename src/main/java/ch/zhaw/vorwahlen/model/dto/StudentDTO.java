@@ -1,6 +1,5 @@
 package ch.zhaw.vorwahlen.model.dto;
 
-import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,7 +18,7 @@ public class StudentDTO {
     private String email;
     private String name;
     @JsonProperty("class")
-    private StudentClass clazz;
+    private String clazz;
     @JsonProperty("dispensation_pa")
     private int paDispensation;
     @JsonProperty("dispensation_wpm")
