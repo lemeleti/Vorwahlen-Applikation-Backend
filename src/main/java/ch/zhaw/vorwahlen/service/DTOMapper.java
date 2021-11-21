@@ -35,7 +35,7 @@ public class DTOMapper {
     final Function<Student, StudentDTO> mapStudentToDto = student -> StudentDTO.builder()
             .email(student.getEmail())
             .name(student.getName())
-            .clazz(student.getClazz())
+            .clazz(student.getStudentClass())
             .paDispensation(student.getPaDispensation())
             .wpmDispensation(student.getWpmDispensation())
             .isIP(student.isIP())

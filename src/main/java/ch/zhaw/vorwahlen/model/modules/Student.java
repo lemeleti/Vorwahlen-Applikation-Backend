@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -25,8 +27,9 @@ public class Student {
     @Id
     private String email;
     private String name;
-    @Column(name = "class")
-    private String clazz;
+    @ManyToOne
+    @JoinColumn(name = "class_name")
+    private StudentClass studentClass;
 
     @Column(columnDefinition = "integer default 0")
     private int paDispensation;

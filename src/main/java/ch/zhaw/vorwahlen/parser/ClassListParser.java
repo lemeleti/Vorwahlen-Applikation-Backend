@@ -28,7 +28,7 @@ public class ClassListParser extends ExcelParser<Student, StudentLookupTable> {
                 case EMAIL -> studentBuilder.email(cellValue);
                 case NAME -> studentBuilder.name(cellValue);
                 case CLAZZ -> {
-                    studentBuilder.clazz(cellValue);
+                    //studentBuilder.studentClass(cellValue);
                     studentBuilder.isTZ(cellValue.matches(TZ_CLASS_REGEX));
                 }
             }
