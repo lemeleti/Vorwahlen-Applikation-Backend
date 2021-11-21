@@ -4,7 +4,6 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructure;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
@@ -95,7 +94,7 @@ public class ElectionService {
         var isValid = electionValidator.validate(moduleElection);
         moduleElection.setElectionValid(isValid);
         moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
-        electionRepository.save(moduleElection);
+        student.setElection(electionRepository.save(moduleElection));
 
         return createSaveStatusBundle(true, isValid);
     }
