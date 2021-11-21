@@ -42,7 +42,7 @@ public class ModuleStructureGenerator {
     private void generateModuleElements(Map<Integer, Integer> modules, ModuleCategory category) {
         var paDispensationCredits = student.getPaDispensation();
         var wpmDispensationCredits = student.getWpmDispensation();
-        ModuleCategory backup = category;
+        var backup = category;
         for (Map.Entry<Integer, Integer> entry : modules.entrySet()) {
             if (ModuleCategory.PROJECT_MODULE.equals(category) && paDispensationCredits > 0) {
                 category = ModuleCategory.DISPENSED_PA_MODULE;
@@ -56,8 +56,8 @@ public class ModuleStructureGenerator {
                     category = ModuleCategory.DISPENSED_WPM_MODULE;
                     wpmDispensationCredits -= ModuleCategory.DISPENSED_WPM_MODULE.getCredits();
                 }
-                Module module = findModuleByCategory(category, semester);
-                ModuleStructureElement element = createStructureElement(module, category, semester);
+                var module = findModuleByCategory(category, semester);
+                var element = createStructureElement(module, category, semester);
                 structure.add(element);
                 category = backup;
             }
@@ -71,7 +71,7 @@ public class ModuleStructureGenerator {
                 (int) Float.parseFloat(m.getFullTimeSemester()) == semester;
 
         if (hasElectedModules) {
-            Optional<Module> moduleOptional = electedModules.stream()
+            var moduleOptional = electedModules.stream()
                     .filter(hasModuleForCategory)
                     .findFirst();
             if (moduleOptional.isPresent()) {
@@ -85,9 +85,9 @@ public class ModuleStructureGenerator {
     private ModuleStructureElement createStructureElement(Module module,
                                                           ModuleCategory category, int semester) {
 
-        String name = category.getDescription();
-        String moduleId = "N/A";
-        boolean isFiller = true;
+        var name = category.getDescription();
+        var moduleId = "N/A";
+        var isFiller = true;
 
         if (module != null) {
             name = module.getModuleTitle();

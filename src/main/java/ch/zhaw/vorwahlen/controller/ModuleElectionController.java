@@ -39,8 +39,8 @@ public class ModuleElectionController {
     public ObjectNode saveElection(SimpMessageHeaderAccessor headerAccessor,
                                    ModuleElectionDTO moduleElectionDTO) {
         // todo improve
-        CustomAuthToken token = ((CustomAuthToken) headerAccessor.getUser());
-        User user = token != null ? token.getUser() : null;
+        var token = ((CustomAuthToken) headerAccessor.getUser());
+        var user = token != null ? token.getUser() : null;
         var node = new ObjectMapper().createObjectNode();
         var sessionAttributes = headerAccessor.getSessionAttributes();
         if(sessionAttributes != null && user != null) {
