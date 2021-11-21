@@ -15,7 +15,7 @@ import javax.persistence.Table;
  * Model / Entity class for a class list entry
  */
 @Entity
-@Table(name = "class_list")
+@Table(name = "students")
 @Data
 @NoArgsConstructor
 @Builder
