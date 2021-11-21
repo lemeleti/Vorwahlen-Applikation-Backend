@@ -93,7 +93,6 @@ public class ElectionService {
                 : new FullTimeElectionValidator(student);
 
         var isValid = electionValidator.validate(moduleElection);
-        moduleElection.setStudent(student);
         moduleElection.setElectionValid(isValid);
         moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
         electionRepository.save(moduleElection);
