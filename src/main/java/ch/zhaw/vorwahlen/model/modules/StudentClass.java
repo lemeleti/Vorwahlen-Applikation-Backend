@@ -33,7 +33,6 @@ public class StudentClass {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        System.out.println("STUDENT CLASS HIBERNATE CHECK" + (Hibernate.getClass(this) != Hibernate.getClass(o)));
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         var that = (StudentClass) o;
         return name != null && Objects.equals(name, that.name);
