@@ -19,6 +19,8 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     public static final int NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION = 0;
     public static final int NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION = 1;
+    protected static final String[] SECOND_ELECTION_SEMESTERS = { "7", "8" };
+    protected static final String[] FIRST_ELECTION_SEMESTERS = { "5", "6" };
 
     public PartTimeElectionValidator(Student student) {
         super(student);
@@ -27,12 +29,36 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
     @Override
     public boolean validate(ModuleElection election) {
         return isOverflownEmpty(election)
+                && canModuleBeSelectedInThisRun(election)
                 && isCreditSumValid(election)
                 && validContextModuleElection(election)
                 && validSubjectModuleElection(election)
                 && validInterdisciplinaryModuleElection(election)
                 && validIpModuleElection(election)
                 && validConsecutiveModulePairsInElection(election);
+    }
+
+    protected boolean canModuleBeSelectedInThisRun(ModuleElection moduleElection) {
+        return getStudent().isSecondElection()
+                ? containsAnyValidSemesterInEveryElectedModule(moduleElection, SECOND_ELECTION_SEMESTERS)
+                : containsAnyValidSemesterInEveryElectedModule(moduleElection, FIRST_ELECTION_SEMESTERS);
+    }
+
+    private boolean containsAnyValidSemesterInEveryElectedModule(ModuleElection moduleElection, String[] possibleSemesters) {
+        for (var m: moduleElection.getElectedModules()) {
+            var containsAnySemester = false;
+
+            var i = 0;
+            while(!containsAnySemester && i < possibleSemesters.length) {
+                containsAnySemester = m.getPartTimeSemester().contains(possibleSemesters[i]);
+                i++;
+            }
+
+            if (!containsAnySemester) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
