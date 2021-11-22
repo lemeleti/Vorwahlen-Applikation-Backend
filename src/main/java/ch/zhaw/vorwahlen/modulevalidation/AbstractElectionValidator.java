@@ -22,6 +22,17 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
 
 
     protected boolean validConsecutiveModulePairsInElection(ModuleElection moduleElection) {
+        var consecutiveMap = calculateConsecutiveMap(moduleElection);
+
+        var countConsecutiveMissingPart = consecutiveMap.values().stream()
+                .filter(Objects::isNull)
+                .count();
+
+        return consecutiveMap.size() != 0 && countConsecutiveMissingPart == 0 &&
+                consecutiveModuleExtraChecks(moduleElection, consecutiveMap);
+    }
+
+    protected Map<Module, Module> calculateConsecutiveMap(ModuleElection moduleElection) {
         var consecutiveMap = new HashMap<Module, Module>();
         for(var m1: moduleElection.getElectedModules()) {
             for(var m2: moduleElection.getElectedModules()) {
@@ -36,13 +47,7 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
 
         // remove one fo the duplicate entries -> k: AI1, v: AI2 / k: AI2, v: AI1
         consecutiveMap.entrySet().removeIf(entrySet -> consecutiveMap.containsValue(entrySet.getKey()));
-
-        var countConsecutiveMissingPart = consecutiveMap.values().stream()
-                .filter(Objects::isNull)
-                .count();
-
-        return consecutiveMap.size() != 0 && countConsecutiveMissingPart == 0 &&
-                consecutiveModuleExtraChecks(moduleElection, consecutiveMap);
+        return consecutiveMap;
     }
 
     protected abstract boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap);

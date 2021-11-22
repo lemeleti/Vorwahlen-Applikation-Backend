@@ -293,21 +293,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
      * Helper methods
      * ************************************************************************************************************** */
 
-    Set<Module> invalidElectionSet(int mode) {
-        var set = generateValidElectionSet();
-        var module = mock(Module.class);
-        switch (mode) {
-            case 1 -> removeOneModuleByCategory(set, ModuleCategory.CONTEXT_MODULE);
-            case 2 -> removeOneModuleByCategory(set, ModuleCategory.SUBJECT_MODULE);
-            case 3 -> removeOneModuleByCategory(set, ModuleCategory.INTERDISCIPLINARY_MODULE);
-            case 4 -> addModule(set, ModuleCategoryTest.possibleContextPrefixes.get(0), module, CREDITS_PER_CONTEXT_MODULE);
-            case 5 -> addModule(set, ModuleCategoryTest.possibleSubjectPrefixes.get(0), module, CREDITS_PER_SUBJECT_MODULE);
-            case 6 -> addModule(set, ModuleCategoryTest.INTERDISCIPLINARY_PREFIX_WM, module, CREDITS_PER_INTERDISCIPLINARY_MODULE);
-            case 7 -> removeEnglishModules(set);
-        }
-        return set;
-    }
-
     void assertInvalidElection(ModuleElection moduleElectionMock, ElectionValidator validator, int mode) {
         var invalidElection = invalidElectionSet(mode);
         when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);

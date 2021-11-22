@@ -4,6 +4,7 @@ import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,20 +14,24 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AbstractElectionValidatorTest {
 
+    private static final int MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA = 42; // PA = 6 Credits, BA = 12 Credits
     private static final int NUM_CONTEXT_MODULES = 3;
     private static final int NUM_SUBJECT_MODULES = 8;
     private static final int NUM_INTERDISCIPLINARY_MODULES = 1;
-    private static final String NON_EXISTING_MODULE = "WHOAMI";
 
     static final int RANDOM_SEED = 32034;
     static final int WPM_DISPENSATION = 8;
@@ -90,11 +95,199 @@ class AbstractElectionValidatorTest {
      * ************************************************************************************************************** */
 
     @Test
+    void testValidConsecutiveModulePairsInElection() {
+        when(validator.consecutiveModuleExtraChecks(any(), any())).thenReturn(true);
+        var m1 = mock(Module.class);
+        var m2 = mock(Module.class);
+        var m3 = mock(Module.class);
+
+        when(m1.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(0));
+        when(m2.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(1));
+        when(m3.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(2));
+
+        when(m1.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(1));
+        when(m2.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(0));
+        when(m3.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(3));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
+        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3));
+        assertFalse(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+    }
+
+    @Test
+    void testCalculateConsecutiveMap() {
+        var m1 = mock(Module.class);
+        var m2 = mock(Module.class);
+        var m3 = mock(Module.class);
+        var m4 = mock(Module.class);
+        when(m1.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(0));
+        when(m2.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(1));
+        when(m3.getShortModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(2));
+        when(m4.getShortModuleNo()).thenReturn(subjectModulesShort.get(0));
+
+        when(m1.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(1));
+        when(m2.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(0));
+        when(m3.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(3));
+
+        var expected1 = new HashMap<Module, Module>();
+        expected1.put(m3, null);
+        expected1.put(m2, m1);
+
+        var expected2 = new HashMap<Module, Module>();
+        expected2.put(m3, null);
+        expected2.put(m1, m2);
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
+        var result = validator.calculateConsecutiveMap(moduleElectionMock);
+
+        assertThat(result, anyOf(is(expected1), is(expected2)));
+    }
+
+    @Test
+    void testContainsSpecialConsecutiveModules() {
+        var m1 = mock(Module.class);
+        var m2 = mock(Module.class);
+
+        when(m1.getShortModuleNo()).thenReturn(MODULE_WV_PSPP);
+        when(m2.getShortModuleNo()).thenReturn(subjectModulesShort.get(1));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1));
+        assertFalse(validator.containsSpecialConsecutiveModules(moduleElectionMock));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m2));
+        assertFalse(validator.containsSpecialConsecutiveModules(moduleElectionMock));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
+        assertTrue(validator.containsSpecialConsecutiveModules(moduleElectionMock));
+    }
+
+    @Test
+    void testAreModulesConsecutive() {
+        var moduleMock1 = mock(Module.class);
+        var moduleMock2 = mock(Module.class);
+
+        when(moduleMock1.getConsecutiveModuleNo()).thenReturn(null);
+        when(moduleMock2.getConsecutiveModuleNo()).thenReturn(null);
+        assertFalse(validator.areModulesConsecutive(moduleMock1, moduleMock2));
+
+        when(moduleMock1.getConsecutiveModuleNo()).thenReturn(" ");
+        assertFalse(validator.areModulesConsecutive(moduleMock1, moduleMock2));
+
+        when(moduleMock1.getConsecutiveModuleNo()).thenReturn(CONSECUTIVE_VALUE);
+        assertFalse(validator.areModulesConsecutive(moduleMock1, moduleMock2));
+
+        when(moduleMock2.getConsecutiveModuleNo()).thenReturn(" ");
+        assertFalse(validator.areModulesConsecutive(moduleMock1, moduleMock2));
+
+        when(moduleMock2.getConsecutiveModuleNo()).thenReturn(CONSECUTIVE_VALUE);
+        assertTrue(validator.areModulesConsecutive(moduleMock1, moduleMock2));
+    }
+
+    @Test
+    void testContainsModule() {
+        assertTrue(validator.containsModule(validElectionSet, consecutiveSubjectModulesShort.get(0)));
+        assertFalse(validator.containsModule(validElectionSet, MODULE_WV_PSPP));
+    }
+
+    @Test
     void testCountModuleCategory() {
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
         assertEquals(NUM_CONTEXT_MODULES, validator.countModuleCategory(moduleElectionMock, ModuleCategory.CONTEXT_MODULE));
         assertEquals(NUM_INTERDISCIPLINARY_MODULES, validator.countModuleCategory(moduleElectionMock, ModuleCategory.INTERDISCIPLINARY_MODULE));
         assertEquals(NUM_SUBJECT_MODULES, validator.countModuleCategory(moduleElectionMock, ModuleCategory.SUBJECT_MODULE));
+    }
+
+    @Test
+    void testValidInterdisciplinaryModuleElection() {
+        // valid
+        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertTrue(validator.validInterdisciplinaryModuleElection(moduleElectionMock, NUM_INTERDISCIPLINARY_MODULES));
+
+        // too less
+        removeOneModuleByCategory(validElectionSet, ModuleCategory.INTERDISCIPLINARY_MODULE);
+        assertFalse(validator.validInterdisciplinaryModuleElection(moduleElectionMock, NUM_INTERDISCIPLINARY_MODULES));
+
+        // too much
+        validElectionSet = generateValidElectionSet();
+        addModule(validElectionSet, ModuleCategoryTest.INTERDISCIPLINARY_PREFIX_WM, mock(Module.class), CREDITS_PER_INTERDISCIPLINARY_MODULE);
+        assertFalse(validator.validInterdisciplinaryModuleElection(moduleElectionMock, NUM_INTERDISCIPLINARY_MODULES));
+    }
+
+    @Test
+    void testValidSubjectModuleElection() {
+        // valid
+        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertTrue(validator.validSubjectModuleElection(moduleElectionMock, NUM_SUBJECT_MODULES));
+
+        // too less
+        removeOneModuleByCategory(validElectionSet, ModuleCategory.SUBJECT_MODULE);
+        assertFalse(validator.validSubjectModuleElection(moduleElectionMock, NUM_SUBJECT_MODULES));
+
+        // too much
+        validElectionSet = generateValidElectionSet();
+        addModule(validElectionSet, ModuleCategoryTest.possibleSubjectPrefixes.get(0), mock(Module.class), CREDITS_PER_SUBJECT_MODULE);
+        assertFalse(validator.validSubjectModuleElection(moduleElectionMock, NUM_SUBJECT_MODULES));
+    }
+
+    @Test
+    void testValidContextModuleElection() {
+        // valid
+        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertTrue(validator.validContextModuleElection(moduleElectionMock, NUM_CONTEXT_MODULES));
+
+        // too less
+        removeOneModuleByCategory(validElectionSet, ModuleCategory.CONTEXT_MODULE);
+        assertFalse(validator.validContextModuleElection(moduleElectionMock, NUM_CONTEXT_MODULES));
+
+        // too much
+        validElectionSet = generateValidElectionSet();
+        addModule(validElectionSet, ModuleCategoryTest.possibleContextPrefixes.get(0), mock(Module.class), CREDITS_PER_CONTEXT_MODULE);
+        assertFalse(validator.validContextModuleElection(moduleElectionMock, NUM_CONTEXT_MODULES));
+    }
+
+    @Test
+    void testIsCreditSumValid() {
+        //--- Case No Dispensations
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertTrue(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+
+        //--- Case Some Dispensations
+        removeNonConsecutiveSubjectModulesFromSet(validElectionSet);
+        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
+        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertTrue(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+
+        // More modules selected considering the dispensations
+        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION + 1);
+        assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+
+        // Not enough modules selected considering the dispensations
+        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION - 1);
+        assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+
+
+        //--- Case Non-IP, No Dispensations (Not enough selected)
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+        for (var mode = 1; mode < 4; mode++) {
+            var invalidElection = invalidElectionSet(mode);
+            when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);
+            assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+        }
+
+        //--- Case Non-IP, No Dispensations (Too much selected)
+        for (var mode = 4; mode < 7; mode++) {
+            var invalidElection = invalidElectionSet(mode);
+            when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);
+            assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+        }
+
+        //--- Case IP, No Dispensations (Not enough english selected)
+        var invalidElection = invalidElectionSet(7);
+        when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);
+        assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
     }
 
     @Test
@@ -126,6 +319,61 @@ class AbstractElectionValidatorTest {
     }
 
     @Test
+    void testCalculateConsecutiveMap_Null() {
+        assertThrows(NullPointerException.class, () -> validator.calculateConsecutiveMap(null));
+    }
+
+    @Test
+    void testCalculateConsecutiveMap_NullSet() {
+        when(moduleElectionMock.getElectedModules()).thenReturn(null);
+        assertThrows(NullPointerException.class, () -> validator.calculateConsecutiveMap(moduleElectionMock));
+    }
+
+    @Test
+    void testContainsSpecialConsecutiveModules_Null() {
+        assertThrows(NullPointerException.class, () -> validator.containsSpecialConsecutiveModules(null));
+    }
+
+    @Test
+    void testAreModulesConsecutive_NullModule1() {
+        assertThrows(NullPointerException.class, () -> validator.areModulesConsecutive(null, mock(Module.class)));
+    }
+
+    @Test
+    void testAreModulesConsecutive_NullModule2() {
+        var moduleMock = mock(Module.class);
+        when(moduleMock.getConsecutiveModuleNo()).thenReturn(CONSECUTIVE_VALUE);
+        assertThrows(NullPointerException.class, () -> validator.areModulesConsecutive(moduleMock, null));
+    }
+
+    @Test
+    void testContainsModule_NullString() {
+        assertThrows(NullPointerException.class, () -> validator.containsModule(validElectionSet, null));
+    }
+
+    @Test
+    void testContainsModule_NullSet() {
+        assertThrows(NullPointerException.class, () -> validator.containsModule(null, MODULE_WV_PSPP));
+    }
+
+    @Test
+    void testContainsModule_NullSetElement() {
+        var set = new HashSet<Module>();
+        set.add(null);
+        assertThrows(NullPointerException.class, () -> validator.containsModule(set, MODULE_WV_PSPP));
+    }
+
+    @Test
+    void testContainsModule_NullSetElementString() {
+        var moduleMock = mock(Module.class);
+        when(moduleMock.getShortModuleNo()).thenReturn(null);
+
+        var set = new HashSet<Module>();
+        set.add(moduleMock);
+        assertDoesNotThrow(() -> validator.containsModule(set, MODULE_WV_PSPP));
+    }
+
+    @Test
     void testCountModuleCategory_NullElection() {
         assertThrows(NullPointerException.class, () -> validator.countModuleCategory(null, ModuleCategory.CONTEXT_MODULE));
     }
@@ -142,6 +390,41 @@ class AbstractElectionValidatorTest {
     void testCountModuleCategory_NullCategory() {
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
         assertEquals(0, validator.countModuleCategory(moduleElectionMock, null));
+    }
+
+    @Test
+    void testValidInterdisciplinaryModuleElection_Null() {
+        assertThrows(NullPointerException.class, () -> validator.validInterdisciplinaryModuleElection(null, NUM_INTERDISCIPLINARY_MODULES));
+    }
+
+    @Test
+    void testValidSubjectModuleElection_Null() {
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+        assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(null, NUM_SUBJECT_MODULES));
+    }
+
+    @Test
+    void testValidSubjectModuleElection_NullStudent() {
+        validator = mock(AbstractElectionValidator.class, Mockito.withSettings()
+                .useConstructor((Student) null)
+                .defaultAnswer(CALLS_REAL_METHODS));
+        assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(moduleElectionMock, NUM_SUBJECT_MODULES));
+    }
+
+    @Test
+    void testValidContextModuleElection_Null() {
+        assertThrows(NullPointerException.class, () -> validator.validContextModuleElection(null, NUM_CONTEXT_MODULES));
+    }
+
+    @Test
+    void testIsCreditSumValid_NullArgument() {
+        assertThrows(NullPointerException.class, () -> validator.isCreditSumValid(null, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+    }
+
+    @Test
+    void testIsCreditSumValid_NullElectionSet() {
+        when(moduleElectionMock.getElectedModules()).thenReturn(null);
+        assertThrows(NullPointerException.class, () -> validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
     }
 
     @Test
@@ -288,6 +571,21 @@ class AbstractElectionValidatorTest {
                 iter.remove();
             }
         }
+    }
+
+    Set<Module> invalidElectionSet(int mode) {
+        var set = generateValidElectionSet();
+        var module = mock(Module.class);
+        switch (mode) {
+            case 1 -> removeOneModuleByCategory(set, ModuleCategory.CONTEXT_MODULE);
+            case 2 -> removeOneModuleByCategory(set, ModuleCategory.SUBJECT_MODULE);
+            case 3 -> removeOneModuleByCategory(set, ModuleCategory.INTERDISCIPLINARY_MODULE);
+            case 4 -> addModule(set, ModuleCategoryTest.possibleContextPrefixes.get(0), module, CREDITS_PER_CONTEXT_MODULE);
+            case 5 -> addModule(set, ModuleCategoryTest.possibleSubjectPrefixes.get(0), module, CREDITS_PER_SUBJECT_MODULE);
+            case 6 -> addModule(set, ModuleCategoryTest.INTERDISCIPLINARY_PREFIX_WM, module, CREDITS_PER_INTERDISCIPLINARY_MODULE);
+            case 7 -> removeEnglishModules(set);
+        }
+        return set;
     }
 
 }
