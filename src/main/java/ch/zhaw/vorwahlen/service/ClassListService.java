@@ -50,7 +50,7 @@ public class ClassListService {
     private void setSecondElection(List<Student> students) {
         students.stream()
                 .filter(Student::isTZ)
-                .forEach(student-> student.setSecondElection(isSecondElection(student.getClazz())));
+                .forEach(student-> student.setSecondElection(isSecondElection(student.getStudentClass().getName())));
     }
 
     private boolean isSecondElection(String clazz) {

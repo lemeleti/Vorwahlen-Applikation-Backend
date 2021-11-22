@@ -21,9 +21,7 @@ import static ch.zhaw.vorwahlen.service.ClassListService.WPM_DISPENSATION;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -55,9 +53,10 @@ class ClassListControllerTest {
     void testGetAllModules() {
         // prepare
         var expectedList = new ArrayList<StudentDTO>();
+
         expectedList.add(StudentDTO.builder().email("mail1").name("name1").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
         expectedList.add(StudentDTO.builder().email("mail2").name("name2").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
-        expectedList.add(StudentDTO.builder().email("mail3").name("name3").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
+        expectedList.add(StudentDTO.builder().email("mail3").name("name3").clazz(CLASS_2).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
 
         when(classListService.getAllClassLists()).thenReturn(expectedList);
 

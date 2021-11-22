@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.model.modules.StudentLookupTable;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import org.apache.poi.ss.usermodel.Cell;
@@ -82,7 +83,7 @@ class ClassListParserTest {
         var expected = Student.builder()
                 .email(DEFAULT_CELL_VALUE)
                 .name(DEFAULT_CELL_VALUE)
-                .clazz(DEFAULT_CELL_VALUE)
+                .studentClass(new StudentClass(DEFAULT_CELL_VALUE))
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);

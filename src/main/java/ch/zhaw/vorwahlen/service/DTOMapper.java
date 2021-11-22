@@ -35,7 +35,7 @@ public class DTOMapper {
     final Function<Student, StudentDTO> mapStudentToDto = student -> StudentDTO.builder()
             .email(student.getEmail())
             .name(student.getName())
-            .clazz(student.getClazz())
+            .clazz(student.getStudentClass().getName())
             .paDispensation(student.getPaDispensation())
             .wpmDispensation(student.getWpmDispensation())
             .isIP(student.isIP())
@@ -75,7 +75,7 @@ public class DTOMapper {
 
     ModuleElection mapDtoToModuleElection(ModuleElectionDTO moduleElectionDTO, Student student, Function<Set<String>, Set<Module>> mapModuleSet) {
         var moduleElection = new ModuleElection();
-        moduleElection.setStudentEmail(student.getEmail());
+        moduleElection.setStudent(student);
         moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
         moduleElection.setElectedModules(mapModuleSet.apply(moduleElectionDTO.getElectedModules()));
         moduleElection.setOverflowedElectedModules(mapModuleSet.apply(moduleElectionDTO.getOverflowedElectedModules()));

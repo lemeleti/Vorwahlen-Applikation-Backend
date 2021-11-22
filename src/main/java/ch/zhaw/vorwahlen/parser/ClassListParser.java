@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.model.modules.StudentLookupTable;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -28,7 +29,7 @@ public class ClassListParser extends ExcelParser<Student, StudentLookupTable> {
                 case EMAIL -> studentBuilder.email(cellValue);
                 case NAME -> studentBuilder.name(cellValue);
                 case CLAZZ -> {
-                    studentBuilder.clazz(cellValue);
+                    studentBuilder.studentClass(new StudentClass(cellValue));
                     studentBuilder.isTZ(cellValue.matches(TZ_CLASS_REGEX));
                 }
             }

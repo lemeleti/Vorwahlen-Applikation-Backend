@@ -84,15 +84,18 @@ public class ModuleService {
 
         var difference1 = StringUtils.difference(m1.getShortModuleNo(), m2.getShortModuleNo());
         var difference2 = StringUtils.difference(m2.getShortModuleNo(), m1.getShortModuleNo());
-        var isDiff1FirstCharNumeric = StringUtils.isNumeric(String.valueOf(difference1.charAt(0)));
-        var isDiff2FirstCharNumeric = StringUtils.isNumeric(String.valueOf(difference2.charAt(0)));
 
-        if(isValid && difference1.length() != difference2.length()) {
-            isValid = difference1.length() > difference2.length()
-                    ? isDiff1FirstCharNumeric
-                    : isDiff2FirstCharNumeric;
-        } else if(isValid) {
-            isValid = isDiff1FirstCharNumeric && isDiff2FirstCharNumeric;
+        if(isValid) {
+            var isDiff1FirstCharNumeric = StringUtils.isNumeric(String.valueOf(difference1.charAt(0)));
+            var isDiff2FirstCharNumeric = StringUtils.isNumeric(String.valueOf(difference2.charAt(0)));
+
+            if (difference1.length() != difference2.length()) {
+                isValid = difference1.length() > difference2.length()
+                        ? isDiff1FirstCharNumeric
+                        : isDiff2FirstCharNumeric;
+            } else {
+                isValid = isDiff1FirstCharNumeric && isDiff2FirstCharNumeric;
+            }
         }
         return isValid;
     }
