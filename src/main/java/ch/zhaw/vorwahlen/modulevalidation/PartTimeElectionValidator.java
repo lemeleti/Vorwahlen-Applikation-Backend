@@ -67,7 +67,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
         // IT19 Teilzeit: Wählen Sie bis zu zwei konsekutive Module (empfohlen: zwei Module). Achten Sie speziell auf die nötigen Vorkenntnisse der Module.
         // todo fragen: 1. wahl CCP1, MC1 / 2. wahl CCP2, MC2 ---> currently this is invalid
         return !getStudent().isSecondElection()
-                || consecutiveMap.size() > 0
+                || consecutiveMap.size() != 0
                 || containsSpecialConsecutiveModules(moduleElection);
     }
 

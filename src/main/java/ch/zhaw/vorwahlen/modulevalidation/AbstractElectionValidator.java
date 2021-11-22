@@ -28,8 +28,7 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
                 .filter(Objects::isNull)
                 .count();
 
-        return consecutiveMap.size() != 0 && countConsecutiveMissingPart == 0 &&
-                consecutiveModuleExtraChecks(moduleElection, consecutiveMap);
+        return countConsecutiveMissingPart == 0 && consecutiveModuleExtraChecks(moduleElection, consecutiveMap);
     }
 
     protected Map<Module, Module> calculateConsecutiveMap(ModuleElection moduleElection) {
