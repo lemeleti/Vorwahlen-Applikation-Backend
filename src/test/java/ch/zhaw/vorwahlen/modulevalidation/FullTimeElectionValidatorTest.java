@@ -16,6 +16,7 @@ import static org.mockito.Mockito.*;
 
 class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
+    @Override
     @BeforeEach
     void setUp() {
         super.setUp();
@@ -27,7 +28,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
      * ************************************************************************************************************** */
 
     @Test
-    @Sql("classpath:sql/modules_test_election.sql")
     void testValidateElectionFullTime() {
         //===== Returns valid
         when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(new HashSet<>());
@@ -68,6 +68,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertInvalidElection(moduleElectionMock, validator, 7);
     }
 
+    @Override
     @Test
     void testValidConsecutiveModulePairsInElection() {
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
@@ -124,6 +125,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertTrue(validator.validIpModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidInterdisciplinaryModuleElection() {
         // valid
@@ -140,6 +142,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validInterdisciplinaryModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidSubjectModuleElection() {
         // valid
@@ -156,6 +159,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validSubjectModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidContextModuleElection() {
         // valid
@@ -172,6 +176,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validContextModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testIsCreditSumValid() {
         //--- Case No Dispensations
@@ -238,33 +243,39 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertThrows(NullPointerException.class, () -> validator.validIpModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidInterdisciplinaryModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validInterdisciplinaryModuleElection(null));
     }
 
+    @Override
     @Test
     void testValidSubjectModuleElection_Null() {
         when(studentMock.getWpmDispensation()).thenReturn(0);
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(null));
     }
 
+    @Override
     @Test
     void testValidSubjectModuleElection_NullStudent() {
         validator = new FullTimeElectionValidator(null);
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidContextModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validContextModuleElection(null));
     }
 
+    @Override
     @Test
     void testIsCreditSumValid_NullArgument() {
         assertThrows(NullPointerException.class, () -> validator.isCreditSumValid(null));
     }
 
+    @Override
     @Test
     void testIsCreditSumValid_NullElectionSet() {
         when(moduleElectionMock.getElectedModules()).thenReturn(null);
