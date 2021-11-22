@@ -1,19 +1,13 @@
 package ch.zhaw.vorwahlen.config;
 
 import ch.zhaw.vorwahlen.authentication.AuthFilter;
-import ch.zhaw.vorwahlen.authentication.CustomAuthToken;
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
-import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
-import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Map;
 
