@@ -72,11 +72,4 @@ public class DTOMapper {
             .remarks(eventoData.getRemarks())
             .build();
 
-    ModuleElection mapDtoToModuleElection(ModuleElectionDTO moduleElectionDTO, Student student, Function<Set<String>, Set<Module>> mapModuleSet) {
-        var moduleElection = new ModuleElection();
-        moduleElection.setStudent(student);
-        moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
-        moduleElection.setElectedModules(mapModuleSet.apply(moduleElectionDTO.getElectedModules()));
-        return moduleElection;
-    }
 }

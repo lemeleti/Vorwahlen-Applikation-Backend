@@ -1,9 +1,11 @@
 
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
+import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructure;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
@@ -13,8 +15,6 @@ import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,16 @@ public class ElectionService {
         this.structurePartTime = structurePartTime;
     }
 
-    public ModuleStructureDTO getModuleStructure(Student student) {
+    public ElectionTransferDTO getElection(Student student) {
+        var isElectionValid = false;
+        var isElectionSaved = false;
+        var structure = getModuleStructure(student);
+        if (student.getElection() != null) {
+            isElectionSaved = true;
+            isElectionValid = student.getElection().isElectionValid();
+        }
+        return new ElectionTransferDTO(structure, isElectionSaved, isElectionValid);
+    }
         var structure = student.isTZ() ? structurePartTime : structureFullTime;
         var election = student.getElection();
         return new ModuleStructureGenerator(structure, election, student).generateStructure();
@@ -79,13 +88,21 @@ public class ElectionService {
      * @return true - if save successful<br>
      *         false - if arguments invalid
      */
-    public ObjectNode saveElection(Student student, ModuleElectionDTO moduleElectionDTO) {
-        if(student == null || moduleElectionDTO == null
+    public ElectionTransferDTO saveElection(Student student, String moduleNo) {
+        if(student == null || moduleNo == null || moduleNo.isBlank()
                 || student.getEmail() == null || student.getEmail().isBlank()) {
-            return createSaveStatusBundle(false, false);
+            //todo throw custom exception
+            throw new RuntimeException("");
         }
 
-        var moduleElection = DTOMapper.mapDtoToModuleElection(moduleElectionDTO, student, mapModuleSet);
+        ModuleElection moduleElection;
+
+        if (student.getElection() != null) {
+            moduleElection = student.getElection();
+        } else {
+            moduleElection = new ModuleElection();
+        }
+
 
         var electionValidator = student.isTZ()
                 ? new PartTimeElectionValidator(student)
@@ -93,17 +110,7 @@ public class ElectionService {
 
         var isValid = electionValidator.validate(moduleElection);
         moduleElection.setElectionValid(isValid);
-        moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
         student.setElection(electionRepository.save(moduleElection));
-
-        return createSaveStatusBundle(true, isValid);
-    }
-
-    private ObjectNode createSaveStatusBundle(boolean saveSuccess, boolean validElection) {
-        var mapper = new ObjectMapper();
-        var node = mapper.createObjectNode();
-        node.put("electionSaved", saveSuccess);
-        node.put("electionValid", validElection);
-        return node;
+        return new ElectionTransferDTO(getModuleStructure(student), true, isValid);
     }
 }
