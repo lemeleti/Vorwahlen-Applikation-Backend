@@ -1,6 +1,9 @@
 package ch.zhaw.vorwahlen.controller;
 
+import ch.zhaw.vorwahlen.model.dto.UserDTO;
 import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.service.UserMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,7 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("session")
+@RequiredArgsConstructor
 public class SessionController {
+
+    private final UserMapper mapper;
 
     /**
      * Get the user information of the current session
@@ -21,8 +27,8 @@ public class SessionController {
      */
     // todo base path would be better than info
     @GetMapping(path = "info")
-    public ResponseEntity<User> getSessionInfo(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserDTO> getSessionInfo(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(mapper.toDto(user));
     }
 
     /**
