@@ -20,7 +20,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final AuthFilter authFilter;
     private final CustomAuthProvider customAuthProvider;
     private final String[] allowedPaths = {"/module**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
-    private final String[] protectedPaths = {"/module**", "/dispensation**", "/class**"};
+    private final String[] protectedPaths = {"/module**", "/dispensation**", "/class**", "/election/export"};
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
