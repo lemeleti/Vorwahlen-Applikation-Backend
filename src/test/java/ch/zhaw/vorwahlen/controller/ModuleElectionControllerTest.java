@@ -1,11 +1,12 @@
 package ch.zhaw.vorwahlen.controller;
 
-import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
+import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
+import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureElement;
 import ch.zhaw.vorwahlen.service.ClassListService;
 import ch.zhaw.vorwahlen.service.ElectionService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,9 +23,9 @@ import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +43,6 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 @SpringBootTest(properties = "classpath:settings.properties", webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 class ModuleElectionControllerTest {
-
     public static final String CONNECT_URL = "http://localhost:8080/stomp-ws-endpoint";
 
     @MockBean
@@ -75,7 +75,7 @@ class ModuleElectionControllerTest {
 
     @Test
     void testSaveElection() throws InterruptedException, ExecutionException, TimeoutException {
-        var blockingQueue = new ArrayBlockingQueue<ObjectNode>(1);
+        var blockingQueue = new ArrayBlockingQueue<ElectionTransferDTO>(1);
 
         webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
@@ -86,26 +86,31 @@ class ModuleElectionControllerTest {
         session.subscribe("/user/queue/electionSaveStatus", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return ObjectNode.class;
+                return ElectionTransferDTO.class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                blockingQueue.add((ObjectNode) payload);
+                blockingQueue.add((ElectionTransferDTO) payload);
             }
         });
 
-        var jsonNode = new ObjectMapper().createObjectNode();
-        jsonNode.put("electionSaved", true);
-        jsonNode.put("electionValid", false);
-        when(electionService.saveElection(any(), any())).thenReturn(jsonNode);
+        var structureElement = new ModuleStructureElement(
+                "Rapid Software Prototyping for Engineering Science",
+                "t.BA.WM.RASOP-EN.19HS",
+                false,
+                5,
+                ModuleCategory.INTERDISCIPLINARY_MODULE,
+                4
+        );
 
-        var moduleElectionDto = ModuleElectionDTO.builder()
-                .electedModules(Set.of("t.BA.WM.RASOP-EN.19HS", "t.BA.WV.ESE.19HS"))
-                .overflowedElectedModules(Set.of("t.BA.WM.SASEN-EN.19HS"))
-                .build();
+        var electionStructure = new ElectionStructureDTO(List.of(structureElement), new ArrayList<>());
+        var electionTransfer = new ElectionTransferDTO(electionStructure, true, false);
 
-        session.send("/app/save", moduleElectionDto);
-        assertEquals(jsonNode, blockingQueue.poll(5, TimeUnit.SECONDS));
+        when(electionService.saveElection(any(), any())).thenReturn(electionTransfer);
+
+        var moduleToElect = "t.BA.WM.RASOP-EN.19HS"; // List.of(, "t.BA.WV.ESE.19HS", "t.BA.WM.SASEN-EN.19HS");
+        session.send("/app/save", moduleToElect);
+        assertEquals(electionTransfer, blockingQueue.poll(5, TimeUnit.SECONDS));
     }
 }
