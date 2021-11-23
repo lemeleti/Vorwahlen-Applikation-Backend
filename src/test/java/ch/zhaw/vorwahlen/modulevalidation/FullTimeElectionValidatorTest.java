@@ -6,7 +6,6 @@ import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
+    @Override
     @BeforeEach
     void setUp() {
         super.setUp();
@@ -28,7 +28,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
      * ************************************************************************************************************** */
 
     @Test
-    @Sql("classpath:sql/modules_test_election.sql")
     void testValidateElectionFullTime() {
         //===== Returns valid
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
@@ -68,6 +67,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertInvalidElection(moduleElectionMock, validator, 7);
     }
 
+    @Override
     @Test
     void testValidConsecutiveModulePairsInElection() {
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
@@ -124,6 +124,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertTrue(validator.validIpModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidInterdisciplinaryModuleElection() {
         // valid
@@ -140,6 +141,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validInterdisciplinaryModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidSubjectModuleElection() {
         // valid
@@ -156,6 +158,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validSubjectModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidContextModuleElection() {
         // valid
@@ -172,6 +175,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validContextModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testIsCreditSumValid() {
         //--- Case No Dispensations
@@ -238,33 +242,39 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertThrows(NullPointerException.class, () -> validator.validIpModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidInterdisciplinaryModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validInterdisciplinaryModuleElection(null));
     }
 
+    @Override
     @Test
     void testValidSubjectModuleElection_Null() {
         when(studentMock.getWpmDispensation()).thenReturn(0);
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(null));
     }
 
+    @Override
     @Test
     void testValidSubjectModuleElection_NullStudent() {
         validator = new FullTimeElectionValidator(null);
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(moduleElectionMock));
     }
 
+    @Override
     @Test
     void testValidContextModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validContextModuleElection(null));
     }
 
+    @Override
     @Test
     void testIsCreditSumValid_NullArgument() {
         assertThrows(NullPointerException.class, () -> validator.isCreditSumValid(null));
     }
 
+    @Override
     @Test
     void testIsCreditSumValid_NullElectionSet() {
         when(moduleElectionMock.getElectedModules()).thenReturn(null);
@@ -292,21 +302,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     /* **************************************************************************************************************
      * Helper methods
      * ************************************************************************************************************** */
-
-    Set<Module> invalidElectionSet(int mode) {
-        var set = generateValidElectionSet();
-        var module = mock(Module.class);
-        switch (mode) {
-            case 1 -> removeOneModuleByCategory(set, ModuleCategory.CONTEXT_MODULE);
-            case 2 -> removeOneModuleByCategory(set, ModuleCategory.SUBJECT_MODULE);
-            case 3 -> removeOneModuleByCategory(set, ModuleCategory.INTERDISCIPLINARY_MODULE);
-            case 4 -> addModule(set, ModuleCategoryTest.possibleContextPrefixes.get(0), module, CREDITS_PER_CONTEXT_MODULE);
-            case 5 -> addModule(set, ModuleCategoryTest.possibleSubjectPrefixes.get(0), module, CREDITS_PER_SUBJECT_MODULE);
-            case 6 -> addModule(set, ModuleCategoryTest.INTERDISCIPLINARY_PREFIX_WM, module, CREDITS_PER_INTERDISCIPLINARY_MODULE);
-            case 7 -> removeEnglishModules(set);
-        }
-        return set;
-    }
 
     void assertInvalidElection(ModuleElection moduleElectionMock, ElectionValidator validator, int mode) {
         var invalidElection = invalidElectionSet(mode);

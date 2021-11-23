@@ -32,9 +32,8 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
         // IT19 Vollzeit: Wählen Sie mindestens zweimal zwei konsekutive Module
         // Die Module PSPP und FUP werden auch als konsekutive Module anerkannt.
-        if (consecutiveMap.size() == 0) return false;
-        if (consecutiveMap.size() >= 2) return true;
-        return containsSpecialConsecutiveModules(moduleElection);
+        return consecutiveMap.size() != 0
+                && (consecutiveMap.size() >= 2 || containsSpecialConsecutiveModules(moduleElection));
     }
 
     @Override

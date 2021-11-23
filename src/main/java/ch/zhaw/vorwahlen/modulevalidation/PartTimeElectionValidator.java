@@ -19,6 +19,8 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     public static final int NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION = 0;
     public static final int NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION = 1;
+    protected static final String[] SECOND_ELECTION_SEMESTERS = { "7", "8" };
+    protected static final String[] FIRST_ELECTION_SEMESTERS = { "5", "6" };
 
     public PartTimeElectionValidator(Student student) {
         super(student);
@@ -26,7 +28,8 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     public boolean validate(ModuleElection election) {
-        return isCreditSumValid(election)
+        return canModuleBeSelectedInThisRun(election)
+                && isCreditSumValid(election)
                 && validContextModuleElection(election)
                 && validSubjectModuleElection(election)
                 && validInterdisciplinaryModuleElection(election)
@@ -34,12 +37,36 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
                 && validConsecutiveModulePairsInElection(election);
     }
 
+    protected boolean canModuleBeSelectedInThisRun(ModuleElection moduleElection) {
+        return getStudent().isSecondElection()
+                ? containsAnyValidSemesterInEveryElectedModule(moduleElection, SECOND_ELECTION_SEMESTERS)
+                : containsAnyValidSemesterInEveryElectedModule(moduleElection, FIRST_ELECTION_SEMESTERS);
+    }
+
+    private boolean containsAnyValidSemesterInEveryElectedModule(ModuleElection moduleElection, String[] possibleSemesters) {
+        for (var m: moduleElection.getElectedModules()) {
+            var containsAnySemester = false;
+
+            var i = 0;
+            while(!containsAnySemester && i < possibleSemesters.length) {
+                containsAnySemester = m.getPartTimeSemester().contains(possibleSemesters[i]);
+                i++;
+            }
+
+            if (!containsAnySemester) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
         // IT18 Teilzeit: Wenn Sie im aktuellen Studienjahr schon zwei konsekutive Module belegt haben, wählen Sie mindestens einmal zwei konsekutive Module, ansonsten mindestens zweimal zwei konsekutive Module.
         // IT19 Teilzeit: Wählen Sie bis zu zwei konsekutive Module (empfohlen: zwei Module). Achten Sie speziell auf die nötigen Vorkenntnisse der Module.
+        // todo fragen: 1. wahl CCP1, MC1 / 2. wahl CCP2, MC2 ---> currently this is invalid
         return !getStudent().isSecondElection()
-                || consecutiveMap.size() > 0
+                || consecutiveMap.size() != 0
                 || containsSpecialConsecutiveModules(moduleElection);
     }
 
