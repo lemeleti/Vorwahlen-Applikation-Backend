@@ -50,7 +50,7 @@ class ModuleServiceTest {
     @Test
     @Sql("classpath:sql/modules.sql")
     void testGetAllModules() {
-        var result = moduleService.getAllModules();
+        var result = moduleService.getAllModules(null);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(75, result.size());
@@ -66,7 +66,7 @@ class ModuleServiceTest {
         assertDoesNotThrow(() -> moduleService.importModuleExcel(mockMultipartFile, WORK_SHEET_NAME));
 
         // verify
-        var result = moduleService.getAllModules();
+        var result = moduleService.getAllModules(null);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(75, result.size());

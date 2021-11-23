@@ -2,9 +2,11 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
+import ch.zhaw.vorwahlen.model.user.User;
 import ch.zhaw.vorwahlen.service.ModuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +31,8 @@ public class ModuleController {
      * @return {@link ResponseEntity<List<ModuleDTO>>} with status code ok
      */
     @GetMapping(path = {"/", ""})
-    public ResponseEntity<List<ModuleDTO>> getAllModules() {
-        return ResponseEntity.ok().body(moduleService.getAllModules());
+    public ResponseEntity<List<ModuleDTO>> getAllModules(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok().body(moduleService.getAllModules(user.getStudent()));
     }
 
     /**
