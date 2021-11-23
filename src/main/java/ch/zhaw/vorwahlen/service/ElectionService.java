@@ -9,6 +9,7 @@ import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
+import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class ElectionService {
     private final ElectionRepository electionRepository;
+    private final ModuleRepository moduleRepository;
     private final Function<Student, ElectionValidator> validatorFunction;
     private final Function<Student, ModuleDefinition> structureFunction;
 
@@ -53,9 +55,8 @@ public class ElectionService {
      */
     public ElectionTransferDTO saveElection(Student student, String moduleNo) {
         var moduleElection = loadModuleElectionForStudent(student);
-        migrateElectionChanges(moduleElection, moduleNo);
-
         var electionValidator = validatorFunction.apply(student);
+        migrateElectionChanges(moduleElection, moduleNo);
         var isValid = electionValidator.validate(moduleElection);
 
         moduleElection.setElectionValid(isValid);
@@ -64,9 +65,10 @@ public class ElectionService {
     }
 
     private void migrateElectionChanges(ModuleElection moduleElection, String moduleNo) {
-        var module = Module.builder().moduleNo(moduleNo).build();
-        var electedModules = moduleElection.getElectedModules();
+        var module = moduleRepository.findById(moduleNo).orElseThrow();
 
+        // todo check if user is allowed to elect module
+        var electedModules = moduleElection.getElectedModules();
         if (!electedModules.removeIf(m -> moduleNo.equals(m.getModuleNo()))) {
             electedModules.add(module);
         }
