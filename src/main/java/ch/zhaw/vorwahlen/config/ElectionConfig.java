@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import java.util.function.Function;
+
 @Configuration
 @RequiredArgsConstructor
 public class ElectionConfig {
@@ -31,6 +33,11 @@ public class ElectionConfig {
         return electionValidator;
     }
 
+    @Bean
+    public Function<Student, ElectionValidator> electionValidatorFunction() {
+        return this::electionValidator;
+    }
+
     @Bean(name = MODULE_STRUCTURE)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ModuleStructure moduleStructure(Student student) {
@@ -38,6 +45,11 @@ public class ElectionConfig {
             return structurePartTime;
         }
         return structureFullTime;
+    }
+
+    @Bean
+    public Function<Student, ModuleStructure> moduleStructureFunction() {
+        return this::moduleStructure;
     }
 
 }
