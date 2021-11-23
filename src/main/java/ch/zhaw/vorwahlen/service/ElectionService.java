@@ -81,11 +81,6 @@ public class ElectionService {
     }
 
     private ModuleElection loadModuleElectionForStudent(Student student) {
-        var studentElection = new ModuleElection();
-        var electionOptional = electionRepository.findModuleElectionByStudent(student.getEmail());
-        if (electionOptional.isPresent()) {
-            studentElection = electionOptional.get();
-        }
-        return studentElection;
+        return electionRepository.findModuleElectionByStudent(student.getEmail()).orElse(new ModuleElection());
     }
 }
