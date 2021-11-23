@@ -8,6 +8,7 @@ import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -21,7 +22,7 @@ public class ElectionConfig {
     private final ModuleStructurePartTime structurePartTime;
 
     @Bean(name = ELECTION_VALIDATOR)
-    @Scope(value = "prototype")
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ElectionValidator electionValidator(Student student) {
         ElectionValidator electionValidator = new FullTimeElectionValidator(student);
         if (student.isTZ()) {
@@ -31,7 +32,7 @@ public class ElectionConfig {
     }
 
     @Bean(name = MODULE_STRUCTURE)
-    @Scope(value = "prototype")
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ModuleStructure moduleStructure(Student student) {
         if (student.isTZ()) {
             return structurePartTime;
