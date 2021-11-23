@@ -1,5 +1,7 @@
 package ch.zhaw.vorwahlen.config;
 
+import ch.zhaw.vorwahlen.exporter.ExcelModuleElectionExporter;
+import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinitionFullTime;
@@ -50,6 +52,11 @@ public class ElectionConfig {
     @Bean
     public Function<Student, ModuleDefinition> moduleStructureFunction() {
         return this::moduleStructure;
+    }
+
+    @Bean
+    public ModuleElectionExporter moduleElectionExporter() {
+        return new ExcelModuleElectionExporter();
     }
 
 }
