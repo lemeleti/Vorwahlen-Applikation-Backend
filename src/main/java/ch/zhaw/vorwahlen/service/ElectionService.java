@@ -1,8 +1,8 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
@@ -27,6 +27,7 @@ public class ElectionService {
     private final ModuleRepository moduleRepository;
     private final Function<Student, ElectionValidator> validatorFunction;
     private final Function<Student, ModuleDefinition> structureFunction;
+    private final ModuleElectionExporter exporter;
 
     /**
      * Get election data for the specified user.
@@ -62,6 +63,14 @@ public class ElectionService {
         moduleElection.setElectionValid(isValid);
         electionRepository.save(moduleElection);
         return createElectionTransferDTO(student, moduleElection, true);
+    }
+
+    /**
+     * Export all module elections.
+     * @return byte array containing the formatted module election.
+     */
+    public byte[] exportModuleElection() {
+        return exporter.export(electionRepository.findAll());
     }
 
     private void migrateElectionChanges(ModuleElection moduleElection, String moduleNo) {
