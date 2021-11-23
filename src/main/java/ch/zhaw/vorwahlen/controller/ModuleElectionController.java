@@ -5,6 +5,7 @@ import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.user.User;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -69,7 +70,7 @@ public class ModuleElectionController {
         var fileName = "attachment; filename=module_election.xlsx";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(EXCEL_MIME))
-                .header("Content-Disposition", fileName)
+                .header(HttpHeaders.CONTENT_DISPOSITION, fileName)
                 .body(electionService.exportModuleElection());
     }
 }
