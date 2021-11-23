@@ -19,8 +19,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -288,18 +289,6 @@ class AbstractElectionValidatorTest {
         assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
     }
 
-    @Test
-    void testIsOverflownEmpty() {
-        var overflownModules = Set.of(mock(Module.class));
-        when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(overflownModules);
-        assertFalse(validator.isOverflownEmpty(moduleElectionMock));
-
-        when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(null);
-        assertTrue(validator.isOverflownEmpty(moduleElectionMock));
-
-        when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(new HashSet<>());
-        assertTrue(validator.isOverflownEmpty(moduleElectionMock));
-    }
 
     /* **************************************************************************************************************
      * Negative tests
@@ -425,10 +414,6 @@ class AbstractElectionValidatorTest {
         assertThrows(NullPointerException.class, () -> validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
     }
 
-    @Test
-    void testIsOverflownEmpty_Null() {
-        assertThrows(NullPointerException.class, () -> validator.isOverflownEmpty(null));
-    }
 
     /* **************************************************************************************************************
      * Helper methods
