@@ -1,9 +1,9 @@
 package ch.zhaw.vorwahlen.config;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructure;
-import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
-import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructurePartTime;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinitionFullTime;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinitionPartTime;
 import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;
@@ -20,8 +20,8 @@ import java.util.function.Function;
 public class ElectionConfig {
     public static final String ELECTION_VALIDATOR="electionValidator";
     public static final String MODULE_STRUCTURE="moduleStructure";
-    private final ModuleStructureFullTime structureFullTime;
-    private final ModuleStructurePartTime structurePartTime;
+    private final ModuleDefinitionFullTime structureFullTime;
+    private final ModuleDefinitionPartTime structurePartTime;
 
     @Bean(name = ELECTION_VALIDATOR)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -40,7 +40,7 @@ public class ElectionConfig {
 
     @Bean(name = MODULE_STRUCTURE)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ModuleStructure moduleStructure(Student student) {
+    public ModuleDefinition moduleStructure(Student student) {
         if (student.isTZ()) {
             return structurePartTime;
         }
@@ -48,7 +48,7 @@ public class ElectionConfig {
     }
 
     @Bean
-    public Function<Student, ModuleStructure> moduleStructureFunction() {
+    public Function<Student, ModuleDefinition> moduleStructureFunction() {
         return this::moduleStructure;
     }
 

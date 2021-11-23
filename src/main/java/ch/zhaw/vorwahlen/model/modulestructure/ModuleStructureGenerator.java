@@ -14,11 +14,11 @@ import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public class ModuleStructureGenerator {
-    private final ModuleStructure moduleStructure;
     private final List<ModuleStructureElement> structure = new ArrayList<>();
     private final ModuleElection election;
     private final List<Module> electedModules = new ArrayList<>();
     private final List<Module> overflowedElectedModules = new ArrayList<>();
+    private final ModuleDefinition moduleDefinition;
     private final Student student;
     private boolean hasElectedModules;
 
@@ -29,11 +29,11 @@ public class ModuleStructureGenerator {
             hasElectedModules = true;
         }
 
-        generateModuleElements(moduleStructure.contextModules(), ModuleCategory.CONTEXT_MODULE);
-        generateModuleElements(moduleStructure.projectModule(), ModuleCategory.PROJECT_MODULE);
-        generateModuleElements(moduleStructure.subjectModules(), ModuleCategory.SUBJECT_MODULE);
-        generateModuleElements(moduleStructure.interdisciplinaryModules(), ModuleCategory.INTERDISCIPLINARY_MODULE);
-        generateModuleElements(moduleStructure.bachelorModule(), ModuleCategory.BACHELOR_MODULE);
+        generateModuleElements(moduleDefinition.contextModules(), ModuleCategory.CONTEXT_MODULE);
+        generateModuleElements(moduleDefinition.projectModule(), ModuleCategory.PROJECT_MODULE);
+        generateModuleElements(moduleDefinition.subjectModules(), ModuleCategory.SUBJECT_MODULE);
+        generateModuleElements(moduleDefinition.interdisciplinaryModules(), ModuleCategory.INTERDISCIPLINARY_MODULE);
+        generateModuleElements(moduleDefinition.bachelorModule(), ModuleCategory.BACHELOR_MODULE);
 
         return new ModuleStructureDTO(structure, overflowedElectedModules);
     }
