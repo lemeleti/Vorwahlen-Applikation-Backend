@@ -5,7 +5,6 @@ import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
-import ch.zhaw.vorwahlen.service.ElectionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -18,7 +17,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class AbstractElectionValidatorTest {
@@ -97,19 +97,6 @@ class AbstractElectionValidatorTest {
         assertEquals(NUM_SUBJECT_MODULES, validator.countModuleCategory(moduleElectionMock, ModuleCategory.SUBJECT_MODULE));
     }
 
-    @Test
-    void testIsOverflownEmpty() {
-        var overflownModules = Set.of(mock(Module.class));
-        when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(overflownModules);
-        assertFalse(validator.isOverflownEmpty(moduleElectionMock));
-
-        when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(null);
-        assertTrue(validator.isOverflownEmpty(moduleElectionMock));
-
-        when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(new HashSet<>());
-        assertTrue(validator.isOverflownEmpty(moduleElectionMock));
-    }
-
     /* **************************************************************************************************************
      * Negative tests
      * ************************************************************************************************************** */
@@ -144,11 +131,6 @@ class AbstractElectionValidatorTest {
         assertEquals(0, validator.countModuleCategory(moduleElectionMock, null));
     }
 
-    @Test
-    void testIsOverflownEmpty_Null() {
-        assertThrows(NullPointerException.class, () -> validator.isOverflownEmpty(null));
-    }
-
     /* **************************************************************************************************************
      * Helper methods
      * ************************************************************************************************************** */
@@ -162,9 +144,9 @@ class AbstractElectionValidatorTest {
     }
 
     Set<Module> generateValidElectionSet() {
-        var contextModuleMockList = generateModuleMockSet(ElectionService.NUM_CONTEXT_MODULES);
-        var interdisciplinaryModuleMockList = generateModuleMockSet(ElectionService.NUM_INTERDISCIPLINARY_MODULES);
-        var subjectModuleMockList = generateModuleMockSet(ElectionService.NUM_SUBJECT_MODULES);
+        var contextModuleMockList = generateModuleMockSet(NUM_CONTEXT_MODULES);
+        var interdisciplinaryModuleMockList = generateModuleMockSet(NUM_INTERDISCIPLINARY_MODULES);
+        var subjectModuleMockList = generateModuleMockSet(NUM_SUBJECT_MODULES);
 
         assertEquals(interdisciplinaryModules.size(), interdisciplinaryModuleMockList.size());
         assertEquals(contextModules.size(), contextModuleMockList.size());

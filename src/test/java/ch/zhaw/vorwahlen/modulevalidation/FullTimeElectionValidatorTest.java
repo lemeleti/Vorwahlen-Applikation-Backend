@@ -12,7 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
@@ -30,7 +31,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     @Sql("classpath:sql/modules_test_election.sql")
     void testValidateElectionFullTime() {
         //===== Returns valid
-        when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(new HashSet<>());
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
 
         // Case Non-IP, No Dispensations

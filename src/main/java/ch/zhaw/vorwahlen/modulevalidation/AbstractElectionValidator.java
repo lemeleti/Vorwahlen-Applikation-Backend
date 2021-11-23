@@ -71,13 +71,6 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
                 .count();
     }
 
-    protected boolean isOverflownEmpty(ModuleElection moduleElection) {
-        if(moduleElection.getOverflowedElectedModules() == null) {
-            return true;
-        }
-        return moduleElection.getOverflowedElectedModules().size() == 0;
-    }
-
     protected abstract boolean validIpModuleElection(ModuleElection moduleElection);
 
     protected abstract boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection);
