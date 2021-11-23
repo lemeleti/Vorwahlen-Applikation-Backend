@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
+import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
@@ -31,7 +32,7 @@ public class ElectionService {
      * @return election data
      */
     public ElectionTransferDTO getElection(Student student) {
-        var moduleElection = getModuleElectionForStudent(student);
+        var moduleElection = loadModuleElectionForStudent(student);
         return createElectionTransferDTO(student, moduleElection, false);
     }
 
@@ -40,13 +41,8 @@ public class ElectionService {
      * @param student get election for student
      * @return module election from db if existent otherwise a new instance will be created.
      */
-    public ModuleElection getModuleElectionForStudent(Student student) {
-        var studentElection = new ModuleElection();
-        var electionOptional = electionRepository.findModuleElectionByStudent(student.getEmail());
-        if (electionOptional.isPresent()) {
-            studentElection = electionOptional.get();
-        }
-        return studentElection;
+    public ModuleElectionDTO getModuleElectionForStudent(Student student) {
+        return DTOMapper.mapElectionToDto.apply(loadModuleElectionForStudent(student));
     }
 
     /**
@@ -56,7 +52,7 @@ public class ElectionService {
      * @return ElectionTransferDTO containing the election data
      */
     public ElectionTransferDTO saveElection(Student student, String moduleNo) {
-        var moduleElection = getModuleElectionForStudent(student);
+        var moduleElection = loadModuleElectionForStudent(student);
         migrateElectionChanges(moduleElection, moduleNo);
 
         var electionValidator = validatorFunction.apply(student);
@@ -82,5 +78,14 @@ public class ElectionService {
         var electionStructure =
                 new ModuleStructureGenerator(moduleDefinition, student, moduleElection).generateStructure();
         return new ElectionTransferDTO(electionStructure, saved, moduleElection.isElectionValid());
+    }
+
+    private ModuleElection loadModuleElectionForStudent(Student student) {
+        var studentElection = new ModuleElection();
+        var electionOptional = electionRepository.findModuleElectionByStudent(student.getEmail());
+        if (electionOptional.isPresent()) {
+            studentElection = electionOptional.get();
+        }
+        return studentElection;
     }
 }
