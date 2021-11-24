@@ -5,4 +5,7 @@ public record UserDTO(String name,
                       String affiliation,
                       String homeOrg,
                       String mail,
-                      String role) {}
+                      String role,
+                      boolean isIP,
+                      boolean isTZ,
+                      boolean isSecondElection) {}

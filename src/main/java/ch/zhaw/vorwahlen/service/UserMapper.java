@@ -7,13 +7,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
     public UserDTO toDto(User user) {
+        var student = user.getStudent();
         return new UserDTO(
                 user.getName(),
                 user.getLastName(),
                 user.getAffiliation(),
                 user.getHomeOrg(),
                 user.getMail(),
-                user.getRole()
+                user.getRole(),
+                student.isIP(),
+                student.isTZ(),
+                student.isSecondElection()
         );
     }
 }
