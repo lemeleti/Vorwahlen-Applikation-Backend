@@ -20,8 +20,6 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     public static final int CREDITS_PER_CONTEXT_MODULE = 2;
     private final Student student;
 
-    // todo if repetent return for validation true
-
     protected boolean validConsecutiveModulePairsInElection(ModuleElection moduleElection) {
         var consecutiveMap = calculateConsecutiveMap(moduleElection);
         return consecutiveModuleExtraChecks(moduleElection, consecutiveMap);

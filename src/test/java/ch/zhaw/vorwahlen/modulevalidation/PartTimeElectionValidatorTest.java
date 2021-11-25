@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.modulevalidation;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +52,15 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
     void testValidateElectionPartTimeCheck(boolean isFistElection){
         //===== Returns valid
+        var validationSettingMock = mock(ValidationSetting.class);
+        when(validationSettingMock.hadAlreadyElectedTwoConsecutiveModules()).thenReturn(false);
+        when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(false);
+        when(validationSettingMock.isRepetent()).thenReturn(true);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
+
+        assertTrue(validator.validate(moduleElectionMock));
+
+        when(validationSettingMock.isRepetent()).thenReturn(false);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
 
         // Case Non-IP, No Dispensations
@@ -128,6 +138,11 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     @Override
     @Test
     void testValidConsecutiveModulePairsInElection() {
+        var validationSettingMock = mock(ValidationSetting.class);
+        when(validationSettingMock.hadAlreadyElectedTwoConsecutiveModules()).thenReturn(false);
+        when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(false);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
+
         // first election
         when(studentMock.isSecondElection()).thenReturn(false);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
@@ -152,6 +167,24 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         // PSPP
         var m4 = mock(Module.class);
         when(m4.getShortModuleNo()).thenReturn(MODULE_WV_PSPP);
+
+        // case first and second election has a mixture of consecutive modules
+        when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(true);
+        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        // case first election had no consecutive modules
+        when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(false);
+
+        // AI1, AI2, FUP, PSPP
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
+        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        // AI1, AI2, PSPP
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m4));
+        assertFalse(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        // case first election had two consecutive modules
+        when(validationSettingMock.hadAlreadyElectedTwoConsecutiveModules()).thenReturn(true);
 
         // AI1, AI2
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));

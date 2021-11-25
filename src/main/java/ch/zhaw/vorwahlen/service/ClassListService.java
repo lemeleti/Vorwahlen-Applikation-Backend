@@ -1,6 +1,8 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
+import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
@@ -9,6 +11,7 @@ import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -45,6 +48,17 @@ public class ClassListService {
             log.severe(message);
             // Todo throw custom Exception
         }
+    }
+
+    public void setValidationSettings(ValidationSettingDTO validationSettingDTO, String userId) {
+        var student = classListRepository.getById(userId);
+
+        var validationSetting = student.getElection().getValidationSetting();
+        validationSetting.setRepetent(validationSettingDTO.isRepetent());
+        validationSetting.setSkipConsecutiveModuleCheck(validationSettingDTO.isSkipConsecutiveModuleCheck());
+        validationSetting.setAlreadyElectedTwoConsecutiveModules(validationSettingDTO.hadAlreadyElectedTwoConsecutiveModules());
+
+        classListRepository.save(student);
     }
 
     private void setSecondElection(List<Student> students) {
