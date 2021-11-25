@@ -25,7 +25,6 @@ public class DTOMapper {
     final Function<ModuleElection, ModuleElectionDTO> mapElectionToDto = election -> ModuleElectionDTO.builder()
             .isElectionValid(election.isElectionValid())
             .electedModules(mapModuleSetToModuleNo(election.getElectedModules()))
-            .overflowedElectedModules(mapModuleSetToModuleNo(election.getOverflowedElectedModules()))
             .build();
 
     private Set<String> mapModuleSetToModuleNo(Set<Module> moduleSet) {
@@ -73,12 +72,4 @@ public class DTOMapper {
             .remarks(eventoData.getRemarks())
             .build();
 
-    ModuleElection mapDtoToModuleElection(ModuleElectionDTO moduleElectionDTO, Student student, Function<Set<String>, Set<Module>> mapModuleSet) {
-        var moduleElection = new ModuleElection();
-        moduleElection.setStudent(student);
-        moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
-        moduleElection.setElectedModules(mapModuleSet.apply(moduleElectionDTO.getElectedModules()));
-        moduleElection.setOverflowedElectedModules(mapModuleSet.apply(moduleElectionDTO.getOverflowedElectedModules()));
-        return moduleElection;
-    }
 }

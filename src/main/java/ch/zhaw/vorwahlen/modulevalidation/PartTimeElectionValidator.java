@@ -30,8 +30,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     public boolean validate(ModuleElection election) {
-        return isOverflownEmpty(election)
-                && canModuleBeSelectedInThisRun(election)
+        return canModuleBeSelectedInThisRun(election)
                 && isCreditSumValid(election)
                 && validContextModuleElection(election)
                 && validSubjectModuleElection(election)

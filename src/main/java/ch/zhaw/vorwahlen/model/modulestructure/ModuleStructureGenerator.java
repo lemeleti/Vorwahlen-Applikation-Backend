@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.model.modulestructure;
 
-import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
+import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
@@ -10,39 +10,54 @@ import lombok.RequiredArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public class ModuleStructureGenerator {
-    private final ModuleStructure moduleStructure;
-    private final List<ModuleStructureElement> structure = new ArrayList<>();
-    private final ModuleElection election;
-    private final List<Module> electedModules = new ArrayList<>();
-    private final List<Module> overflowedElectedModules = new ArrayList<>();
+    private final List<ModuleStructureElement> electedModuleStructure = new ArrayList<>();
+    private final List<ModuleStructureElement> overflowedModuleStructure = new ArrayList<>();
+    private final ModuleDefinition moduleDefinition;
     private final Student student;
+    private final ModuleElection election;
+    private List<Module> electedModuleList;
     private boolean hasElectedModules;
 
-    public ModuleStructureDTO generateStructure() {
-        if (election != null) {
-            electedModules.addAll(election.getElectedModules());
-            overflowedElectedModules.addAll(election.getOverflowedElectedModules());
-            hasElectedModules = true;
+    public ElectionStructureDTO generateStructure() {
+        electedModuleList = new ArrayList<>(Set.copyOf(election.getElectedModules()));
+        hasElectedModules = !election.getElectedModules().isEmpty();
+
+        generateModuleElements(moduleDefinition.contextModules(), ModuleCategory.CONTEXT_MODULE);
+        generateModuleElements(moduleDefinition.projectModule(), ModuleCategory.PROJECT_MODULE);
+        generateModuleElements(moduleDefinition.subjectModules(), ModuleCategory.SUBJECT_MODULE);
+        generateModuleElements(moduleDefinition.interdisciplinaryModules(), ModuleCategory.INTERDISCIPLINARY_MODULE);
+        generateModuleElements(moduleDefinition.bachelorModule(), ModuleCategory.BACHELOR_MODULE);
+
+        if (electedModuleList != null) {
+            while (!electedModuleList.isEmpty()) {
+                var module = electedModuleList.remove(0);
+                var semester = calculateSemester(module); // todo use real semester
+                var category = ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup());
+                overflowedModuleStructure.add(createStructureElement(module, category, semester));
+            }
         }
 
-        generateModuleElements(moduleStructure.contextModules(), ModuleCategory.CONTEXT_MODULE);
-        generateModuleElements(moduleStructure.projectModule(), ModuleCategory.PROJECT_MODULE);
-        generateModuleElements(moduleStructure.subjectModules(), ModuleCategory.SUBJECT_MODULE);
-        generateModuleElements(moduleStructure.interdisciplinaryModules(), ModuleCategory.INTERDISCIPLINARY_MODULE);
-        generateModuleElements(moduleStructure.bachelorModule(), ModuleCategory.BACHELOR_MODULE);
-
-        return new ModuleStructureDTO(structure, overflowedElectedModules);
+        return new ElectionStructureDTO(electedModuleStructure, overflowedModuleStructure);
     }
 
     private void generateModuleElements(Map<Integer, Integer> modules, ModuleCategory category) {
         var paDispensationCredits = student.getPaDispensation();
         var wpmDispensationCredits = student.getWpmDispensation();
         var backup = category;
+
+        if (student.isTZ() && student.isSecondElection()) {
+            modules.remove(5);
+            modules.remove(6);
+        } else if (student.isTZ()) {
+            modules.remove(7);
+            modules.remove(8);
+        }
+
         for (Map.Entry<Integer, Integer> entry : modules.entrySet()) {
             if (ModuleCategory.PROJECT_MODULE.equals(category) && paDispensationCredits > 0) {
                 category = ModuleCategory.DISPENSED_PA_MODULE;
@@ -58,7 +73,7 @@ public class ModuleStructureGenerator {
                 }
                 var module = findModuleByCategory(category, semester);
                 var element = createStructureElement(module, category, semester);
-                structure.add(element);
+                electedModuleStructure.add(element);
                 category = backup;
             }
         }
@@ -68,22 +83,41 @@ public class ModuleStructureGenerator {
         Module module = null;
         Predicate<Module> hasModuleForCategory = m ->
                 category.equals(ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup())) &&
-                (int) Float.parseFloat(m.getFullTimeSemester()) == semester;
+                        hasModuleForSemester(m, semester);
 
         if (hasElectedModules) {
-            var moduleOptional = electedModules.stream()
+            var moduleOptional = electedModuleList.stream()
                     .filter(hasModuleForCategory)
                     .findFirst();
             if (moduleOptional.isPresent()) {
                 module = moduleOptional.get();
-                electedModules.remove(module);
+                electedModuleList.remove(module);
             }
         }
         return module;
     }
 
-    private ModuleStructureElement createStructureElement(Module module,
-                                                          ModuleCategory category, int semester) {
+    private boolean hasModuleForSemester(Module module, int compareSemester) {
+        var executionSemestersStr = module.getFullTimeSemester();
+        if (student.isTZ()) {
+            executionSemestersStr = module.getPartTimeSemester();
+        }
+
+        return executionSemestersStr.contains(String.valueOf(compareSemester));
+    }
+
+    private int calculateSemester(Module module) {
+        var executionSemesterStr = student.isTZ() ? module.getPartTimeSemester() : module.getFullTimeSemester();
+        var executionSemesters = executionSemesterStr.split(";");
+        var semester = (int) Float.parseFloat(executionSemesters[0]);
+        if (student.isTZ() && student.isSecondElection()) {
+            semester = (int) Float.parseFloat(executionSemesters[executionSemesters.length - 1]);
+        }
+
+        return semester;
+    }
+
+    private ModuleStructureElement createStructureElement(Module module, ModuleCategory category, int semester) {
 
         var name = category.getDescription();
         var moduleId = "N/A";

@@ -36,8 +36,8 @@ public class AuthFilter extends OncePerRequestFilter {
 
         if (isProd) {
             extractUserInfoFromHeader(request);
-            findAndSetStudent(userData.get("mail"));
         }
+        findAndSetStudent(userData.get("mail"));
 
         if (isUserDataNotNull() && (auth == null || !auth.isAuthenticated())) {
             auth = new CustomAuthToken(userData.get("sessionId"), createUser());

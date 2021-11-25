@@ -40,12 +40,6 @@ public class ModuleElection {
             inverseJoinColumns = @JoinColumn(name = "module_no", referencedColumnName = "moduleNo"))
     private Set<Module> electedModules;
 
-    @OneToMany
-    @JoinTable(name  = "overflowed_elected_modules",
-            joinColumns = @JoinColumn(name = "election_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "module_no", referencedColumnName = "moduleNo"))
-    private Set<Module> overflowedElectedModules;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

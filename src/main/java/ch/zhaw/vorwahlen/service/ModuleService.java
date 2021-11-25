@@ -4,6 +4,7 @@ import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
@@ -108,12 +109,18 @@ public class ModuleService {
      * Get all modules from the database.
      * @return a list of {@link ModuleDTO}.
      */
-    public List<ModuleDTO> getAllModules() {
-        return moduleRepository
-                .findAll()
-                .stream()
-                .map(DTOMapper.mapModuleToDto)
-                .toList();
+    public List<ModuleDTO> getAllModules(Student student) {
+        List<Module> modules;
+
+        if (student != null && student.isTZ() && student.isSecondElection()) {
+            modules = moduleRepository.findAllModulesTZSecondHalf();
+        } else if (student != null && student.isTZ()) {
+            modules = moduleRepository.findAllModulesTZFirstHalf();
+        } else {
+            modules = moduleRepository.findAll();
+        }
+
+        return modules.stream().map(DTOMapper.mapModuleToDto).toList();
     }
 
     /**
