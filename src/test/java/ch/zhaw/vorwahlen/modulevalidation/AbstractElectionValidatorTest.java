@@ -8,6 +8,7 @@ import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -112,7 +113,7 @@ class AbstractElectionValidatorTest {
         assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3));
-        assertFalse(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
     }
 
     @Test
@@ -215,22 +216,6 @@ class AbstractElectionValidatorTest {
     }
 
     @Test
-    void testValidSubjectModuleElection() {
-        // valid
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertTrue(validator.validSubjectModuleElection(moduleElectionMock, NUM_SUBJECT_MODULES));
-
-        // too less
-        removeOneModuleByCategory(validElectionSet, ModuleCategory.SUBJECT_MODULE);
-        assertFalse(validator.validSubjectModuleElection(moduleElectionMock, NUM_SUBJECT_MODULES));
-
-        // too much
-        validElectionSet = generateValidElectionSet();
-        addModule(validElectionSet, ModuleCategoryTest.possibleSubjectPrefixes.get(0), mock(Module.class), CREDITS_PER_SUBJECT_MODULE);
-        assertFalse(validator.validSubjectModuleElection(moduleElectionMock, NUM_SUBJECT_MODULES));
-    }
-
-    @Test
     void testValidContextModuleElection() {
         // valid
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
@@ -247,46 +232,15 @@ class AbstractElectionValidatorTest {
     }
 
     @Test
-    void testIsCreditSumValid() {
+    void testSumCreditsInclusiveDispensation() {
         //--- Case No Dispensations
-        when(studentMock.getWpmDispensation()).thenReturn(0);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertTrue(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+        assertEquals(MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA, validator.sumCreditsInclusiveDispensation(moduleElectionMock, 0));
 
         //--- Case Some Dispensations
         removeNonConsecutiveSubjectModulesFromSet(validElectionSet);
-        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertTrue(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
-
-        // More modules selected considering the dispensations
-        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION + 1);
-        assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
-
-        // Not enough modules selected considering the dispensations
-        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION - 1);
-        assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
-
-
-        //--- Case Non-IP, No Dispensations (Not enough selected)
-        when(studentMock.getWpmDispensation()).thenReturn(0);
-        for (var mode = 1; mode < 4; mode++) {
-            var invalidElection = invalidElectionSet(mode);
-            when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);
-            assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
-        }
-
-        //--- Case Non-IP, No Dispensations (Too much selected)
-        for (var mode = 4; mode < 7; mode++) {
-            var invalidElection = invalidElectionSet(mode);
-            when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);
-            assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
-        }
-
-        //--- Case IP, No Dispensations (Not enough english selected)
-        var invalidElection = invalidElectionSet(7);
-        when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);
-        assertFalse(validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+        assertEquals(MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA, validator.sumCreditsInclusiveDispensation(moduleElectionMock, WPM_DISPENSATION));
     }
 
     @Test
@@ -397,33 +351,26 @@ class AbstractElectionValidatorTest {
     }
 
     @Test
-    void testValidSubjectModuleElection_Null() {
-        when(studentMock.getWpmDispensation()).thenReturn(0);
-        assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(null, NUM_SUBJECT_MODULES));
-    }
-
-    @Test
-    void testValidSubjectModuleElection_NullStudent() {
-        validator = mock(AbstractElectionValidator.class, Mockito.withSettings()
-                .useConstructor((Student) null)
-                .defaultAnswer(CALLS_REAL_METHODS));
-        assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(moduleElectionMock, NUM_SUBJECT_MODULES));
-    }
-
-    @Test
     void testValidContextModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validContextModuleElection(null, NUM_CONTEXT_MODULES));
     }
 
     @Test
     void testIsCreditSumValid_NullArgument() {
-        assertThrows(NullPointerException.class, () -> validator.isCreditSumValid(null, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+        assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(null, 0));
     }
 
     @Test
     void testIsCreditSumValid_NullElectionSet() {
         when(moduleElectionMock.getElectedModules()).thenReturn(null);
-        assertThrows(NullPointerException.class, () -> validator.isCreditSumValid(moduleElectionMock, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA));
+        assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(moduleElectionMock, 0));
+    }
+
+    @Disabled
+    @Test
+    void testIsCreditSumValid_NegativeDispensation() {
+        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(moduleElectionMock, -1));
     }
 
     @Test

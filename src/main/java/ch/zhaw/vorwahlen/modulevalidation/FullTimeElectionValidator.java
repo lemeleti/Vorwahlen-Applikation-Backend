@@ -1,10 +1,12 @@
 package ch.zhaw.vorwahlen.modulevalidation;
 
 import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FullTimeElectionValidator extends AbstractElectionValidator {
@@ -33,7 +35,11 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
         // IT19 Vollzeit: Wählen Sie mindestens zweimal zwei konsekutive Module
         // Die Module PSPP und FUP werden auch als konsekutive Module anerkannt.
-        return consecutiveMap.size() != 0
+        var countConsecutivePairs = consecutiveMap.values().stream()
+                .filter(Objects::nonNull)
+                .count();
+
+        return countConsecutivePairs != 0
                 && (consecutiveMap.size() >= 2 || containsSpecialConsecutiveModules(moduleElection));
     }
 
@@ -68,7 +74,9 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     @Override
     protected boolean validSubjectModuleElection(ModuleElection moduleElection) {
         // IT 19 Vollzeit: Zusammen mit den oben gewählten konsekutiven Modulen wählen Sie total acht Module.
-        return validSubjectModuleElection(moduleElection, NUM_SUBJECT_MODULES);
+        var count = countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
+        var dispensCount = getStudent().getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
+        return count + dispensCount == NUM_SUBJECT_MODULES;
     }
 
     @Override
@@ -79,7 +87,9 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     protected boolean isCreditSumValid(ModuleElection moduleElection) {
-        return isCreditSumValid(moduleElection, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA);
+        // PA dispensation für die rechnung irrelevant
+        var sum = sumCreditsInclusiveDispensation(moduleElection, getStudent().getWpmDispensation());
+        return sum == MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA;
     }
 
 }
