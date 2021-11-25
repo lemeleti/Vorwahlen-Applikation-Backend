@@ -200,35 +200,20 @@ class AbstractElectionValidatorTest {
     }
 
     @Test
-    void testValidInterdisciplinaryModuleElection() {
+    void testValidModuleElectionCountByCategory() {
         // valid
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertTrue(validator.validInterdisciplinaryModuleElection(moduleElectionMock, NUM_INTERDISCIPLINARY_MODULES));
+        assertTrue(validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_CONTEXT_MODULES, ModuleCategory.CONTEXT_MODULE));
 
         // too less
-        removeOneModuleByCategory(validElectionSet, ModuleCategory.INTERDISCIPLINARY_MODULE);
-        assertFalse(validator.validInterdisciplinaryModuleElection(moduleElectionMock, NUM_INTERDISCIPLINARY_MODULES));
+        removeOneModuleByCategory(validElectionSet, ModuleCategory.SUBJECT_MODULE);
+        assertFalse(validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_SUBJECT_MODULES, ModuleCategory.SUBJECT_MODULE));
 
         // too much
         validElectionSet = generateValidElectionSet();
         addModule(validElectionSet, ModuleCategoryTest.INTERDISCIPLINARY_PREFIX_WM, mock(Module.class), CREDITS_PER_INTERDISCIPLINARY_MODULE);
-        assertFalse(validator.validInterdisciplinaryModuleElection(moduleElectionMock, NUM_INTERDISCIPLINARY_MODULES));
-    }
-
-    @Test
-    void testValidContextModuleElection() {
-        // valid
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertTrue(validator.validContextModuleElection(moduleElectionMock, NUM_CONTEXT_MODULES));
-
-        // too less
-        removeOneModuleByCategory(validElectionSet, ModuleCategory.CONTEXT_MODULE);
-        assertFalse(validator.validContextModuleElection(moduleElectionMock, NUM_CONTEXT_MODULES));
-
-        // too much
-        validElectionSet = generateValidElectionSet();
-        addModule(validElectionSet, ModuleCategoryTest.possibleContextPrefixes.get(0), mock(Module.class), CREDITS_PER_CONTEXT_MODULE);
-        assertFalse(validator.validContextModuleElection(moduleElectionMock, NUM_CONTEXT_MODULES));
+        assertFalse(validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE));
     }
 
     @Test
@@ -346,13 +331,14 @@ class AbstractElectionValidatorTest {
     }
 
     @Test
-    void testValidInterdisciplinaryModuleElection_Null() {
-        assertThrows(NullPointerException.class, () -> validator.validInterdisciplinaryModuleElection(null, NUM_INTERDISCIPLINARY_MODULES));
+    void testValidModuleElectionCountByCategory_Null() {
+        assertThrows(NullPointerException.class, () -> validator.validModuleElectionCountByCategory(null, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE));
     }
 
     @Test
-    void testValidContextModuleElection_Null() {
-        assertThrows(NullPointerException.class, () -> validator.validContextModuleElection(null, NUM_CONTEXT_MODULES));
+    void testValidModuleElectionCountByCategory_NullCategory() {
+        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertDoesNotThrow(() -> validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_CONTEXT_MODULES, null));
     }
 
     @Test

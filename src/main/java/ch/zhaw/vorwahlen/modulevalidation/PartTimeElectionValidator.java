@@ -89,7 +89,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
         var neededInterdisciplinaryModules = getStudent().isSecondElection()
                 ? NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION
                 : NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION;
-        return validInterdisciplinaryModuleElection(moduleElection, neededInterdisciplinaryModules);
+        return validModuleElectionCountByCategory(moduleElection, neededInterdisciplinaryModules, ModuleCategory.INTERDISCIPLINARY_MODULE);
     }
 
     @Override
@@ -112,14 +112,8 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
     protected boolean validContextModuleElection(ModuleElection moduleElection) {
         // NOTE: Context not checked because we don't store the elected modules from the previous year.
         var totalNumContextModules = NUM_CONTEXT_MODULES_FIRST_ELECTION + NUM_CONTEXT_MODULES_SECOND_ELECTION;
-        return validContextModuleElection(moduleElection, totalNumContextModules);
-    }
-
-    @Override
-    protected boolean validContextModuleElection(ModuleElection moduleElection, int neededContextModules) {
-        // NOTE: Context not checked because we don't store the elected modules from the previous year.
         var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
-        return count >= 0 && count <= neededContextModules;
+        return count >= 0 && count <= totalNumContextModules;
     }
 
     @Override

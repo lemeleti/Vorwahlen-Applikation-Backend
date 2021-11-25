@@ -80,21 +80,16 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
 
     protected abstract boolean validIpModuleElection(ModuleElection moduleElection);
 
-    protected abstract boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection);
-
-    protected boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection, int neededInterdisciplinaryModules) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.INTERDISCIPLINARY_MODULE);
-        return count == neededInterdisciplinaryModules;
+    protected boolean validModuleElectionCountByCategory(ModuleElection moduleElection, int neededModules, ModuleCategory moduleCategory) {
+        var count = countModuleCategory(moduleElection, moduleCategory);
+        return count == neededModules;
     }
+
+    protected abstract boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection);
 
     protected abstract boolean validSubjectModuleElection(ModuleElection moduleElection);
 
     protected abstract boolean validContextModuleElection(ModuleElection moduleElection);
-
-    protected boolean validContextModuleElection(ModuleElection moduleElection, int neededContextModules) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
-        return count == neededContextModules;
-    }
 
     protected abstract boolean isCreditSumValid(ModuleElection moduleElection);
 

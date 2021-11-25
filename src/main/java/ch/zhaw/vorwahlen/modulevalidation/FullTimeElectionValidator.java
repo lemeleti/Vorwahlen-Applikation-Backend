@@ -68,7 +68,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     @Override
     protected boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection) {
         // IT19 Vollzeit: Sie müssen eines dieser Wahlmodule wählen (Sie können auch mehrere wählen, angerechnet werden kann aber nur ein Wahlmodul).
-        return validInterdisciplinaryModuleElection(moduleElection, NUM_INTERDISCIPLINARY_MODULES);
+        return validModuleElectionCountByCategory(moduleElection, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     @Override
     protected boolean validContextModuleElection(ModuleElection moduleElection) {
         // IT19 Vollzeit: Dies gehört zur Modulgruppe IT5. Sie können bis zu drei dieser Module wählen.
-        return validContextModuleElection(moduleElection, NUM_CONTEXT_MODULES);
+        return validModuleElectionCountByCategory(moduleElection, NUM_CONTEXT_MODULES, ModuleCategory.CONTEXT_MODULE);
     }
 
     @Override

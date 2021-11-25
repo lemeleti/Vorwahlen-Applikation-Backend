@@ -166,7 +166,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidInterdisciplinaryModuleElection() {
         // first election
@@ -254,7 +253,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validSubjectModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidContextModuleElection() {
         // first election
@@ -438,7 +436,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertTrue(validator.validIpModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidInterdisciplinaryModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validInterdisciplinaryModuleElection(null));
@@ -456,7 +453,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidContextModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validContextModuleElection(null));
