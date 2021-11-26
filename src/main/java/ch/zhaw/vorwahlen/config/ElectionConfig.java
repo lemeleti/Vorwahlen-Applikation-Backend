@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,22 +33,23 @@ public class ElectionConfig {
     }
 
     @Bean
-    public Function<Student, ElectionValidator> electionValidatorFunction() {
-        return this::electionValidator;
-    }
-
-    @Bean(name = MODULE_STRUCTURE)
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ModuleDefinition moduleStructure(Student student) {
-        if (student.isTZ()) {
-            return structurePartTime;
-        }
-        return structureFullTime;
+    @Primary
+    @Scope(value = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+    public ModuleDefinition moduleStructure() {
+        var student = getStudentFromSecurityContext();
+        return student.isTZ() ? moduleDefinitionPartTime() : moduleDefinitionFullTime();
     }
 
     @Bean
-    public Function<Student, ModuleDefinition> moduleStructureFunction() {
-        return this::moduleStructure;
+    @ConfigurationProperties(prefix = "tz")
+    public ModuleDefinition moduleDefinitionPartTime() {
+        return new ModuleDefinition();
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "vz")
+    public ModuleDefinition moduleDefinitionFullTime() {
+        return new ModuleDefinition();
     }
 
     @Bean

@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Function;
-
 /**
  * Business logic for the election.
  */
@@ -25,8 +23,8 @@ import java.util.function.Function;
 public class ElectionService {
     private final ElectionRepository electionRepository;
     private final ModuleRepository moduleRepository;
-    private final Function<Student, ElectionValidator> validatorFunction;
-    private final Function<Student, ModuleDefinition> structureFunction;
+    private final ElectionValidator electionValidator;
+    private final ModuleDefinition moduleDefinition;
     private final ModuleElectionExporter exporter;
 
     /**
@@ -56,7 +54,6 @@ public class ElectionService {
      */
     public ElectionTransferDTO saveElection(Student student, String moduleNo) {
         var moduleElection = loadModuleElectionForStudent(student);
-        var electionValidator = validatorFunction.apply(student);
         migrateElectionChanges(moduleElection, moduleNo);
         var isValid = electionValidator.validate(moduleElection);
 
@@ -85,7 +82,6 @@ public class ElectionService {
 
     private ElectionTransferDTO createElectionTransferDTO(Student student,
                                                           ModuleElection moduleElection, boolean saved) {
-        var moduleDefinition = structureFunction.apply(student);
         var electionStructure =
                 new ModuleStructureGenerator(moduleDefinition, student, moduleElection).generateStructure();
         return new ElectionTransferDTO(electionStructure, saved, moduleElection.isElectionValid());

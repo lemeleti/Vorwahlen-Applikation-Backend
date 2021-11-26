@@ -27,11 +27,9 @@ public class ModuleStructureGenerator {
         electedModuleList = new ArrayList<>(Set.copyOf(election.getElectedModules()));
         hasElectedModules = !election.getElectedModules().isEmpty();
 
-        generateModuleElements(moduleDefinition.contextModules(), ModuleCategory.CONTEXT_MODULE);
-        generateModuleElements(moduleDefinition.projectModule(), ModuleCategory.PROJECT_MODULE);
-        generateModuleElements(moduleDefinition.subjectModules(), ModuleCategory.SUBJECT_MODULE);
-        generateModuleElements(moduleDefinition.interdisciplinaryModules(), ModuleCategory.INTERDISCIPLINARY_MODULE);
-        generateModuleElements(moduleDefinition.bachelorModule(), ModuleCategory.BACHELOR_MODULE);
+        for (ModuleCategory category : ModuleCategory.values()) {
+            generateModuleElements(moduleDefinition.getDefinitionByCategory(category), category);
+        }
 
         if (electedModuleList != null) {
             while (!electedModuleList.isEmpty()) {
@@ -49,6 +47,8 @@ public class ModuleStructureGenerator {
         var paDispensationCredits = student.getPaDispensation();
         var wpmDispensationCredits = student.getWpmDispensation();
         var backup = category;
+
+        if (modules == null) return;
 
         if (student.isTZ() && student.isSecondElection()) {
             modules.remove(5);
