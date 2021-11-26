@@ -5,13 +5,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
+import javax.persistence.CascadeType;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import java.util.Objects;
 import java.util.Set;
@@ -32,9 +35,12 @@ public class ModuleElection {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    @OneToOne(cascade = CascadeType.PERSIST)
+    private ValidationSetting validationSetting;
+
     private boolean isElectionValid;
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(name  = "elected_modules",
             joinColumns = @JoinColumn(name = "election_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "module_no", referencedColumnName = "moduleNo"))

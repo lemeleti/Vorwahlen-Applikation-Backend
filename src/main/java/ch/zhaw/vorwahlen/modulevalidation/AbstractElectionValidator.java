@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -18,17 +17,12 @@ import java.util.Set;
 public abstract class AbstractElectionValidator implements ElectionValidator {
     public static final int NUM_ENGLISH_CREDITS = 20;
     public static final int CREDIT_PER_SUBJECT_MODULE = 4;
+    public static final int CREDITS_PER_CONTEXT_MODULE = 2;
     private final Student student;
-
 
     protected boolean validConsecutiveModulePairsInElection(ModuleElection moduleElection) {
         var consecutiveMap = calculateConsecutiveMap(moduleElection);
-
-        var countConsecutiveMissingPart = consecutiveMap.values().stream()
-                .filter(Objects::isNull)
-                .count();
-
-        return countConsecutiveMissingPart == 0 && consecutiveModuleExtraChecks(moduleElection, consecutiveMap);
+        return consecutiveModuleExtraChecks(moduleElection, consecutiveMap);
     }
 
     protected Map<Module, Module> calculateConsecutiveMap(ModuleElection moduleElection) {
@@ -77,38 +71,29 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
 
     protected abstract boolean validIpModuleElection(ModuleElection moduleElection);
 
-    protected abstract boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection);
-
-    protected boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection, int neededInterdisciplinaryModules) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.INTERDISCIPLINARY_MODULE);
-        return count == neededInterdisciplinaryModules;
+    protected boolean validModuleElectionCountByCategory(ModuleElection moduleElection, int neededModules, ModuleCategory moduleCategory) {
+        var count = countModuleCategory(moduleElection, moduleCategory);
+        return count == neededModules;
     }
+
+    protected abstract boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection);
 
     protected abstract boolean validSubjectModuleElection(ModuleElection moduleElection);
 
-    protected boolean validSubjectModuleElection(ModuleElection moduleElection, int neededSubjectModules) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
-        var dispensCount = getStudent().getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
-        return count + dispensCount == neededSubjectModules;
-    }
-
     protected abstract boolean validContextModuleElection(ModuleElection moduleElection);
-
-    protected boolean validContextModuleElection(ModuleElection moduleElection, int neededContextModules) {
-        var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
-        return count == neededContextModules;
-    }
 
     protected abstract boolean isCreditSumValid(ModuleElection moduleElection);
 
-    protected boolean isCreditSumValid(ModuleElection moduleElection, int neededCredits) {
+    protected int sumCreditsInclusiveDispensation(ModuleElection moduleElection, int dispensations) {
+        if (dispensations < 0) {
+            // todo: throw exception
+        }
         // PA dispensation für die rechnung irrelevant
         var electedModulesCreditSum = moduleElection.getElectedModules()
                 .stream()
                 .mapToInt(Module::getCredits)
                 .sum();
-        var sum = electedModulesCreditSum + getStudent().getWpmDispensation();
-        return sum == neededCredits;
+        return electedModulesCreditSum + dispensations;
     }
 
 }

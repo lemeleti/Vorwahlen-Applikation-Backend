@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.modulevalidation;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,12 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     @Test
     void testValidateElectionFullTime() {
         //===== Returns valid
+        var validationSettingMock = mock(ValidationSetting.class);
+        when(validationSettingMock.isRepetent()).thenReturn(true);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
+        assertTrue(validator.validate(moduleElectionMock));
+
+        when(validationSettingMock.isRepetent()).thenReturn(false);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
 
         // Case Non-IP, No Dispensations
@@ -124,7 +131,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertTrue(validator.validIpModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidInterdisciplinaryModuleElection() {
         // valid
@@ -141,7 +147,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validInterdisciplinaryModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidSubjectModuleElection() {
         // valid
@@ -158,7 +163,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validSubjectModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidContextModuleElection() {
         // valid
@@ -175,7 +179,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validContextModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testIsCreditSumValid() {
         //--- Case No Dispensations
@@ -242,27 +245,23 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertThrows(NullPointerException.class, () -> validator.validIpModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidInterdisciplinaryModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validInterdisciplinaryModuleElection(null));
     }
 
-    @Override
     @Test
     void testValidSubjectModuleElection_Null() {
         when(studentMock.getWpmDispensation()).thenReturn(0);
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(null));
     }
 
-    @Override
     @Test
     void testValidSubjectModuleElection_NullStudent() {
         validator = new FullTimeElectionValidator(null);
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidContextModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validContextModuleElection(null));

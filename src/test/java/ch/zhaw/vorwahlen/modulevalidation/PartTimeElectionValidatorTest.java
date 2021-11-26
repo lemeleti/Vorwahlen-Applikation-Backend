@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.modulevalidation;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,19 +39,28 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
     @Test
     void testValidateElectionPartTime() {
-        validElectionSet = generateValidPartTimeElectionSet(true);
         var isFistElection = true;
+        validElectionSet = generateValidPartTimeElectionSet(isFistElection);
         when(studentMock.isSecondElection()).thenReturn(!isFistElection);
         testValidateElectionPartTimeCheck(isFistElection);
 
         isFistElection = false;
-        validElectionSet = generateValidPartTimeElectionSet(false);
+        validElectionSet = generateValidPartTimeElectionSet(isFistElection);
         when(studentMock.isSecondElection()).thenReturn(!isFistElection);
         testValidateElectionPartTimeCheck(isFistElection);
     }
 
     void testValidateElectionPartTimeCheck(boolean isFistElection){
         //===== Returns valid
+        var validationSettingMock = mock(ValidationSetting.class);
+        when(validationSettingMock.hadAlreadyElectedTwoConsecutiveModules()).thenReturn(false);
+        when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(false);
+        when(validationSettingMock.isRepetent()).thenReturn(true);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
+
+        assertTrue(validator.validate(moduleElectionMock));
+
+        when(validationSettingMock.isRepetent()).thenReturn(false);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
 
         // Case Non-IP, No Dispensations
@@ -64,7 +74,9 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertTrue(validator.validate(moduleElectionMock));
 
         // Case IP, Some Dispensations
-        removeNonConsecutiveSubjectModulesFromSet(validElectionSet);
+        if(!isFistElection) {
+            removeNonConsecutiveSubjectModulesFromSet(validElectionSet);
+        }
         when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
         assertTrue(validator.validate(moduleElectionMock));
 
@@ -75,13 +87,13 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         //===== Returns invalid
         // Case Non-IP, No Dispensations (Not enough selected)
         when(studentMock.getWpmDispensation()).thenReturn(0);
-        for (var mode = 1; mode < 4; mode++) {
-            if(isFistElection && mode == 3) continue; // interdisciplinary count in first election is zero and valid
+        for (var mode = 1; mode < 3; mode++) {
+            if(isFistElection && mode == 2) continue; // interdisciplinary count in first election is zero and valid
             assertInvalidElection(moduleElectionMock, validator, mode, isFistElection);
         }
 
         // Case Non-IP, No Dispensations (Too much selected)
-        for (var mode = 4; mode < 7; mode++) {
+        for (var mode = 3; mode < 5; mode++) {
             assertInvalidElection(moduleElectionMock, validator, mode, isFistElection);
         }
     }
@@ -126,6 +138,11 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     @Override
     @Test
     void testValidConsecutiveModulePairsInElection() {
+        var validationSettingMock = mock(ValidationSetting.class);
+        when(validationSettingMock.hadAlreadyElectedTwoConsecutiveModules()).thenReturn(false);
+        when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(false);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
+
         // first election
         when(studentMock.isSecondElection()).thenReturn(false);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
@@ -151,6 +168,24 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         var m4 = mock(Module.class);
         when(m4.getShortModuleNo()).thenReturn(MODULE_WV_PSPP);
 
+        // case first and second election has a mixture of consecutive modules
+        when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(true);
+        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        // case first election had no consecutive modules
+        when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(false);
+
+        // AI1, AI2, FUP, PSPP
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
+        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        // AI1, AI2, PSPP
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m4));
+        assertFalse(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+
+        // case first election had two consecutive modules
+        when(validationSettingMock.hadAlreadyElectedTwoConsecutiveModules()).thenReturn(true);
+
         // AI1, AI2
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
         assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
@@ -164,7 +199,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidInterdisciplinaryModuleElection() {
         // first election
@@ -198,7 +232,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validInterdisciplinaryModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidSubjectModuleElection() {
         // first election
@@ -253,7 +286,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.validSubjectModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidContextModuleElection() {
         // first election
@@ -269,25 +301,33 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
             when(mock.getShortModuleNo()).thenReturn(contextModules.get(0));
         }
 
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of());
+        assertTrue(validator.validContextModuleElection(moduleElectionMock));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1));
+        assertTrue(validator.validContextModuleElection(moduleElectionMock));
+
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3));
-        assertFalse(validator.validContextModuleElection(moduleElectionMock));
-
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1));
-        assertFalse(validator.validContextModuleElection(moduleElectionMock));
+        assertTrue(validator.validContextModuleElection(moduleElectionMock));
 
         // second election
         when(studentMock.isSecondElection()).thenReturn(true);
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
-        assertFalse(validator.validContextModuleElection(moduleElectionMock));
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of());
+        assertTrue(validator.validContextModuleElection(moduleElectionMock));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1));
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
+        assertTrue(validator.validContextModuleElection(moduleElectionMock));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3));
+        assertTrue(validator.validContextModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testIsCreditSumValid() {
         var contextMocks = generateModuleMockSet(PartTimeElectionValidator.NUM_CONTEXT_MODULES_FIRST_ELECTION
@@ -316,18 +356,21 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
         // without dispensation
         var set = new HashSet<Module>();
-        set.add(contextMocks.get(0));
-        set.add(contextMocks.get(1));
         set.add(subjectMocks.get(0));
         when(moduleElectionMock.getElectedModules()).thenReturn(set);
         assertFalse(validator.isCreditSumValid(moduleElectionMock));
 
         set.add(subjectMocks.get(1));
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(0));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+        set.add(contextMocks.get(1));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+        set.add(contextMocks.get(2));
         assertTrue(validator.isCreditSumValid(moduleElectionMock));
 
         set.add(subjectMocks.get(2));
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
         assertFalse(validator.isCreditSumValid(moduleElectionMock));
 
         // with dispensation
@@ -337,13 +380,17 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         when(moduleElectionMock.getElectedModules()).thenReturn(set);
         assertFalse(validator.isCreditSumValid(moduleElectionMock));
 
+        set.add(subjectMocks.get(0));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(subjectMocks.get(1));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
         set.add(contextMocks.get(1));
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
         assertTrue(validator.isCreditSumValid(moduleElectionMock));
 
         set.add(contextMocks.get(2));
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
 
         // second election
         when(studentMock.isSecondElection()).thenReturn(true);
@@ -352,7 +399,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         when(studentMock.getWpmDispensation()).thenReturn(0);
 
         set = new HashSet<>();
-        set.add(contextMocks.get(2));
         set.add(interdisciplinaryMocks.get(0));
         set.add(subjectMocks.get(2));
         set.add(subjectMocks.get(3));
@@ -365,6 +411,13 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         set.add(subjectMocks.get(7));
         assertTrue(validator.isCreditSumValid(moduleElectionMock));
 
+        set.add(contextMocks.get(0));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+        set.add(contextMocks.get(1));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+        set.add(contextMocks.get(2));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
         set.add(subjectMocks.get(0));
         assertFalse(validator.isCreditSumValid(moduleElectionMock));
 
@@ -372,7 +425,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
 
         set = new HashSet<>();
-        set.add(contextMocks.get(2));
         set.add(interdisciplinaryMocks.get(0));
         set.add(subjectMocks.get(2));
         set.add(subjectMocks.get(3));
@@ -381,6 +433,13 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertFalse(validator.isCreditSumValid(moduleElectionMock));
 
         set.add(subjectMocks.get(5));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(0));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+        set.add(contextMocks.get(1));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+        set.add(contextMocks.get(2));
         assertTrue(validator.isCreditSumValid(moduleElectionMock));
 
         set.add(subjectMocks.get(0));
@@ -410,27 +469,23 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         assertTrue(validator.validIpModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidInterdisciplinaryModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validInterdisciplinaryModuleElection(null));
     }
 
-    @Override
     @Test
     void testValidSubjectModuleElection_Null() {
         when(studentMock.getWpmDispensation()).thenReturn(0);
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(null));
     }
 
-    @Override
     @Test
     void testValidSubjectModuleElection_NullStudent() {
-        validator = new FullTimeElectionValidator(null);
+        validator = new PartTimeElectionValidator(null);
         assertThrows(NullPointerException.class, () -> validator.validSubjectModuleElection(moduleElectionMock));
     }
 
-    @Override
     @Test
     void testValidContextModuleElection_Null() {
         assertThrows(NullPointerException.class, () -> validator.validContextModuleElection(null));
@@ -567,13 +622,10 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         var set = generateValidPartTimeElectionSet(isFistElection);
         var module = mock(Module.class);
         switch (mode) {
-            case 1 -> removeOneModuleByCategory(set, ModuleCategory.CONTEXT_MODULE);
-            case 2 -> removeOneModuleByCategory(set, ModuleCategory.SUBJECT_MODULE);
-            case 3 -> removeOneModuleByCategory(set, ModuleCategory.INTERDISCIPLINARY_MODULE);
-            case 4 -> addModule(set, ModuleCategoryTest.possibleContextPrefixes.get(0), module, CREDITS_PER_CONTEXT_MODULE);
-            case 5 -> addModule(set, ModuleCategoryTest.possibleSubjectPrefixes.get(0), module, CREDITS_PER_SUBJECT_MODULE);
-            case 6 -> addModule(set, ModuleCategoryTest.INTERDISCIPLINARY_PREFIX_WM, module, CREDITS_PER_INTERDISCIPLINARY_MODULE);
-            case 7 -> removeEnglishModules(set);
+            case 1 -> removeOneModuleByCategory(set, ModuleCategory.SUBJECT_MODULE);
+            case 2 -> removeOneModuleByCategory(set, ModuleCategory.INTERDISCIPLINARY_MODULE);
+            case 3 -> addModule(set, ModuleCategoryTest.possibleSubjectPrefixes.get(0), module, CREDITS_PER_SUBJECT_MODULE);
+            case 4 -> addModule(set, ModuleCategoryTest.INTERDISCIPLINARY_PREFIX_WM, module, CREDITS_PER_INTERDISCIPLINARY_MODULE);
         }
         return set;
     }

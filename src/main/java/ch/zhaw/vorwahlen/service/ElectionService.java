@@ -6,13 +6,16 @@ import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
+import ch.zhaw.vorwahlen.repository.ValidationSettingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 /**
  * Business logic for the election.
@@ -56,6 +59,9 @@ public class ElectionService {
         var moduleElection = loadModuleElectionForStudent(student);
         migrateElectionChanges(moduleElection, moduleNo);
         var isValid = electionValidator.validate(moduleElection);
+
+        var moduleSetting = Optional.ofNullable(moduleElection.getValidationSetting()).orElse(new ValidationSetting());
+        moduleElection.setValidationSetting(moduleSetting);
 
         moduleElection.setElectionValid(isValid);
         electionRepository.save(moduleElection);

@@ -10,10 +10,13 @@ class ElectionServiceTest {
     private final ElectionRepository electionRepository;
     private final Function<Student, ElectionValidator> validatorFunction;
     private final Function<Student, ModuleDefinition> definitionFunction;
+    private final ModuleRepository moduleRepository;
+    private final ValidationSettingRepository validationSettingRepository;
 
     private ElectionService electionService;
 
     private final Student student = Student.builder().email("test@mail.com").build();
+    private final Student student2 = Student.builder().email("test2@mail.com").build();
 
     private final List<String> interdisciplinaryModules = List.of("t.BA.WM.PHMOD.19HS");
     private final List<String> contextModules = List.of("t.BA.XXK.FUPRE.19HS", "t.BA.WVK.ZURO.20HS", "t.BA.WVK.SIC-TAF.20HS");
@@ -31,15 +34,19 @@ class ElectionServiceTest {
     public ElectionServiceTest(ElectionRepository electionRepository,
                                Function<Student, ElectionValidator> validatorFunction,
                                Function<Student, ModuleDefinition> definitionFunction) {
+    public ElectionServiceTest(ElectionRepository electionRepository, ModuleRepository moduleRepository, ValidationSettingRepository validationSettingRepository) {
         this.electionRepository = electionRepository;
         this.validatorFunction = validatorFunction;
         this.definitionFunction = definitionFunction;
 
+        this.moduleRepository = moduleRepository;
+        this.validationSettingRepository = validationSettingRepository;
     }
 
     @BeforeEach
     void setUp() {
         electionService = new ElectionService(electionRepository, validatorFunction, definitionFunction);
+        electionService = new ElectionService(electionRepository, moduleRepository, validationSettingRepository, structureFullTime, structurePartTime);
     }
 
     @AfterEach
@@ -58,6 +65,10 @@ class ElectionServiceTest {
 
         var validElection = validElectionSetForElectionDTO();
         var moduleElection = new ModuleElection();
+        var moduleElectionDTO = new ModuleElectionDTO();
+        moduleElectionDTO.setElectedModules(validElection);
+        moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
+        moduleElectionDTO.setValidationSettingDTO(new ValidationSettingDTO(false, false, false));
 
         var electedModules = validElection
                 .stream()
@@ -76,6 +87,8 @@ class ElectionServiceTest {
         Collections.sort(sentElectedModules);
 
         assertIterableEquals(sentElectedModules, recvElectedModules);
+        electionService.saveElection(student, moduleElectionDTO);
+        assertNotNull(electionService.getModuleElectionByStudent(student));
     }
 
     private Set<String> validElectionSetForElectionDTO() {
@@ -94,6 +107,10 @@ class ElectionServiceTest {
     @Sql("classpath:sql/modules_test_election.sql")
     void testSaveElection() {
         var validElection = validElectionSetForElectionDTO();
+        var moduleElectionDTO = new ModuleElectionDTO();
+        moduleElectionDTO.setElectedModules(validElection);
+        moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
+        moduleElectionDTO.setValidationSettingDTO(new ValidationSettingDTO(false, false, false));
 
         var jsonNode = new ObjectMapper().createObjectNode();
         jsonNode.put("electionSaved", true);
@@ -103,9 +120,11 @@ class ElectionServiceTest {
 
         assertEquals(jsonNode, electionService.saveElection(student, moduleElection));
         assertTrue(moduleElection.isElectionValid());
+        assertEquals(jsonNode, electionService.saveElection(student, moduleElectionDTO));
+        assertTrue(moduleElectionDTO.isElectionValid());
 
         jsonNode.put("electionValid", false);
-        moduleElection.setOverflowedElectedModules(
+        moduleElectionDTO.setOverflowedElectedModules(
                 moduleRepository.findAll().stream()
                         .filter(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()) == ModuleCategory.INTERDISCIPLINARY_MODULE)
                         .filter(module -> !validElection.contains(module.getModuleNo()))
@@ -114,11 +133,57 @@ class ElectionServiceTest {
                         .stream()
                         .collect(Collectors.toSet()));
 
-        assertFalse(moduleElection.getOverflowedElectedModules().isEmpty());
-        assertEquals(jsonNode, electionService.saveElection(student, moduleElection));
-        assertFalse(moduleElection.isElectionValid());
+        assertFalse(moduleElectionDTO.getOverflowedElectedModules().isEmpty());
+        assertEquals(jsonNode, electionService.saveElection(student, moduleElectionDTO));
+        assertFalse(moduleElectionDTO.isElectionValid());
     }
 
+    @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
+    @Sql("classpath:sql/modules_test_election.sql")
+    void testSaveElectionWithTwoUsers() {
+        // student 1
+        assertNull(electionService.getModuleElectionByStudent(student));
+
+        var validElection = validElectionSetForElectionDTO();
+        var moduleElectionDTO = new ModuleElectionDTO();
+        moduleElectionDTO.setElectedModules(validElection);
+        moduleElectionDTO.setOverflowedElectedModules(new HashSet<>());
+        moduleElectionDTO.setValidationSettingDTO(new ValidationSettingDTO(false, false, false));
+
+        electionService.saveElection(student, moduleElectionDTO);
+        assertNotNull(electionService.getModuleElectionByStudent(student));
+        assertEquals(1, validationSettingRepository.count());
+
+        moduleElectionDTO.setValidationSettingDTO(new ValidationSettingDTO(false, true, false));
+        assertEquals(1, validationSettingRepository.count());
+
+        // student 2
+        assertNull(electionService.getModuleElectionByStudent(student2));
+
+        var validElection2 = validElectionSetForElectionDTO();
+        var moduleElectionDTO2 = new ModuleElectionDTO();
+        moduleElectionDTO2.setElectedModules(validElection2);
+        moduleElectionDTO2.setOverflowedElectedModules(new HashSet<>());
+        moduleElectionDTO2.setValidationSettingDTO(new ValidationSettingDTO(false, false, false));
+
+        electionService.saveElection(student2, moduleElectionDTO2);
+        assertNotNull(electionService.getModuleElectionByStudent(student2));
+        assertEquals(2, validationSettingRepository.count());
+
+        moduleElectionDTO2.setValidationSettingDTO(new ValidationSettingDTO(false, true, false));
+        electionService.saveElection(student2, moduleElectionDTO2);
+        assertEquals(2, validationSettingRepository.count());
+    }
+
+    private Set<String> validElectionSetForElectionDTO() {
+        var set = new HashSet<String>();
+        set.addAll(interdisciplinaryModules);
+        set.addAll(contextModules);
+        set.addAll(subjectModules);
+        set.addAll(consecutiveSubjectModules);
+        return set;
+    }
 
 
     // ================================================================================================================

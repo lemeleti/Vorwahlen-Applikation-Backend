@@ -1,15 +1,17 @@
 package ch.zhaw.vorwahlen.modulevalidation;
 
 import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class PartTimeElectionValidator extends AbstractElectionValidator {
 
-    public static final int MAX_CREDITS_FIRST_ELECTION = 12;
-    public static final int MAX_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA = 30; // PA = 6 Credits, BA = 12 Credits
+    public static final int MIN_CREDITS_FIRST_ELECTION = 8;
+    public static final int MIN_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA = 28; // PA = 6 Credits, BA = 12 Credits
 
     public static final int NUM_CONTEXT_MODULES_FIRST_ELECTION = 2;
     public static final int NUM_CONTEXT_MODULES_SECOND_ELECTION = 1;
@@ -19,6 +21,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     public static final int NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION = 0;
     public static final int NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION = 1;
+
     protected static final String[] SECOND_ELECTION_SEMESTERS = { "7", "8" };
     protected static final String[] FIRST_ELECTION_SEMESTERS = { "5", "6" };
 
@@ -28,6 +31,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     public boolean validate(ModuleElection election) {
+        if(election.getValidationSetting().isRepetent()) return true;
         return canModuleBeSelectedInThisRun(election)
                 && isCreditSumValid(election)
                 && validContextModuleElection(election)
@@ -64,10 +68,36 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
         // IT18 Teilzeit: Wenn Sie im aktuellen Studienjahr schon zwei konsekutive Module belegt haben, wählen Sie mindestens einmal zwei konsekutive Module, ansonsten mindestens zweimal zwei konsekutive Module.
         // IT19 Teilzeit: Wählen Sie bis zu zwei konsekutive Module (empfohlen: zwei Module). Achten Sie speziell auf die nötigen Vorkenntnisse der Module.
-        // todo fragen: 1. wahl CCP1, MC1 / 2. wahl CCP2, MC2 ---> currently this is invalid
-        return !getStudent().isSecondElection()
-                || consecutiveMap.size() != 0
-                || containsSpecialConsecutiveModules(moduleElection);
+        // todo case: student enables flag, elected 2 consecutive module in first election --> 2. election check >= 1 consecutive
+        // todo else: check like VT
+        if(!getStudent().isSecondElection()) {
+            return true;
+        }
+
+        var settings = moduleElection.getValidationSetting();
+        if (settings.isSkipConsecutiveModuleCheck()) {
+            // case: 1. wahl CCP1, MC1 / 2. wahl CCP2, MC2, ...
+            return true;
+        }
+
+        var countConsecutivePairs = consecutiveMap.values().stream()
+                .filter(Objects::nonNull)
+                .count();
+
+        var isValid = false;
+        if (settings.hadAlreadyElectedTwoConsecutiveModules()) {
+            // case: 1. Wahl  CCP1, CCP2 / 2. Wahl MC1, MC2, ... oder FUP, PSPP, ...
+            isValid = countConsecutivePairs > 0 || containsSpecialConsecutiveModules(moduleElection);
+        } else {
+            /*
+             * case: 1. Wahl SCAD-EN, RAP-EN  / 2. Wahl CCP1, CCP2, MC1, MC2, ...
+             * oder
+             * case: 1. Wahl SCAD-EN, RAP-EN  / 2. Wahl CCP1, CCP2, FUP, PSPP, ...
+             */
+            isValid = countConsecutivePairs > 1 || countConsecutivePairs == 1 && containsSpecialConsecutiveModules(moduleElection);
+        }
+
+        return isValid;
     }
 
     @Override
@@ -83,37 +113,49 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
         var neededInterdisciplinaryModules = getStudent().isSecondElection()
                 ? NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION
                 : NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION;
-        return validInterdisciplinaryModuleElection(moduleElection, neededInterdisciplinaryModules);
+        return validModuleElectionCountByCategory(moduleElection, neededInterdisciplinaryModules, ModuleCategory.INTERDISCIPLINARY_MODULE);
     }
 
     @Override
     protected boolean validSubjectModuleElection(ModuleElection moduleElection) {
-        // todo fragen: warum 7 bei der zweiten wahl?
-        // todo fragen: warum 5 wenn dispensiert?
         // IT18 Teilzeit: Zusammen mit den oben gewählten konsekutiven Modulen, wählen Sie total sieben Module (mit genehmigter Dispensation aus der beruflichen Anrechnung fünf Module)
         // IT19 Teilzeit: Zusammen mit den oben gewählten konsekutiven Modulen wählen Sie total zwei Module. In der Regel wählen Sie hier also kein Modul.
-        var neededSubjectModules = getStudent().isSecondElection()
-                ? NUM_SUBJECT_MODULES_SECOND_ELECTION
-                : NUM_SUBJECT_MODULES_FIRST_ELECTION;
-        return validSubjectModuleElection(moduleElection, neededSubjectModules);
+        var count = countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
+        var dispensCount = 0;
+        var neededSubjectModules = NUM_SUBJECT_MODULES_FIRST_ELECTION;
+
+        if(getStudent().isSecondElection()) {
+            dispensCount = getStudent().getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
+            neededSubjectModules = NUM_SUBJECT_MODULES_SECOND_ELECTION;
+        }
+
+        return count + dispensCount == neededSubjectModules;
     }
 
     @Override
     protected boolean validContextModuleElection(ModuleElection moduleElection) {
-        // IT18 Teilzeit: Dies gehört zur Modulgruppe IT4. Sie können bis zu zwei dieser Module wählen. Das dritte Modul ist ein METU-Modul, das können Sie hier noch nicht vorwählen.
-        // IT19 Teilzeit: Dies gehört zur Modulgruppe IT5. Sie können bis zu zwei dieser Module für das kommende Studienjahr wählen.
-        var neededContextModules = getStudent().isSecondElection()
-                ? NUM_CONTEXT_MODULES_SECOND_ELECTION
-                : NUM_CONTEXT_MODULES_FIRST_ELECTION;
-        return validContextModuleElection(moduleElection, neededContextModules);
+        // NOTE: Context not checked because we don't store the elected modules from the previous year.
+        var totalNumContextModules = NUM_CONTEXT_MODULES_FIRST_ELECTION + NUM_CONTEXT_MODULES_SECOND_ELECTION;
+        var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
+        return count >= 0 && count <= totalNumContextModules;
     }
 
     @Override
     protected boolean isCreditSumValid(ModuleElection moduleElection) {
-        var neededCredits = getStudent().isSecondElection()
-                ? MAX_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA
-                : MAX_CREDITS_FIRST_ELECTION;
-        return isCreditSumValid(moduleElection, neededCredits);
+        var totalNumContext = NUM_CONTEXT_MODULES_FIRST_ELECTION + NUM_CONTEXT_MODULES_SECOND_ELECTION;
+
+        var minNeededCredits = MIN_CREDITS_FIRST_ELECTION;
+        var maxNeededCredits = MIN_CREDITS_FIRST_ELECTION + totalNumContext * CREDITS_PER_CONTEXT_MODULE;
+        var dispensation = 0;
+
+        if(getStudent().isSecondElection()) {
+            minNeededCredits = MIN_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA;
+            maxNeededCredits = MIN_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA + totalNumContext * CREDITS_PER_CONTEXT_MODULE;
+            dispensation = getStudent().getWpmDispensation();
+        }
+
+        var sum = sumCreditsInclusiveDispensation(moduleElection, dispensation);
+        return sum >= minNeededCredits && sum <= maxNeededCredits;
     }
 
 }

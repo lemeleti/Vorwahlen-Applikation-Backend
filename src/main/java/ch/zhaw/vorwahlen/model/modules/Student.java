@@ -48,7 +48,8 @@ public class Student {
     private boolean isTZ;
     @Column(columnDefinition = "tinyint(1) default 0")
     private boolean isSecondElection;
-    @OneToOne
+
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "election_id")
     private ModuleElection election;
 

@@ -1,10 +1,12 @@
 package ch.zhaw.vorwahlen.modulevalidation;
 
 import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FullTimeElectionValidator extends AbstractElectionValidator {
@@ -20,6 +22,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     public boolean validate(ModuleElection election) {
+        if(election.getValidationSetting().isRepetent()) return true;
         return isCreditSumValid(election)
                 && validContextModuleElection(election)
                 && validSubjectModuleElection(election)
@@ -32,7 +35,11 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
         // IT19 Vollzeit: Wählen Sie mindestens zweimal zwei konsekutive Module
         // Die Module PSPP und FUP werden auch als konsekutive Module anerkannt.
-        return consecutiveMap.size() != 0
+        var countConsecutivePairs = consecutiveMap.values().stream()
+                .filter(Objects::nonNull)
+                .count();
+
+        return countConsecutivePairs != 0
                 && (consecutiveMap.size() >= 2 || containsSpecialConsecutiveModules(moduleElection));
     }
 
@@ -61,24 +68,28 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     @Override
     protected boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection) {
         // IT19 Vollzeit: Sie müssen eines dieser Wahlmodule wählen (Sie können auch mehrere wählen, angerechnet werden kann aber nur ein Wahlmodul).
-        return validInterdisciplinaryModuleElection(moduleElection, NUM_INTERDISCIPLINARY_MODULES);
+        return validModuleElectionCountByCategory(moduleElection, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE);
     }
 
     @Override
     protected boolean validSubjectModuleElection(ModuleElection moduleElection) {
         // IT 19 Vollzeit: Zusammen mit den oben gewählten konsekutiven Modulen wählen Sie total acht Module.
-        return validSubjectModuleElection(moduleElection, NUM_SUBJECT_MODULES);
+        var count = countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
+        var dispensCount = getStudent().getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
+        return count + dispensCount == NUM_SUBJECT_MODULES;
     }
 
     @Override
     protected boolean validContextModuleElection(ModuleElection moduleElection) {
         // IT19 Vollzeit: Dies gehört zur Modulgruppe IT5. Sie können bis zu drei dieser Module wählen.
-        return validContextModuleElection(moduleElection, NUM_CONTEXT_MODULES);
+        return validModuleElectionCountByCategory(moduleElection, NUM_CONTEXT_MODULES, ModuleCategory.CONTEXT_MODULE);
     }
 
     @Override
     protected boolean isCreditSumValid(ModuleElection moduleElection) {
-        return isCreditSumValid(moduleElection, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA);
+        // PA dispensation für die rechnung irrelevant
+        var sum = sumCreditsInclusiveDispensation(moduleElection, getStudent().getWpmDispensation());
+        return sum == MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA;
     }
 
 }
