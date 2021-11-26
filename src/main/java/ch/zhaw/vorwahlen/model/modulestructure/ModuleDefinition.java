@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.model.modulestructure;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -20,7 +21,7 @@ public class ModuleDefinition {
             case INTERDISCIPLINARY_MODULE -> interdisciplinaryModules;
             case BACHELOR_MODULE -> bachelorModule;
             case SUBJECT_MODULE -> subjectModules;
-            case DISPENSED_WPM_MODULE, DISPENSED_PA_MODULE -> null;
+            case DISPENSED_WPM_MODULE, DISPENSED_PA_MODULE -> new HashMap<>();
         };
     }
 }
