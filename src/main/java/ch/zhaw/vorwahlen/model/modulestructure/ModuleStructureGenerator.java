@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.model.modulestructure;
 
 import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
+import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
@@ -21,6 +22,7 @@ public class ModuleStructureGenerator {
     private final ModuleDefinition moduleDefinition;
     private final Student student;
     private final ModuleElection election;
+    private final ElectionSemesters electionSemesters;
     private List<Module> electedModuleList;
     private boolean hasElectedModules;
 
@@ -42,6 +44,7 @@ public class ModuleStructureGenerator {
 
     private void dispensateModulesByCategory(int dispensedCredits, ModuleCategory structureCategory,
                                                 ModuleCategory replacementCategory) {
+        //todo für Teilzeit nur im zweiten Durchlauf.
         while (dispensedCredits > 0) {
             var elementOptional = electedModuleStructure
                     .stream()
@@ -73,12 +76,9 @@ public class ModuleStructureGenerator {
     }
 
     private void generateModuleElements(Map<Integer, Integer> modules, ModuleCategory category) {
-        if (student.isTZ() && student.isSecondElection()) {
-            modules.remove(5);
-            modules.remove(6);
-        } else if (student.isTZ()) {
-            modules.remove(7);
-            modules.remove(8);
+        if (student.isTZ()) {
+            var electionSemesters = this.electionSemesters.getSemestersForStudent(student);
+            electionSemesters.forEach(modules::remove);
         }
 
         for (var entry : modules.entrySet()) {
