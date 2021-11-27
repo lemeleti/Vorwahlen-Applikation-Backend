@@ -1,4 +1,5 @@
-INSERT INTO `module_election` (`id`) VALUES (1);
+INSERT INTO `validation_setting` (`id`) VALUES (1);
+INSERT INTO `module_election` (`id`, `validation_setting_id`) VALUES (1, 1);
 INSERT INTO `classes` (`name`) VALUES ("IT19b_WIN");
 INSERT INTO `students` (`email`, `class_name`, `isip`, `istz`, `name`, `pa_dispensation`, `wpm_dispensation`, `election_id`) VALUES ('dev@zhaw.ch', 'IT19b_WIN', '0', '0', 'Max Mustermann', '0', '0', 1);
 INSERT INTO `modules` (`module_no`, `consecutive_module_no`, `credits`, `full_time_semester`, `institute`, `isipmodule`, `language`, `module_group`, `module_id`, `module_title`, `part_time_semester`, `short_module_no`) VALUES
