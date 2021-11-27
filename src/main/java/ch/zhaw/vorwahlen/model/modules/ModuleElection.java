@@ -5,17 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ConstraintMode;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
 
@@ -38,6 +28,7 @@ public class ModuleElection {
     @OneToOne(cascade = CascadeType.PERSIST)
     private ValidationSetting validationSetting;
 
+    @Column(columnDefinition = "tinyint(1) default 0")
     private boolean isElectionValid;
 
     @ManyToMany
