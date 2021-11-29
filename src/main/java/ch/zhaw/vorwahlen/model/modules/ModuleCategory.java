@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.model.modules;
 
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,16 +11,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum ModuleCategory {
-    SUBJECT_MODULE(4, "Fachliches Wahlpflichmodul"),
-    INTERDISCIPLINARY_MODULE(4, "Überfachliches Wahlpflichmodul"),
-    CONTEXT_MODULE(2, "Kontext Wahlpflichmodul"),
-    PROJECT_MODULE(6, "Projektarbeit in der Informatik"),
-    BACHELOR_MODULE(12, "Bachelorarbeit in der Informatik"),
-    DISPENSED_PA_MODULE(6, "Projektarbeit in der Informatik - Dispensiert"),
-    DISPENSED_WPM_MODULE(4, "Fachliches Wahlpflichmodul - Dispensiert");
+    SUBJECT_MODULE(4),
+    INTERDISCIPLINARY_MODULE(4),
+    CONTEXT_MODULE(2),
+    PROJECT_MODULE(6),
+    BACHELOR_MODULE(12),
+    DISPENSED_PA_MODULE(6),
+    DISPENSED_WPM_MODULE(4);
 
     private final int credits;
-    private final String description;
+    private String description;
+
+    static {
+        SUBJECT_MODULE.description = ResourceBundleMessageLoader.getMessage("module_category.subject_module");
+        INTERDISCIPLINARY_MODULE.description = ResourceBundleMessageLoader.getMessage("module_category.interdisciplinary_module");
+        CONTEXT_MODULE.description = ResourceBundleMessageLoader.getMessage("module_category.context_module");
+        PROJECT_MODULE.description = ResourceBundleMessageLoader.getMessage("module_category.project_module");
+        BACHELOR_MODULE.description = ResourceBundleMessageLoader.getMessage("module_category.bachelor_module");
+        DISPENSED_PA_MODULE.description = ResourceBundleMessageLoader.getMessage("module_category.dispensed_pa_module");
+        DISPENSED_WPM_MODULE.description = ResourceBundleMessageLoader.getMessage("module_category.dispensed_wpm_module");
+    }
 
     /**
      * Categorize modules by module id.
