@@ -3,17 +3,17 @@ package ch.zhaw.vorwahlen.dummy;
 import ch.zhaw.vorwahlen.model.modules.LookupTable;
 
 public enum DummyLookupTable implements LookupTable<DummyLookupTable> {
-    NO("Modulkürzel", -1),
-    SHORT_NO("Stammkürzel(Farbcode nach Modultafel)", -1),
-    TITLE("Modulbezeichnung Deutsch(Farbcode nach Curriculum)", -1),
-    NO_COLUMN("Non existing column", -1);
+    NO("Modulkürzel"),
+    SHORT_NO("Stammkürzel(Farbcode nach Modultafel)"),
+    TITLE("Modulbezeichnung Deutsch(Farbcode nach Curriculum)"),
+    NO_COLUMN("Non existing column");
 
     private final String cellHeaderName;
     private int cellNumber;
 
-    DummyLookupTable(String cellHeaderName, int cellNumber) {
+    DummyLookupTable(String cellHeaderName) {
         this.cellHeaderName = cellHeaderName;
-        this.cellNumber = cellNumber;
+        this.cellNumber = -1;
     }
 
     @Override
