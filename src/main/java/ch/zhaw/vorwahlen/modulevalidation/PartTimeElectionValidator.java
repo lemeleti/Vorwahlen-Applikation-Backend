@@ -6,6 +6,7 @@ import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class PartTimeElectionValidator extends AbstractElectionValidator {
 
@@ -30,8 +31,8 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     public boolean validate(ModuleElection election) {
-        return isOverflownEmpty(election)
-                && canModuleBeSelectedInThisRun(election)
+        if(election.getValidationSetting().isRepetent()) return true;
+        return canModuleBeSelectedInThisRun(election)
                 && isCreditSumValid(election)
                 && validContextModuleElection(election)
                 && validSubjectModuleElection(election)
@@ -67,13 +68,36 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
         // IT18 Teilzeit: Wenn Sie im aktuellen Studienjahr schon zwei konsekutive Module belegt haben, wählen Sie mindestens einmal zwei konsekutive Module, ansonsten mindestens zweimal zwei konsekutive Module.
         // IT19 Teilzeit: Wählen Sie bis zu zwei konsekutive Module (empfohlen: zwei Module). Achten Sie speziell auf die nötigen Vorkenntnisse der Module.
-        // todo case: 1. wahl CCP1, MC1 / 2. wahl CCP2, MC2  --> flag special contract with SGL, therefore return true
         // todo case: student enables flag, elected 2 consecutive module in first election --> 2. election check >= 1 consecutive
         // todo else: check like VT
+        if(!getStudent().isSecondElection()) {
+            return true;
+        }
 
-        return !getStudent().isSecondElection()
-                || consecutiveMap.size() != 0
-                || containsSpecialConsecutiveModules(moduleElection);
+        var settings = moduleElection.getValidationSetting();
+        if (settings.isSkipConsecutiveModuleCheck()) {
+            // case: 1. wahl CCP1, MC1 / 2. wahl CCP2, MC2, ...
+            return true;
+        }
+
+        var countConsecutivePairs = consecutiveMap.values().stream()
+                .filter(Objects::nonNull)
+                .count();
+
+        var isValid = false;
+        if (settings.hadAlreadyElectedTwoConsecutiveModules()) {
+            // case: 1. Wahl  CCP1, CCP2 / 2. Wahl MC1, MC2, ... oder FUP, PSPP, ...
+            isValid = countConsecutivePairs > 0 || containsSpecialConsecutiveModules(moduleElection);
+        } else {
+            /*
+             * case: 1. Wahl SCAD-EN, RAP-EN  / 2. Wahl CCP1, CCP2, MC1, MC2, ...
+             * oder
+             * case: 1. Wahl SCAD-EN, RAP-EN  / 2. Wahl CCP1, CCP2, FUP, PSPP, ...
+             */
+            isValid = countConsecutivePairs > 1 || countConsecutivePairs == 1 && containsSpecialConsecutiveModules(moduleElection);
+        }
+
+        return isValid;
     }
 
     @Override

@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.modulevalidation;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
@@ -29,7 +31,12 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     @Test
     void testValidateElectionFullTime() {
         //===== Returns valid
-        when(moduleElectionMock.getOverflowedElectedModules()).thenReturn(new HashSet<>());
+        var validationSettingMock = mock(ValidationSetting.class);
+        when(validationSettingMock.isRepetent()).thenReturn(true);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
+        assertTrue(validator.validate(moduleElectionMock));
+
+        when(validationSettingMock.isRepetent()).thenReturn(false);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
 
         // Case Non-IP, No Dispensations

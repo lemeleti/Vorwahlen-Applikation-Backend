@@ -4,11 +4,13 @@ import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
@@ -25,8 +27,14 @@ public class DTOMapper {
     final Function<ModuleElection, ModuleElectionDTO> mapElectionToDto = election -> ModuleElectionDTO.builder()
             .isElectionValid(election.isElectionValid())
             .electedModules(mapModuleSetToModuleNo(election.getElectedModules()))
-            .overflowedElectedModules(mapModuleSetToModuleNo(election.getOverflowedElectedModules()))
+            .validationSettingDTO(mapValidationSettingToDto(election.getValidationSetting()))
             .build();
+
+    private ValidationSettingDTO mapValidationSettingToDto(ValidationSetting setting) {
+        return new ValidationSettingDTO(setting.isRepetent(),
+                                        setting.hadAlreadyElectedTwoConsecutiveModules(),
+                                        setting.isSkipConsecutiveModuleCheck());
+    }
 
     private Set<String> mapModuleSetToModuleNo(Set<Module> moduleSet) {
         return moduleSet.stream().map(Module::getModuleNo).collect(Collectors.toSet());
@@ -73,12 +81,4 @@ public class DTOMapper {
             .remarks(eventoData.getRemarks())
             .build();
 
-    ModuleElection mapDtoToModuleElection(ModuleElectionDTO moduleElectionDTO, Student student, Function<Set<String>, Set<Module>> mapModuleSet) {
-        var moduleElection = new ModuleElection();
-        moduleElection.setStudent(student);
-        moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
-        moduleElection.setElectedModules(mapModuleSet.apply(moduleElectionDTO.getElectedModules()));
-        moduleElection.setOverflowedElectedModules(mapModuleSet.apply(moduleElectionDTO.getOverflowedElectedModules()));
-        return moduleElection;
-    }
 }

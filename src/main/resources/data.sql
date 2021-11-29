@@ -1,5 +1,7 @@
+INSERT INTO `validation_setting` (`id`) VALUES (1);
+INSERT INTO `module_election` (`id`, `validation_setting_id`) VALUES (1, 1);
 INSERT INTO `classes` (`name`) VALUES ("IT19b_WIN");
-INSERT INTO `students` (`email`, `class_name`, `isip`, `istz`, `name`, `pa_dispensation`, `wpm_dispensation`) VALUES ('dev@zhaw.ch', 'IT19b_WIN', '0', '0', 'Max Mustermann', '0', '0');
+INSERT INTO `students` (`email`, `class_name`, `isip`, `istz`, `name`, `pa_dispensation`, `wpm_dispensation`, `election_id`) VALUES ('dev@zhaw.ch', 'IT19b_WIN', '0', '0', 'Max Mustermann', '0', '0', 1);
 INSERT INTO `modules` (`module_no`, `consecutive_module_no`, `credits`, `full_time_semester`, `institute`, `isipmodule`, `language`, `module_group`, `module_id`, `module_title`, `part_time_semester`, `short_module_no`) VALUES
                                                                                                                                                                                                                                ('t.BA.WM.DAST-EN.19HS', NULL, 4, '5.0', 'INIT', b'1', 'Englisch', 'AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6', 1653939, 'Digital Assistive Technologies', '7.0', 'WM.DAST-EN'),
                                                                                                                                                                                                                                ('t.BA.WM.DHEAL-EN.19HS', NULL, 4, '5.0', 'INIT', b'1', 'Englisch', 'DS6,ET5,IT6,MT7,ST5,WI6', 1653946, 'Digital Health', '7.0', 'WM.DHEAL-EN'),
@@ -76,3 +78,5 @@ INSERT INTO `modules` (`module_no`, `consecutive_module_no`, `credits`, `full_ti
                                                                                                                                                                                                                                ('t.BA.XX.OR.19HS', NULL, 4, '5.0', 'IDP', b'0', 'Deutsch', 'VS4,WI4-DSE/IE,IT6', 1555737, 'Operations Research', '5;7', 'XX.OR'),
                                                                                                                                                                                                                                ('t.BA.XXK.FUKI.19HS', NULL, 2, '5.0', 'LEITUNG LEHRE', b'0', 'Deutsch', 'AV5,DS5,ET5,EU5,IT5,MT5,ST5,VS5,WI6', 1545206, 'Future Kids', '5;7', 'XXK.FUKI'),
                                                                                                                                                                                                                                ('t.BA.XXK.FUPRE.19HS', NULL, 2, '5.0', 'LEITUNG LEHRE', b'0', 'Deutsch', 'AV5,DS5,ET5,EU5,IT5,MT5,ST5,VS5,WI6', 1545208, 'Future Preneurship', '5;7', 'XXK.FUPRE');
+
+UPDATE `module_election` SET `student_id` = "dev@zhaw.ch" WHERE `id` = 1;

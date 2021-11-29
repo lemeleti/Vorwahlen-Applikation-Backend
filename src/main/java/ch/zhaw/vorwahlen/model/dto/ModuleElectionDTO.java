@@ -25,4 +25,6 @@ public class ModuleElectionDTO {
     private Set<String> electedModules;
     private Set<String> overflowedElectedModules;
 
+    private ValidationSettingDTO validationSettingDTO;
+
 }

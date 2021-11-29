@@ -5,14 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
 
@@ -32,19 +25,17 @@ public class ModuleElection {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    @OneToOne(cascade = CascadeType.PERSIST)
+    private ValidationSetting validationSetting;
+
+    @Column(columnDefinition = "tinyint(1) default 0")
     private boolean isElectionValid;
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(name  = "elected_modules",
             joinColumns = @JoinColumn(name = "election_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "module_no", referencedColumnName = "moduleNo"))
     private Set<Module> electedModules;
-
-    @OneToMany
-    @JoinTable(name  = "overflowed_elected_modules",
-            joinColumns = @JoinColumn(name = "election_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "module_no", referencedColumnName = "moduleNo"))
-    private Set<Module> overflowedElectedModules;
 
     @Override
     public boolean equals(Object o) {

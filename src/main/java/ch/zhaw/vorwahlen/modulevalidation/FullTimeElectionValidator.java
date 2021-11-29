@@ -22,8 +22,8 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     public boolean validate(ModuleElection election) {
-        return isOverflownEmpty(election)
-                && isCreditSumValid(election)
+        if(election.getValidationSetting().isRepetent()) return true;
+        return isCreditSumValid(election)
                 && validContextModuleElection(election)
                 && validSubjectModuleElection(election)
                 && validInterdisciplinaryModuleElection(election)

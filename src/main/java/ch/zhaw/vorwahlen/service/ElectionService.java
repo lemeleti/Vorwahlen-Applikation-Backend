@@ -1,109 +1,108 @@
-
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
+import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.dto.ModuleStructureDTO;
-import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
+import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructure;
-import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureFullTime;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
-import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructurePartTime;
-import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
-import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;
+import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Business logic for the election.
  */
-@RequiredArgsConstructor
 @Service
 @Log
+@RequiredArgsConstructor
 public class ElectionService {
-
-    public static final int NUM_CONTEXT_MODULES = 3;
-    public static final int NUM_SUBJECT_MODULES = 8;
-    public static final int NUM_INTERDISCIPLINARY_MODULES = 1;
-
     private final ElectionRepository electionRepository;
-    private final Function<Set<String>, Set<Module>> mapModuleSet;
-    private final ModuleStructure structureFullTime;
-    private final ModuleStructure structurePartTime;
+    private final ModuleRepository moduleRepository;
+    private final ElectionValidator electionValidator;
+    private final ModuleDefinition moduleDefinition;
+    private final ModuleElectionExporter exporter;
+    private final ElectionSemesters electionSemesters;
 
-    @Autowired
-    public ElectionService(ElectionRepository electionRepository, ModuleRepository moduleRepository,
-                           ModuleStructureFullTime structureFullTime, ModuleStructurePartTime structurePartTime) {
-        this.electionRepository = electionRepository;
-        this.mapModuleSet = list -> list.stream()
-                                        .map(moduleRepository::getById)
-                                        .collect(Collectors.toSet());
-        this.structureFullTime = structureFullTime;
-        this.structurePartTime = structurePartTime;
-    }
-
-    public ModuleStructureDTO getModuleStructure(Student student) {
-        var structure = student.isTZ() ? structurePartTime : structureFullTime;
-        var election = student.getElection();
-        return new ModuleStructureGenerator(structure, election, student).generateStructure();
+    /**
+     * Get election data for the specified user.
+     * @param student get election for student
+     * @return election data
+     */
+    public ElectionTransferDTO getElection(Student student) {
+        var moduleElection = loadModuleElectionForStudent(student);
+        return createElectionTransferDTO(student, moduleElection, false);
     }
 
     /**
-     * Gets the stored election from student.
-     * @param student student in session
-     * @return current election
+     * Get election for the specified user
+     * @param student get election for student
+     * @return module election from db if existent otherwise a new instance will be created.
      */
-    public ModuleElectionDTO getModuleElectionByStudent(Student student) {
-        var optional = Optional.ofNullable(student.getElection());
-        if(optional.isPresent()) {
-            return optional.map(DTOMapper.mapElectionToDto).get();
-        }
-        return null;
+    public ModuleElectionDTO getModuleElectionForStudent(Student student) {
+        return DTOMapper.mapElectionToDto.apply(loadModuleElectionForStudent(student));
     }
 
     /**
      * Saves the election to the database.
      * @param student student in session
-     * @param moduleElectionDTO his current election
-     * @return true - if save successful<br>
-     *         false - if arguments invalid
+     * @param moduleNo module that should be saved
+     * @return ElectionTransferDTO containing the election data
      */
-    public ObjectNode saveElection(Student student, ModuleElectionDTO moduleElectionDTO) {
-        if(student == null || moduleElectionDTO == null
-                || student.getEmail() == null || student.getEmail().isBlank()) {
-            return createSaveStatusBundle(false, false);
-        }
-
-        var moduleElection = DTOMapper.mapDtoToModuleElection(moduleElectionDTO, student, mapModuleSet);
-
-        var electionValidator = student.isTZ()
-                ? new PartTimeElectionValidator(student)
-                : new FullTimeElectionValidator(student);
-
+    public ElectionTransferDTO saveElection(Student student, String moduleNo) {
+        var moduleElection = loadModuleElectionForStudent(student);
+        migrateElectionChanges(moduleElection, moduleNo);
         var isValid = electionValidator.validate(moduleElection);
-        moduleElection.setElectionValid(isValid);
-        moduleElectionDTO.setElectionValid(isValid); // needed in unit tests
-        student.setElection(electionRepository.save(moduleElection));
 
-        return createSaveStatusBundle(true, isValid);
+        var moduleSetting = Optional.ofNullable(moduleElection.getValidationSetting()).orElse(new ValidationSetting());
+        moduleElection.setValidationSetting(moduleSetting);
+
+        moduleElection.setElectionValid(isValid);
+        electionRepository.save(moduleElection);
+        return createElectionTransferDTO(student, moduleElection, true);
     }
 
-    private ObjectNode createSaveStatusBundle(boolean saveSuccess, boolean validElection) {
-        var mapper = new ObjectMapper();
-        var node = mapper.createObjectNode();
-        node.put("electionSaved", saveSuccess);
-        node.put("electionValid", validElection);
-        return node;
+    /**
+     * Export all module elections.
+     * @return byte array containing the formatted module election.
+     */
+    public byte[] exportModuleElection() {
+        return exporter.export(electionRepository.findAll());
+    }
+
+    private void migrateElectionChanges(ModuleElection moduleElection, String moduleNo) {
+        var module = moduleRepository.findById(moduleNo).orElseThrow();
+
+        // todo check if user is allowed to elect module
+        var electedModules = moduleElection.getElectedModules();
+        if (!electedModules.removeIf(m -> moduleNo.equals(m.getModuleNo()))) {
+            electedModules.add(module);
+        }
+    }
+
+    private ElectionTransferDTO createElectionTransferDTO(Student student,
+                                                          ModuleElection moduleElection, boolean saved) {
+        var electionStructure =
+                new ModuleStructureGenerator(moduleDefinition, student, moduleElection, electionSemesters).generateStructure();
+        return new ElectionTransferDTO(electionStructure, saved, moduleElection.isElectionValid());
+    }
+
+    private ModuleElection loadModuleElectionForStudent(Student student) {
+        return electionRepository.findModuleElectionByStudent(student.getEmail()).orElseGet(() -> {
+                var moduleElection = new ModuleElection();
+                moduleElection.setStudent(student);
+                moduleElection.setValidationSetting(new ValidationSetting());
+                moduleElection.setElectedModules(new HashSet<>());
+                return moduleElection;
+        });
     }
 }
