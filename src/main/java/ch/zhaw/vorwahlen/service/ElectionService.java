@@ -6,8 +6,8 @@ import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
+import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
@@ -15,6 +15,8 @@ import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
 import java.util.Optional;
 
 /**
@@ -95,6 +97,12 @@ public class ElectionService {
     }
 
     private ModuleElection loadModuleElectionForStudent(Student student) {
-        return electionRepository.findModuleElectionByStudent(student.getEmail()).orElse(new ModuleElection());
+        return electionRepository.findModuleElectionByStudent(student.getEmail()).orElseGet(() -> {
+                var moduleElection = new ModuleElection();
+                moduleElection.setStudent(student);
+                moduleElection.setValidationSetting(new ValidationSetting());
+                moduleElection.setElectedModules(new HashSet<>());
+                return moduleElection;
+        });
     }
 }
