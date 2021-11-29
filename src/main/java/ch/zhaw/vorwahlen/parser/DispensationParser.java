@@ -24,8 +24,14 @@ public class DispensationParser extends ExcelParser<Student, DispensationLookupT
             var cell = row.getCell(field.getCellNumber());
             switch (field) {
                 case EMAIL -> studentBuilder.email(cell.getStringCellValue());
-                case PA -> studentBuilder.paDispensation((int) cell.getNumericCellValue());
-                case WPM -> studentBuilder.wpmDispensation((int) cell.getNumericCellValue());
+                case PA -> {
+                    var dispensation = (int) cell.getNumericCellValue();
+                    studentBuilder.paDispensation(Math.max(dispensation, 0));
+                }
+                case WPM -> {
+                    var dispensation = (int) cell.getNumericCellValue();
+                    studentBuilder.wpmDispensation(Math.max(dispensation, 0));
+                }
             }
         }
         return studentBuilder.build();

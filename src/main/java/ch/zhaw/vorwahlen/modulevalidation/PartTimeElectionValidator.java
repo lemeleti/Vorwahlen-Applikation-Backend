@@ -68,8 +68,6 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
         // IT18 Teilzeit: Wenn Sie im aktuellen Studienjahr schon zwei konsekutive Module belegt haben, wählen Sie mindestens einmal zwei konsekutive Module, ansonsten mindestens zweimal zwei konsekutive Module.
         // IT19 Teilzeit: Wählen Sie bis zu zwei konsekutive Module (empfohlen: zwei Module). Achten Sie speziell auf die nötigen Vorkenntnisse der Module.
-        // todo case: student enables flag, elected 2 consecutive module in first election --> 2. election check >= 1 consecutive
-        // todo else: check like VT
         if(!getStudent().isSecondElection()) {
             return true;
         }

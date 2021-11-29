@@ -340,14 +340,6 @@ class AbstractElectionValidatorTest {
         assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(moduleElectionMock, 0));
     }
 
-    @Disabled
-    @Test
-    void testIsCreditSumValid_NegativeDispensation() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(moduleElectionMock, -1));
-    }
-
-
     /* **************************************************************************************************************
      * Helper methods
      * ************************************************************************************************************** */
