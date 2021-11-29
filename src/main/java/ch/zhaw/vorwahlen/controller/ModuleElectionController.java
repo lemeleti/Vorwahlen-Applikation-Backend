@@ -1,6 +1,9 @@
 package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.authentication.CustomAuthToken;
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.exception.SessionNotFoundException;
+import ch.zhaw.vorwahlen.exception.UserNotFoundException;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.user.User;
 import ch.zhaw.vorwahlen.service.ElectionService;
@@ -44,9 +47,11 @@ public class ModuleElectionController {
         var token = ((CustomAuthToken) headerAccessor.getUser());
         var user = token != null ? token.getUser() : null;
         var sessionAttributes = headerAccessor.getSessionAttributes();
-        if(sessionAttributes == null || user == null) {
-            // todo replace with custom exception
-            throw new RuntimeException("No valid user or session was found");
+        if(sessionAttributes == null) {
+            throw new SessionNotFoundException(ResourceBundleMessageLoader.getMessage("error.session_not_found"));
+        }
+        if(user == null) {
+            throw new UserNotFoundException(ResourceBundleMessageLoader.getMessage("error.user_not_found"));
         }
         var student = user.getStudent();
         return electionService.saveElection(student, moduleNo);

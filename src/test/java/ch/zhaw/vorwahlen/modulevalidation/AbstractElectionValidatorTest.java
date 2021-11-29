@@ -7,7 +7,6 @@ import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -339,14 +338,6 @@ class AbstractElectionValidatorTest {
         when(moduleElectionMock.getElectedModules()).thenReturn(null);
         assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(moduleElectionMock, 0));
     }
-
-    @Disabled
-    @Test
-    void testIsCreditSumValid_NegativeDispensation() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(moduleElectionMock, -1));
-    }
-
 
     /* **************************************************************************************************************
      * Helper methods

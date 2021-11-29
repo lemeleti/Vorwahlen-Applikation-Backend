@@ -1,5 +1,8 @@
 package ch.zhaw.vorwahlen.authentication;
 
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.exception.SessionNotFoundException;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -7,7 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
  */
 @Component
 @PropertySource("classpath:settings.properties")
+@Log
 public class CustomAuthProvider implements AuthenticationProvider {
     private static final String ADMIN_ROLE = "ADMIN";
 
@@ -36,7 +39,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
         var authorities = new ArrayList<GrantedAuthority>();
 
         if (authToken.getShibbolethSession() == null || authToken.getShibbolethSession().isEmpty()) {
-            throw new SessionAuthenticationException("Session could not be created");
+            throw new SessionNotFoundException(ResourceBundleMessageLoader.getMessage("error.session_not_found"));
         }
 
         var user = authToken.getUser();

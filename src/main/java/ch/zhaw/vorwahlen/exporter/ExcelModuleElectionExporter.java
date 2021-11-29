@@ -1,8 +1,11 @@
 package ch.zhaw.vorwahlen.exporter;
 
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.exception.ExportException;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import lombok.extern.java.Log;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Export all module elections in the desired output format provided by @fame.
  */
+@Log
 public class ExcelModuleElectionExporter implements ModuleElectionExporter {
     private static final String[] HEADER_DATA = {"E-Mail", "Name", "In welcher Klasse sind Sie?",
             "Konsekutive Wahlpflichmodule", "Wahlpflichmodule", "Wahlmodule"};
@@ -32,8 +36,7 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
                 return os.toByteArray();
             }
         } catch (IOException e) {
-            // todo use custom exception
-            throw new RuntimeException(e.getMessage());
+            throw new ExportException(ResourceBundleMessageLoader.getMessage("error.export_exception"), e);
         }
     }
 

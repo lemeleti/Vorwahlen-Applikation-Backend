@@ -1,5 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.parser.DispensationParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +41,8 @@ public class DispensationService {
                 }
             });
         } catch (IOException e) {
-            var message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
-                    file.getOriginalFilename(), e.getMessage());
-            log.severe(message);
-            // Todo throw custom Exception
+            var message = String.format(ResourceBundleMessageLoader.getMessage("error.import_exception"), file.getOriginalFilename());
+            throw new ImportException(message, e);
         }
     }
 

@@ -85,9 +85,6 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     protected abstract boolean isCreditSumValid(ModuleElection moduleElection);
 
     protected int sumCreditsInclusiveDispensation(ModuleElection moduleElection, int dispensations) {
-        if (dispensations < 0) {
-            // todo: throw exception
-        }
         // PA dispensation für die rechnung irrelevant
         var electedModulesCreditSum = moduleElection.getElectedModules()
                 .stream()
