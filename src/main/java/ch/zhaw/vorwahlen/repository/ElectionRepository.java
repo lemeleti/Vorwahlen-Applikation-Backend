@@ -14,6 +14,12 @@ import java.util.Optional;
 @Repository
 public interface ElectionRepository extends JpaRepository<ModuleElection, Long> {
 
-    @Query("SELECT e from ModuleElection e JOIN FETCH e.student WHERE e.student.email = :email")
+    @Query("""
+    SELECT e
+    FROM ModuleElection e
+    LEFT JOIN FETCH e.student
+    LEFT JOIN FETCH e.electedModules
+    WHERE e.student.email = :email
+    """)
     Optional<ModuleElection> findModuleElectionByStudent(@Param("email") String email);
 }
