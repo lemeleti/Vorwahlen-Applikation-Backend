@@ -1,5 +1,8 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.exception.ExportException;
+import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
@@ -43,10 +46,8 @@ public class ClassListService {
             setSecondElection(classLists);
             classListRepository.saveAll(classLists);
         } catch (IOException e) {
-            var message = String.format("Die Datei %s konnte nicht abgespeichert werden. Error: %s",
-                    file.getOriginalFilename(), e.getMessage());
-            log.severe(message);
-            // Todo throw custom Exception
+            var message = String.format(ResourceBundleMessageLoader.getMessage("error.import_exception"), file.getOriginalFilename());
+            throw new ImportException(message, e);
         }
     }
 
@@ -68,7 +69,6 @@ public class ClassListService {
     }
 
     private boolean isSecondElection(String clazz) {
-        // todo fragen ob Repetenten nochmal wählen müssen?
         var isSecondElection = false;
         var shortYear = LocalDate.now().getYear() % YEAR_2_SHORT_YEAR;
 
