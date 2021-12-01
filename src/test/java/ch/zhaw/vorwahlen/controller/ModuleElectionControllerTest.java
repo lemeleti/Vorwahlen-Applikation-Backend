@@ -51,8 +51,6 @@ class ModuleElectionControllerTest {
     @MockBean
     ClassListService classListService;
 
-    ModuleElectionController controller;
-
     private WebSocketStompClient webSocketStompClient;
 
     static {
@@ -62,8 +60,6 @@ class ModuleElectionControllerTest {
     @BeforeEach
     void setUp() {
         this.webSocketStompClient = new WebSocketStompClient(new SockJsClient(List.of(new WebSocketTransport(new StandardWebSocketClient()))));
-
-        controller = new ModuleElectionController(electionService);
 
         var studentDTO = StudentDTO.builder()
                 .name("dev")
