@@ -1,6 +1,6 @@
-package ch.zhaw.vorwahlen.authentication;
+package ch.zhaw.vorwahlen.security.authentication;
 
-import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.security.model.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

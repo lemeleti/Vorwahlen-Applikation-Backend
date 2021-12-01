@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
-import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.service.ClassListService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

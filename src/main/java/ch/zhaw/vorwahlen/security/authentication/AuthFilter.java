@@ -1,7 +1,7 @@
-package ch.zhaw.vorwahlen.authentication;
+package ch.zhaw.vorwahlen.security.authentication;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

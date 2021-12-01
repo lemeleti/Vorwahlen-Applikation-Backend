@@ -5,7 +5,7 @@ import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
-import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.FullTimeElectionValidator;
 import ch.zhaw.vorwahlen.modulevalidation.PartTimeElectionValidator;

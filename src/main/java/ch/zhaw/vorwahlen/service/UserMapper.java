@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.model.dto.UserDTO;
-import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.security.model.User;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.authentication;
+package ch.zhaw.vorwahlen.security.authentication;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

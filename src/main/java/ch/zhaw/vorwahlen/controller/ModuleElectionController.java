@@ -1,11 +1,11 @@
 package ch.zhaw.vorwahlen.controller;
 
-import ch.zhaw.vorwahlen.authentication.CustomAuthToken;
+import ch.zhaw.vorwahlen.security.authentication.CustomAuthToken;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.exception.SessionNotFoundException;
 import ch.zhaw.vorwahlen.exception.UserNotFoundException;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
-import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

@@ -1,6 +1,6 @@
-package ch.zhaw.vorwahlen.config;
+package ch.zhaw.vorwahlen.security.config;
 
-import ch.zhaw.vorwahlen.authentication.AuthFilter;
+import ch.zhaw.vorwahlen.security.authentication.AuthFilter;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;

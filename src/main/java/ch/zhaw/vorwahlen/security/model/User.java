@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.user;
+package ch.zhaw.vorwahlen.security.model;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
 import lombok.AccessLevel;

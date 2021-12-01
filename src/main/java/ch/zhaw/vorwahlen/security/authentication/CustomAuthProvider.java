@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.authentication;
+package ch.zhaw.vorwahlen.security.authentication;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.exception.SessionNotFoundException;

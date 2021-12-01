@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.UserDTO;
-import ch.zhaw.vorwahlen.model.user.User;
+import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.service.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
