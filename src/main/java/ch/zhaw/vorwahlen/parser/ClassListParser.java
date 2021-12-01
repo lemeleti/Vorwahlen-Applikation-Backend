@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
-import ch.zhaw.vorwahlen.model.modules.StudentLookupTable;
+import ch.zhaw.vorwahlen.model.modules.parser.StudentLookupTable;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.InputStream;

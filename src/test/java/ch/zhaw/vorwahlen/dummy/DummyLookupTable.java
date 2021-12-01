@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.dummy;
 
-import ch.zhaw.vorwahlen.model.modules.LookupTable;
+import ch.zhaw.vorwahlen.model.modules.parser.LookupTable;
 
 public enum DummyLookupTable implements LookupTable<DummyLookupTable> {
     NO("Modulkürzel"),

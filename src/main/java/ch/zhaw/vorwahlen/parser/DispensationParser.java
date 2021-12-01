@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.parser;
 
-import ch.zhaw.vorwahlen.model.modules.DispensationLookupTable;
+import ch.zhaw.vorwahlen.model.modules.parser.DispensationLookupTable;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import org.apache.poi.ss.usermodel.Row;
 

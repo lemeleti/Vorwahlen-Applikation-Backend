@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.parser;
 
-import ch.zhaw.vorwahlen.model.modules.LookupTable;
+import ch.zhaw.vorwahlen.model.modules.parser.LookupTable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.apache.poi.ss.usermodel.Row;
