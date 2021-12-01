@@ -34,7 +34,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         var validationSettingMock = mock(ValidationSetting.class);
         when(validationSettingMock.isRepetent()).thenReturn(true);
         when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         when(validationSettingMock.isRepetent()).thenReturn(false);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
@@ -43,20 +43,20 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         when(studentMock.isTZ()).thenReturn(false);
         when(studentMock.isIP()).thenReturn(false);
         when(studentMock.getWpmDispensation()).thenReturn(0);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         // Case IP, No Dispensations
         when(studentMock.isIP()).thenReturn(true);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         // Case IP, Some Dispensations
         removeNonConsecutiveSubjectModulesFromSet(validElectionSet);
         when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         // Case Non-IP, Some Dispensations
         when(studentMock.isIP()).thenReturn(false);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         //===== Returns invalid
         // Case Non-IP, No Dispensations (Not enough selected)
@@ -128,7 +128,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
         // ... Some Dispensations
         when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
-        assertTrue(validator.validIpModuleElection(moduleElectionMock));
+        assertFalse(validator.validIpModuleElection(moduleElectionMock));
     }
 
     @Test
@@ -305,6 +305,6 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     void assertInvalidElection(ModuleElection moduleElectionMock, ElectionValidator validator, int mode) {
         var invalidElection = invalidElectionSet(mode);
         when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);
-        assertFalse(validator.validate(moduleElectionMock));
+        assertFalse(validator.validate(moduleElectionMock).isValid());
     }
 }

@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
     public static final String SEMESTER_6_AND_8 = "6;8";
-    public static final String SEMESTER_5_AND_6 = "5;6";
     public static final String SEMESTER_5 = "5.0";
     public static final String SEMESTER_7 = "7.0";
     public static final int NUM_NON_CONSECUTIVE_SUBJECT_MODULES = 2;
@@ -58,7 +57,7 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         when(validationSettingMock.isRepetent()).thenReturn(true);
         when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
 
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         when(validationSettingMock.isRepetent()).thenReturn(false);
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
@@ -67,22 +66,22 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         when(studentMock.isTZ()).thenReturn(true);
         when(studentMock.isIP()).thenReturn(false);
         when(studentMock.getWpmDispensation()).thenReturn(0);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         // Case IP, No Dispensations
         when(studentMock.isIP()).thenReturn(true);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         // Case IP, Some Dispensations
         if(!isFistElection) {
             removeNonConsecutiveSubjectModulesFromSet(validElectionSet);
         }
         when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         // Case Non-IP, Some Dispensations
         when(studentMock.isIP()).thenReturn(false);
-        assertTrue(validator.validate(moduleElectionMock));
+        assertTrue(validator.validate(moduleElectionMock).isValid());
 
         //===== Returns invalid
         // Case Non-IP, No Dispensations (Not enough selected)
@@ -96,43 +95,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         for (var mode = 3; mode < 5; mode++) {
             assertInvalidElection(moduleElectionMock, validator, mode, isFistElection);
         }
-    }
-
-    @Test
-    void testCanModuleBeSelectedInThisRun() {
-        var semesterBothElectionModuleMock = mock(Module.class);
-        var semesterFirstElectionModuleMock = mock(Module.class);
-        var semester5ModuleMock = mock(Module.class);
-        var semester7ModuleMock = mock(Module.class);
-
-        when(semesterBothElectionModuleMock.getPartTimeSemester()).thenReturn(SEMESTER_6_AND_8);
-        when(semesterFirstElectionModuleMock.getPartTimeSemester()).thenReturn(SEMESTER_5_AND_6);
-        when(semester5ModuleMock.getPartTimeSemester()).thenReturn(SEMESTER_5);
-        when(semester7ModuleMock.getPartTimeSemester()).thenReturn(SEMESTER_7);
-
-        // first election
-        when(studentMock.isSecondElection()).thenReturn(false);
-        var set = Set.of(semesterBothElectionModuleMock, semesterFirstElectionModuleMock, semester5ModuleMock);
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertTrue(((PartTimeElectionValidator) validator).canModuleBeSelectedInThisRun(moduleElectionMock));
-
-        set = Set.of(semester7ModuleMock);
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertFalse(((PartTimeElectionValidator) validator).canModuleBeSelectedInThisRun(moduleElectionMock));
-
-        // second election
-        when(studentMock.isSecondElection()).thenReturn(true);
-        set = Set.of(semesterBothElectionModuleMock, semester7ModuleMock);
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertTrue(((PartTimeElectionValidator) validator).canModuleBeSelectedInThisRun(moduleElectionMock));
-
-        set = Set.of(semesterFirstElectionModuleMock);
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertFalse(((PartTimeElectionValidator) validator).canModuleBeSelectedInThisRun(moduleElectionMock));
-
-        set = Set.of(semester5ModuleMock);
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertFalse(((PartTimeElectionValidator) validator).canModuleBeSelectedInThisRun(moduleElectionMock));
     }
 
     @Override
@@ -633,6 +595,6 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     void assertInvalidElection(ModuleElection moduleElectionMock, ElectionValidator validator, int mode, boolean isFistElection) {
         var invalidElection = invalidElectionSet(mode, isFistElection);
         when(moduleElectionMock.getElectedModules()).thenReturn(invalidElection);
-        assertFalse(validator.validate(moduleElectionMock));
+        assertFalse(validator.validate(moduleElectionMock).isValid());
     }
 }

@@ -61,12 +61,12 @@ public class ElectionService {
     public ElectionTransferDTO saveElection(Student student, String moduleNo) {
         var moduleElection = loadModuleElectionForStudent(student);
         migrateElectionChanges(moduleElection, moduleNo);
-        var isValid = electionValidator.validate(moduleElection);
+        var electionStatus = electionValidator.validate(moduleElection);
 
         var moduleSetting = Optional.ofNullable(moduleElection.getValidationSetting()).orElse(new ValidationSetting());
         moduleElection.setValidationSetting(moduleSetting);
 
-        moduleElection.setElectionValid(isValid);
+        moduleElection.setElectionValid(electionStatus.isValid());
         electionRepository.save(moduleElection);
         return createElectionTransferDTO(student, moduleElection, true);
     }

@@ -1,5 +1,7 @@
 package ch.zhaw.vorwahlen.modulevalidation;
 
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.model.modules.ElectionStatus;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
@@ -18,7 +20,43 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     public static final int NUM_ENGLISH_CREDITS = 20;
     public static final int CREDIT_PER_SUBJECT_MODULE = 4;
     public static final int CREDITS_PER_CONTEXT_MODULE = 2;
+    public static final int MISSING_2_CONSECUTIVE_PAIRS = 2;
+    public static final int MISSING_1_CONSECUTIVE_PAIR = 1;
+
+    private final ElectionStatus electionStatus = new ElectionStatus();
     private final Student student;
+
+    @Override
+    public ElectionStatus validate(ModuleElection election) {
+        var status = getElectionStatus();
+
+        var subjectValidation = status.getSubjectValidation();
+        var contextValidation = status.getContextValidation();
+        var interdisciplinaryValidation = status.getInterdisciplinaryValidation();
+        var additionalValidation = status.getAdditionalValidation();
+
+        if(election.getValidationSetting().isRepetent()) {
+            subjectValidation.setValid(true);
+            contextValidation.setValid(true);
+            interdisciplinaryValidation.setValid(true);
+            additionalValidation.setValid(true);
+        } else {
+            subjectValidation.setModuleCategory(ModuleCategory.SUBJECT_MODULE);
+            subjectValidation.setValid(validSubjectModuleElection(election));
+            subjectValidation.andValid(validConsecutiveModulePairsInElection(election));
+
+            contextValidation.setModuleCategory(ModuleCategory.CONTEXT_MODULE);
+            contextValidation.setValid(validContextModuleElection(election));
+
+            interdisciplinaryValidation.setModuleCategory(ModuleCategory.INTERDISCIPLINARY_MODULE);
+            interdisciplinaryValidation.setValid(validInterdisciplinaryModuleElection(election));
+
+            additionalValidation.setValid(isCreditSumValid(election));
+            additionalValidation.andValid(validIpModuleElection(election));
+        }
+
+        return status;
+    }
 
     protected boolean validConsecutiveModulePairsInElection(ModuleElection moduleElection) {
         var consecutiveMap = calculateConsecutiveMap(moduleElection);
@@ -73,7 +111,36 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
 
     protected boolean validModuleElectionCountByCategory(ModuleElection moduleElection, int neededModules, ModuleCategory moduleCategory) {
         var count = countModuleCategory(moduleElection, moduleCategory);
-        return count == neededModules;
+        var isValid = count == neededModules;
+        if (!isValid) {
+            switch (moduleCategory) {
+                case CONTEXT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getContextValidation(), count, neededModules);
+                case SUBJECT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getSubjectValidation(), count, neededModules);
+                case INTERDISCIPLINARY_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getInterdisciplinaryValidation(), count, neededModules);
+            }
+        }
+        return isValid;
+    }
+
+    protected void addReasonWhenCountByCategoryNotValid(ModuleCategory moduleCategory, ElectionStatus.ElectionStatusElement statusElement, long count, int neededModules) {
+        var category = switch (moduleCategory) {
+            case CONTEXT_MODULE -> ResourceBundleMessageLoader.getMessage("election_status.context");
+            case SUBJECT_MODULE -> ResourceBundleMessageLoader.getMessage("election_status.subject");
+            case INTERDISCIPLINARY_MODULE -> ResourceBundleMessageLoader.getMessage("election_status.interdisciplinary");
+            default -> "";
+        };
+        statusElement.addReason(count > neededModules
+                                        ? String.format(ResourceBundleMessageLoader.getMessage("election_status.too_much_modules_of_category"), (count - neededModules), category)
+                                        : String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_modules_of_category"), (neededModules - count), category));
+    }
+
+    protected void addReasonWhenCreditSumNotValid(int sum, int minNeededCredits, int maxNeededCredits) {
+        var status = getElectionStatus().getAdditionalValidation();
+        if(sum > maxNeededCredits) {
+            status.addReason(String.format(ResourceBundleMessageLoader.getMessage("election_status.too_much_credits"), (sum - maxNeededCredits)));
+        } else if(sum < minNeededCredits) {
+            status.addReason(String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_credits"), (minNeededCredits - sum)));
+        }
     }
 
     protected abstract boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection);

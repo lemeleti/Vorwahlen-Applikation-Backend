@@ -325,7 +325,7 @@ class AbstractElectionValidatorTest {
     @Test
     void testValidModuleElectionCountByCategory_NullCategory() {
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertDoesNotThrow(() -> validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_CONTEXT_MODULES, null));
+        assertThrows(NullPointerException.class, () -> validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_CONTEXT_MODULES, null));
     }
 
     @Test

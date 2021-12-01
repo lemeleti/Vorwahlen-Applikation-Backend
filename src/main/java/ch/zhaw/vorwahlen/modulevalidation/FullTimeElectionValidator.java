@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.modulevalidation;
 
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
@@ -21,17 +22,6 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     }
 
     @Override
-    public boolean validate(ModuleElection election) {
-        if(election.getValidationSetting().isRepetent()) return true;
-        return isCreditSumValid(election)
-                && validContextModuleElection(election)
-                && validSubjectModuleElection(election)
-                && validInterdisciplinaryModuleElection(election)
-                && validIpModuleElection(election)
-                && validConsecutiveModulePairsInElection(election);
-    }
-
-    @Override
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
         // IT19 Vollzeit: Wählen Sie mindestens zweimal zwei konsekutive Module
         // Die Module PSPP und FUP werden auch als konsekutive Module anerkannt.
@@ -39,8 +29,13 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
                 .filter(Objects::nonNull)
                 .count();
 
-        return countConsecutivePairs != 0
-                && (consecutiveMap.size() >= 2 || containsSpecialConsecutiveModules(moduleElection));
+        var isValid = countConsecutivePairs > 1 || countConsecutivePairs == 1 && containsSpecialConsecutiveModules(moduleElection);
+        if (!isValid) {
+            var missingPairs = countConsecutivePairs == 0 ? MISSING_2_CONSECUTIVE_PAIRS : MISSING_1_CONSECUTIVE_PAIR;
+            var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), missingPairs);
+            getElectionStatus().getSubjectValidation().addReason(reason);
+        }
+        return isValid;
     }
 
     @Override
@@ -55,10 +50,18 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
                     .mapToInt(Module::getCredits)
                     .sum();
 
-            var isEnglishCreditSumValid = creditSum + getStudent().getWpmDispensation() >= NUM_ENGLISH_CREDITS;
+            var isEnglishCreditSumValid = creditSum >= NUM_ENGLISH_CREDITS;
             var doesElectionContainModuleICAM = englishModules.stream()
                     .filter(module -> module.getShortModuleNo().contains("WVK.ICAM-EN"))
                     .count() == 1;
+
+            var status = getElectionStatus().getAdditionalValidation();
+            if(creditSum < NUM_ENGLISH_CREDITS) {
+                status.addReason(String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_english"), (NUM_ENGLISH_CREDITS - creditSum)));
+            }
+            if(!doesElectionContainModuleICAM) {
+                status.addReason(ResourceBundleMessageLoader.getMessage("election_status.module_icam_missing"));
+            }
 
             isValid = isEnglishCreditSumValid && doesElectionContainModuleICAM;
         }
@@ -74,9 +77,13 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     @Override
     protected boolean validSubjectModuleElection(ModuleElection moduleElection) {
         // IT 19 Vollzeit: Zusammen mit den oben gewählten konsekutiven Modulen wählen Sie total acht Module.
-        var count = countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
         var dispensCount = getStudent().getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
-        return count + dispensCount == NUM_SUBJECT_MODULES;
+        var count = dispensCount + countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
+        var isValid = count == NUM_SUBJECT_MODULES;
+        if(!isValid) {
+            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getElectionStatus().getSubjectValidation(), count, NUM_SUBJECT_MODULES);
+        }
+        return isValid;
     }
 
     @Override
@@ -89,6 +96,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     protected boolean isCreditSumValid(ModuleElection moduleElection) {
         // PA dispensation für die rechnung irrelevant
         var sum = sumCreditsInclusiveDispensation(moduleElection, getStudent().getWpmDispensation());
+        addReasonWhenCreditSumNotValid(sum, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA);
         return sum == MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA;
     }
 
