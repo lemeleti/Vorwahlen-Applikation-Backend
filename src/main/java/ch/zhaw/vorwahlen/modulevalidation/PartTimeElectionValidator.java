@@ -51,7 +51,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
             isValid = countConsecutivePairs > 0 || containsSpecialConsecutiveModules(moduleElection);
             if (!isValid) {
                 var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), MISSING_1_CONSECUTIVE_PAIR);
-                getElectionStatus().getSubjectValidation().addReason(reason);
+                getModuleElectionStatus().getSubjectValidation().addReason(reason);
             }
         } else {
             /*
@@ -63,7 +63,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
             if (!isValid) {
                 var missingPairs = countConsecutivePairs == 0 ? MISSING_2_CONSECUTIVE_PAIRS : MISSING_1_CONSECUTIVE_PAIR;
                 var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), missingPairs);
-                getElectionStatus().getSubjectValidation().addReason(reason);
+                getModuleElectionStatus().getSubjectValidation().addReason(reason);
             }
         }
 
@@ -100,7 +100,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
         var count = dispensCount + countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
         var isValid = count == neededSubjectModules;
         if(!isValid) {
-            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getElectionStatus().getSubjectValidation(), count, neededSubjectModules);
+            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getModuleElectionStatus().getSubjectValidation(), count, neededSubjectModules);
         }
         return isValid;
     }
@@ -112,7 +112,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
         var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
         var isValid = count >= 0 && count <= totalNumContextModules;
         if(!isValid) {
-            addReasonWhenCountByCategoryNotValid(ModuleCategory.CONTEXT_MODULE, getElectionStatus().getContextValidation(), count, totalNumContextModules);
+            addReasonWhenCountByCategoryNotValid(ModuleCategory.CONTEXT_MODULE, getModuleElectionStatus().getContextValidation(), count, totalNumContextModules);
         }
         return isValid;
     }

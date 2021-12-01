@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.modulevalidation;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
-import ch.zhaw.vorwahlen.model.modules.ElectionStatus;
+import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
@@ -23,12 +23,12 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     public static final int MISSING_2_CONSECUTIVE_PAIRS = 2;
     public static final int MISSING_1_CONSECUTIVE_PAIR = 1;
 
-    private final ElectionStatus electionStatus = new ElectionStatus();
+    private final ModuleElectionStatus moduleElectionStatus = new ModuleElectionStatus();
     private final Student student;
 
     @Override
-    public ElectionStatus validate(ModuleElection election) {
-        var status = getElectionStatus();
+    public ModuleElectionStatus validate(ModuleElection election) {
+        var status = getModuleElectionStatus();
 
         var subjectValidation = status.getSubjectValidation();
         var contextValidation = status.getContextValidation();
@@ -114,15 +114,15 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
         var isValid = count == neededModules;
         if (!isValid) {
             switch (moduleCategory) {
-                case CONTEXT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getContextValidation(), count, neededModules);
-                case SUBJECT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getSubjectValidation(), count, neededModules);
-                case INTERDISCIPLINARY_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getInterdisciplinaryValidation(), count, neededModules);
+                case CONTEXT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getContextValidation(), count, neededModules);
+                case SUBJECT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getSubjectValidation(), count, neededModules);
+                case INTERDISCIPLINARY_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getInterdisciplinaryValidation(), count, neededModules);
             }
         }
         return isValid;
     }
 
-    protected void addReasonWhenCountByCategoryNotValid(ModuleCategory moduleCategory, ElectionStatus.ElectionStatusElement statusElement, long count, int neededModules) {
+    protected void addReasonWhenCountByCategoryNotValid(ModuleCategory moduleCategory, ModuleElectionStatus.ModuleElectionStatusElement statusElement, long count, int neededModules) {
         var category = switch (moduleCategory) {
             case CONTEXT_MODULE -> ResourceBundleMessageLoader.getMessage("election_status.context");
             case SUBJECT_MODULE -> ResourceBundleMessageLoader.getMessage("election_status.subject");
@@ -135,7 +135,7 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     }
 
     protected void addReasonWhenCreditSumNotValid(int sum, int minNeededCredits, int maxNeededCredits) {
-        var status = getElectionStatus().getAdditionalValidation();
+        var status = getModuleElectionStatus().getAdditionalValidation();
         if(sum > maxNeededCredits) {
             status.addReason(String.format(ResourceBundleMessageLoader.getMessage("election_status.too_much_credits"), (sum - maxNeededCredits)));
         } else if(sum < minNeededCredits) {

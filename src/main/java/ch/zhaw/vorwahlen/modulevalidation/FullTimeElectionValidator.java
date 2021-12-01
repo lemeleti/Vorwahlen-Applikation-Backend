@@ -33,7 +33,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
         if (!isValid) {
             var missingPairs = countConsecutivePairs == 0 ? MISSING_2_CONSECUTIVE_PAIRS : MISSING_1_CONSECUTIVE_PAIR;
             var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), missingPairs);
-            getElectionStatus().getSubjectValidation().addReason(reason);
+            getModuleElectionStatus().getSubjectValidation().addReason(reason);
         }
         return isValid;
     }
@@ -55,7 +55,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
                     .filter(module -> module.getShortModuleNo().contains("WVK.ICAM-EN"))
                     .count() == 1;
 
-            var status = getElectionStatus().getAdditionalValidation();
+            var status = getModuleElectionStatus().getAdditionalValidation();
             if(creditSum < NUM_ENGLISH_CREDITS) {
                 status.addReason(String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_english"), (NUM_ENGLISH_CREDITS - creditSum)));
             }
@@ -81,7 +81,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
         var count = dispensCount + countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
         var isValid = count == NUM_SUBJECT_MODULES;
         if(!isValid) {
-            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getElectionStatus().getSubjectValidation(), count, NUM_SUBJECT_MODULES);
+            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getModuleElectionStatus().getSubjectValidation(), count, NUM_SUBJECT_MODULES);
         }
         return isValid;
     }

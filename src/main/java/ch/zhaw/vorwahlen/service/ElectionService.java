@@ -1,10 +1,13 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
+import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
+import ch.zhaw.vorwahlen.model.dto.ElectionStatusElementDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
@@ -40,7 +43,8 @@ public class ElectionService {
      */
     public ElectionTransferDTO getElection(Student student) {
         var moduleElection = loadModuleElectionForStudent(student);
-        return createElectionTransferDTO(student, moduleElection, false);
+        var moduleElectionStatus = electionValidator.validate(moduleElection);
+        return createElectionTransferDTO(student, moduleElectionStatus, moduleElection, false);
     }
 
     /**
@@ -61,14 +65,14 @@ public class ElectionService {
     public ElectionTransferDTO saveElection(Student student, String moduleNo) {
         var moduleElection = loadModuleElectionForStudent(student);
         migrateElectionChanges(moduleElection, moduleNo);
-        var electionStatus = electionValidator.validate(moduleElection);
+        var moduleElectionStatus = electionValidator.validate(moduleElection);
 
         var moduleSetting = Optional.ofNullable(moduleElection.getValidationSetting()).orElse(new ValidationSetting());
         moduleElection.setValidationSetting(moduleSetting);
 
-        moduleElection.setElectionValid(electionStatus.isValid());
+        moduleElection.setElectionValid(moduleElectionStatus.isValid());
         electionRepository.save(moduleElection);
-        return createElectionTransferDTO(student, moduleElection, true);
+        return createElectionTransferDTO(student, moduleElectionStatus, moduleElection, true);
     }
 
     /**
@@ -89,11 +93,11 @@ public class ElectionService {
         }
     }
 
-    private ElectionTransferDTO createElectionTransferDTO(Student student,
+    private ElectionTransferDTO createElectionTransferDTO(Student student, ModuleElectionStatus status,
                                                           ModuleElection moduleElection, boolean saved) {
         var electionStructure =
                 new ModuleStructureGenerator(moduleDefinition, student, moduleElection, electionSemesters).generateStructure();
-        return new ElectionTransferDTO(electionStructure, saved, moduleElection.isElectionValid());
+        return new ElectionTransferDTO(electionStructure, DTOMapper.mapModuleElectionStatusToDto(status), saved, moduleElection.isElectionValid());
     }
 
     private ModuleElection loadModuleElectionForStudent(Student student) {

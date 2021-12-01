@@ -1,5 +1,7 @@
 package ch.zhaw.vorwahlen.controller;
 
+import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
+import ch.zhaw.vorwahlen.model.dto.ElectionStatusElementDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
@@ -100,8 +102,12 @@ class ModuleElectionControllerTest {
                 4
         );
 
+        var electionStatus = new ElectionStatusDTO(new ElectionStatusElementDTO(ModuleCategory.SUBJECT_MODULE, false, null),
+                                                   new ElectionStatusElementDTO(ModuleCategory.CONTEXT_MODULE, false, null),
+                                                   new ElectionStatusElementDTO(ModuleCategory.INTERDISCIPLINARY_MODULE, false, null),
+                                                   new ElectionStatusElementDTO(null, false, null));
         var electionStructure = new ElectionStructureDTO(List.of(structureElement), new ArrayList<>());
-        var electionTransfer = new ElectionTransferDTO(electionStructure, true, false);
+        var electionTransfer = new ElectionTransferDTO(electionStructure, electionStatus,true, false);
 
         when(electionService.saveElection(any(), any())).thenReturn(electionTransfer);
 
