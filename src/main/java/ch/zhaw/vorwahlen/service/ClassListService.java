@@ -104,8 +104,11 @@ public class ClassListService {
         return classListRepository
                 .findById(id)
                 .map(mapper::toDto)
-                .orElseThrow(() ->
-                        new StudentNotFoundException(ResourceBundleMessageLoader.getMessage("error.student_not_found")));
+                .orElseThrow(() -> {
+                    var errorMessage =
+                            String.format(ResourceBundleMessageLoader.getMessage("error.student_not_found"), id);
+                    return new StudentNotFoundException(errorMessage);
+                });
     }
 
 }
