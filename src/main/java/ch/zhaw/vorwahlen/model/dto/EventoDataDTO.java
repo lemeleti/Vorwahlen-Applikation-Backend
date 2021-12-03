@@ -12,20 +12,14 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class EventoDataDTO {
-    @JsonProperty("short_description")
     private String shortDescription;
     private String coordinator;
-    @JsonProperty("learning_objectives")
     private String learningObjectives;
-    @JsonProperty("module_contents")
     private String moduleContents;
     private String literature;
-    @JsonProperty("supp_literature")
     private String suppLiterature;
     private String prerequisites;
-    @JsonProperty("module_structure")
     private String moduleStructure;
-    private String language;
     private String exams;
     private String remarks;
 }
