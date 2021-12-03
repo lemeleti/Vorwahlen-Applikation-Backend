@@ -5,7 +5,8 @@ import ch.zhaw.vorwahlen.model.modules.Student;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StudentMapper {
+public class StudentMapper implements Mapper<StudentDTO, Student> {
+    @Override
     public StudentDTO toDto(Student student) {
         return StudentDTO.builder()
                 .email(student.getEmail())

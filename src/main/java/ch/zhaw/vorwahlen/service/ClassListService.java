@@ -3,7 +3,7 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
-import ch.zhaw.vorwahlen.mapper.StudentMapper;
+import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.Student;
@@ -32,7 +32,7 @@ public class ClassListService {
     private static final int YEAR_2_SHORT_YEAR = 100;
 
     private final ClassListRepository classListRepository;
-    private final StudentMapper mapper;
+    private final Mapper<StudentDTO, Student> mapper;
 
     /**
      * Importing the Excel file and storing the needed content into the database.

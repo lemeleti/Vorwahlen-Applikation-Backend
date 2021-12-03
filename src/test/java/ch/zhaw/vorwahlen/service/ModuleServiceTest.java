@@ -1,8 +1,9 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
-import ch.zhaw.vorwahlen.mapper.ModuleMapper;
+import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
+import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
@@ -32,12 +33,12 @@ class ModuleServiceTest {
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
-    private final ModuleMapper mapper;
+    private final Mapper<ModuleDTO, Module> mapper;
     private ModuleService moduleService;
 
     @Autowired
     public ModuleServiceTest(ModuleRepository moduleRepository,
-                             EventoDataRepository eventoDataRepository, ModuleMapper mapper) {
+                             EventoDataRepository eventoDataRepository, Mapper<ModuleDTO, Module> mapper) {
         this.moduleRepository = moduleRepository;
         this.eventoDataRepository = eventoDataRepository;
         this.mapper = mapper;

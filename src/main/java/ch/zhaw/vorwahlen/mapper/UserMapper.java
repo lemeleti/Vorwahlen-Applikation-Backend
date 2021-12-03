@@ -5,7 +5,8 @@ import ch.zhaw.vorwahlen.security.model.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapper {
+public class UserMapper implements Mapper<UserDTO, User> {
+    @Override
     public UserDTO toDto(User user) {
         var student = user.getStudent();
         return new UserDTO(

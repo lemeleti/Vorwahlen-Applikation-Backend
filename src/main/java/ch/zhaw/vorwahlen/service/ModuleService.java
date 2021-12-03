@@ -3,7 +3,7 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
-import ch.zhaw.vorwahlen.mapper.ModuleMapper;
+import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -44,7 +43,7 @@ public class ModuleService {
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
-    private final ModuleMapper mapper;
+    private final Mapper<ModuleDTO, Module> mapper;
 
     /**
      * Importing the Excel file and storing the needed content into the database.

@@ -9,7 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class ModuleMapper {
+public class ModuleMapper implements Mapper<ModuleDTO, Module> {
+    @Override
     public ModuleDTO toDto(Module module) {
         //todo getConsecutiveModuleNo should not be nullable
         return ModuleDTO.builder()

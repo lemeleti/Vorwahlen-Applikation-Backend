@@ -1,7 +1,9 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
-import ch.zhaw.vorwahlen.mapper.StudentMapper;
+import ch.zhaw.vorwahlen.mapper.Mapper;
+import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,11 +28,11 @@ class ClassListServiceTest {
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
 
     private final ClassListRepository classListRepository;
-    private final StudentMapper mapper;
+    private final Mapper<StudentDTO, Student> mapper;
     private ClassListService classListService;
 
     @Autowired
-    public ClassListServiceTest(ClassListRepository classListRepository, StudentMapper mapper) {
+    public ClassListServiceTest(ClassListRepository classListRepository, Mapper<StudentDTO, Student> mapper) {
         this.classListRepository = classListRepository;
         this.mapper = mapper;
     }
