@@ -2,7 +2,9 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
+import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
+import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
@@ -33,20 +35,24 @@ class ModuleServiceTest {
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
-    private final Mapper<ModuleDTO, Module> mapper;
+    private final Mapper<ModuleDTO, Module> moduleMapper;
+    private final Mapper<EventoDataDTO, EventoData> eventoDataMapper;
     private ModuleService moduleService;
 
     @Autowired
     public ModuleServiceTest(ModuleRepository moduleRepository,
-                             EventoDataRepository eventoDataRepository, Mapper<ModuleDTO, Module> mapper) {
+                             EventoDataRepository eventoDataRepository,
+                             Mapper<ModuleDTO, Module> moduleMapper,
+                             Mapper<EventoDataDTO, EventoData> eventoDataMapper) {
         this.moduleRepository = moduleRepository;
         this.eventoDataRepository = eventoDataRepository;
-        this.mapper = mapper;
+        this.moduleMapper = moduleMapper;
+        this.eventoDataMapper = eventoDataMapper;
     }
 
     @BeforeEach
     void setUp() {
-        moduleService = new ModuleService(moduleRepository, eventoDataRepository, mapper);
+        moduleService = new ModuleService(moduleRepository, eventoDataRepository, moduleMapper, eventoDataMapper);
     }
 
     @AfterEach

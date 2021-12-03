@@ -43,7 +43,8 @@ public class ModuleService {
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
-    private final Mapper<ModuleDTO, Module> mapper;
+    private final Mapper<ModuleDTO, Module> moduleMapper;
+    private final Mapper<EventoDataDTO, EventoData> eventoDataMapper;
 
     /**
      * Importing the Excel file and storing the needed content into the database.
@@ -122,7 +123,7 @@ public class ModuleService {
             modules = moduleRepository.findAll();
         }
 
-        return modules.stream().map(mapper::toDto).toList();
+        return modules.stream().map(moduleMapper::toDto).toList();
     }
 
     /**
@@ -132,7 +133,7 @@ public class ModuleService {
     public ModuleDTO getModuleById(String id) {
         return moduleRepository
                 .findById(id)
-                .map(mapper::toDto)
+                .map(moduleMapper::toDto)
                 .orElseThrow(() -> {
                     var errorMessage = String.format(ResourceBundleMessageLoader.getMessage("error.module_not_found"), id);
                     return new ModuleNotFoundException(errorMessage);
@@ -146,7 +147,7 @@ public class ModuleService {
      */
     public EventoDataDTO getEventoDataById(String id) {
         var eventoData = eventoDataRepository.getById(id);
-        return DTOMapper.mapEventoDataToDto.apply(eventoData);
+        return eventoDataMapper.toDto(eventoData);
     }
 
     /**
