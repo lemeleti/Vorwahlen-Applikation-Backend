@@ -62,8 +62,18 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
         var message = ResourceBundleMessageLoader.getMessage("error.method_argument_not_valid");
-        log.log(Level.SEVERE, message, ex);
-        var error = new ErrorResponse(message);
+        var messageBuilder = new StringBuilder();
+        messageBuilder.append(message);
+        messageBuilder.append(System.lineSeparator());
+        ex
+                .getBindingResult()
+                .getFieldErrors()
+                .forEach(fieldError ->  {
+                    messageBuilder.append(fieldError.getDefaultMessage());
+                    messageBuilder.append(System.lineSeparator());
+                });
+        log.log(Level.SEVERE, messageBuilder.toString(), ex);
+        var error = new ErrorResponse(messageBuilder.toString());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
