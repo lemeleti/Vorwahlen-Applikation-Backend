@@ -1,20 +1,24 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
+import ch.zhaw.vorwahlen.mapper.StudentMapper;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@SpringBootTest
+@ActiveProfiles("dev")
 class ClassListServiceTest {
 
     private static final String CLASS_LIST_FILE_NAME = "Vorlage_Klassenzuteilungen.xlsx";
@@ -22,16 +26,18 @@ class ClassListServiceTest {
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
 
     private final ClassListRepository classListRepository;
+    private final StudentMapper mapper;
     private ClassListService classListService;
 
     @Autowired
-    public ClassListServiceTest(ClassListRepository classListRepository) {
+    public ClassListServiceTest(ClassListRepository classListRepository, StudentMapper mapper) {
         this.classListRepository = classListRepository;
+        this.mapper = mapper;
     }
 
     @BeforeEach
     void setUp() {
-        classListService = new ClassListService(classListRepository);
+        classListService = new ClassListService(classListRepository, mapper);
     }
 
     @AfterEach
@@ -51,8 +57,9 @@ class ClassListServiceTest {
     @Test
     @Sql("classpath:sql/class_list.sql")
     void testGetStudentById() {
-        var result = classListService.getStudentById("meierbob@students.zhaw.ch");
-        assertTrue(result.isPresent());
+        var studentId = "meierbob@students.zhaw.ch";
+        var result = classListService.getStudentById(studentId);
+        assertEquals(studentId, result.getEmail());
     }
 
     @Test
@@ -64,8 +71,7 @@ class ClassListServiceTest {
     @Test
     @Sql("classpath:sql/class_list.sql")
     void testGetStudentById_Blank() {
-        var result = assertDoesNotThrow(() -> classListService.getStudentById("  "));
-        assertTrue(result.isEmpty());
+        assertThrows(StudentNotFoundException.class, () -> classListService.getStudentById(" "));
     }
 
     @Test

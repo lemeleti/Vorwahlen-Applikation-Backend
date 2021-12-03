@@ -5,14 +5,12 @@ import ch.zhaw.vorwahlen.model.dto.ElectionStatusElementDTO;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
-import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import lombok.experimental.UtilityClass;
 
@@ -55,15 +53,6 @@ public class DTOMapper {
     private Set<String> mapModuleSetToModuleNo(Set<Module> moduleSet) {
         return moduleSet.stream().map(Module::getModuleNo).collect(Collectors.toSet());
     }
-
-    final Function<Student, StudentDTO> mapStudentToDto = student -> StudentDTO.builder()
-            .email(student.getEmail())
-            .name(student.getName())
-            .clazz(student.getStudentClass().getName())
-            .paDispensation(student.getPaDispensation())
-            .wpmDispensation(student.getWpmDispensation())
-            .isIP(student.isIP())
-            .build();
 
     final Function<Module, ModuleDTO> mapModuleToDto = module -> ModuleDTO.builder()
             .moduleNo(module.getModuleNo())

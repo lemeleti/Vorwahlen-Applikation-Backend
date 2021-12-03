@@ -68,7 +68,7 @@ class ModuleElectionControllerTest {
                 .clazz("dev")
                 .email("dev@zhaw.ch")
                 .build();
-        when(classListService.getStudentById(anyString())).thenReturn(Optional.of(studentDTO));
+        when(classListService.getStudentById(anyString())).thenReturn(studentDTO);
     }
 
     @Test

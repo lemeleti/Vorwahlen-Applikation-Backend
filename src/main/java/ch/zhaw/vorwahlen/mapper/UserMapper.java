@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.service;
+package ch.zhaw.vorwahlen.mapper;
 
 import ch.zhaw.vorwahlen.model.dto.UserDTO;
 import ch.zhaw.vorwahlen.security.model.User;

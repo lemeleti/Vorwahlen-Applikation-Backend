@@ -2,6 +2,8 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
+import ch.zhaw.vorwahlen.mapper.StudentMapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.Student;
@@ -15,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -31,6 +32,7 @@ public class ClassListService {
     private static final int YEAR_2_SHORT_YEAR = 100;
 
     private final ClassListRepository classListRepository;
+    private final StudentMapper mapper;
 
     /**
      * Importing the Excel file and storing the needed content into the database.
@@ -89,7 +91,7 @@ public class ClassListService {
         return classListRepository
                 .findAll()
                 .stream()
-                .map(DTOMapper.mapStudentToDto)
+                .map(mapper::toDto)
                 .toList();
     }
 
@@ -98,12 +100,12 @@ public class ClassListService {
      * @param id the id for the student
      * @return Optional<StudentDTO>
      */
-    public Optional<StudentDTO> getStudentById(String id) {
+    public StudentDTO getStudentById(String id) {
         return classListRepository
                 .findById(id)
-                .stream()
-                .map(DTOMapper.mapStudentToDto)
-                .findFirst();
+                .map(mapper::toDto)
+                .orElseThrow(() ->
+                        new StudentNotFoundException(ResourceBundleMessageLoader.getMessage("error.student_not_found")));
     }
 
 }
