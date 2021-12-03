@@ -2,6 +2,8 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
+import ch.zhaw.vorwahlen.mapper.ModuleMapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
@@ -42,6 +44,7 @@ public class ModuleService {
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
+    private final ModuleMapper mapper;
 
     /**
      * Importing the Excel file and storing the needed content into the database.
@@ -120,19 +123,21 @@ public class ModuleService {
             modules = moduleRepository.findAll();
         }
 
-        return modules.stream().map(DTOMapper.mapModuleToDto).toList();
+        return modules.stream().map(mapper::toDto).toList();
     }
 
     /**
      * Get module from the database by id.
      * @return {@link ModuleDTO}.
      */
-    public Optional<ModuleDTO> getModuleById(String id) {
+    public ModuleDTO getModuleById(String id) {
         return moduleRepository
                 .findById(id)
-                .stream()
-                .map(DTOMapper.mapModuleToDto)
-                .findFirst();
+                .map(mapper::toDto)
+                .orElseThrow(() -> {
+                    var errorMessage = String.format(ResourceBundleMessageLoader.getMessage("error.module_not_found"), id);
+                    return new ModuleNotFoundException(errorMessage);
+                });
     }
 
     /**

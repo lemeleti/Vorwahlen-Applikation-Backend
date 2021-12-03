@@ -19,7 +19,7 @@ import java.util.List;
 @Data
 @Builder
 public class ModuleDTO {
-    public static record ExecutionSemester(List<Integer> fullTimeSemesterList,
+    public record ExecutionSemester(List<Integer> fullTimeSemesterList,
                                     List<Integer> partTimeSemesterList) {}
 
     private String moduleNo;

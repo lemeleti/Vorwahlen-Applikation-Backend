@@ -1,5 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
+import ch.zhaw.vorwahlen.mapper.ModuleMapper;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
@@ -9,9 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
@@ -19,7 +22,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@SpringBootTest
+@ActiveProfiles("dev")
 class ModuleServiceTest {
 
     private static final String MODULE_LIST_FILE_NAME = "Liste_alle_Module_SM2025_SGL_Def_1.7-2021-03-29.xlsx";
@@ -28,17 +32,20 @@ class ModuleServiceTest {
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
+    private final ModuleMapper mapper;
     private ModuleService moduleService;
 
     @Autowired
-    public ModuleServiceTest(ModuleRepository moduleRepository, EventoDataRepository eventoDataRepository) {
+    public ModuleServiceTest(ModuleRepository moduleRepository,
+                             EventoDataRepository eventoDataRepository, ModuleMapper mapper) {
         this.moduleRepository = moduleRepository;
         this.eventoDataRepository = eventoDataRepository;
+        this.mapper = mapper;
     }
 
     @BeforeEach
     void setUp() {
-        moduleService = new ModuleService(moduleRepository, eventoDataRepository);
+        moduleService = new ModuleService(moduleRepository, eventoDataRepository, mapper);
     }
 
     @AfterEach
@@ -86,8 +93,8 @@ class ModuleServiceTest {
                 .consecutiveModuleNo("")
                 .build();
         var result = moduleService.getModuleById(expected.getModuleNo());
-        assertTrue(result.isPresent());
-        assertEquals(expected, result.get());
+        assertNotNull(result);
+        assertEquals(expected, result);
     }
 
     @Test
@@ -97,8 +104,7 @@ class ModuleServiceTest {
 
     @Test
     void testGetModuleById_Not_Existing() {
-        var result = assertDoesNotThrow(() -> moduleService.getModuleById("invalid"));
-        assertFalse(result.isPresent());
+        assertThrows(ModuleNotFoundException.class, () -> moduleService.getModuleById("invalid"));
     }
 
     @Disabled
