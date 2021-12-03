@@ -84,10 +84,10 @@ class ClassListControllerTest {
                             hasItem(CLASS_1),
                             hasItem(CLASS_2)
                     )))
-                    .andExpect(jsonPath("$.[*].dispensation_pa").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].dispensation_pa", anyOf(hasItem(PA_DISPENSATION))))
-                    .andExpect(jsonPath("$.[*].dispensation_wpm").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].dispensation_wpm", anyOf(hasItem(PA_DISPENSATION))))
+                    .andExpect(jsonPath("$.[*].paDispensation").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].paDispensation", anyOf(hasItem(PA_DISPENSATION))))
+                    .andExpect(jsonPath("$.[*].wpmDispensation").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].wpmDispensation", anyOf(hasItem(PA_DISPENSATION))))
                     .andDo(print());
             // todo: test ip and tz flag
         } catch (Exception e) {
