@@ -1,12 +1,12 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
+import ch.zhaw.vorwahlen.mapper.Mapper;
+import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
-import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
+import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
+import ch.zhaw.vorwahlen.model.modules.*;
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
-import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
@@ -44,6 +44,8 @@ class ElectionServiceTest {
     private final ValidationSettingRepository validationSettingRepository;
     private final StudentRepository studentRepository;
     private final ElectionSemesters electionSemesters;
+    private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
+    private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
 
     private ElectionService electionService;
 
@@ -63,7 +65,16 @@ class ElectionServiceTest {
     );
 
     @Autowired
-    public ElectionServiceTest(ElectionRepository electionRepository, ElectionValidator validator, ModuleDefinition moduleDefinition, ModuleRepository moduleRepository, ModuleElectionExporter exporter, ValidationSettingRepository validationSettingRepository, StudentRepository studentRepository, ElectionSemesters electionSemesters) {
+    public ElectionServiceTest(ElectionRepository electionRepository,
+                               ElectionValidator validator,
+                               ModuleDefinition moduleDefinition,
+                               ModuleRepository moduleRepository,
+                               ModuleElectionExporter exporter,
+                               ValidationSettingRepository validationSettingRepository,
+                               StudentRepository studentRepository,
+                               ElectionSemesters electionSemesters,
+                               Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper,
+                               Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper) {
         this.electionRepository = electionRepository;
         this.validator = validator;
         this.moduleDefinition = moduleDefinition;
@@ -72,12 +83,14 @@ class ElectionServiceTest {
         this.validationSettingRepository = validationSettingRepository;
         this.studentRepository = studentRepository;
         this.electionSemesters = electionSemesters;
+        this.moduleElectionMapper = moduleElectionMapper;
+        this.electionStatusMapper = electionStatusMapper;
     }
 
     @BeforeEach
     void setUp() {
         electionService = new ElectionService(electionRepository, moduleRepository,
-                validator, moduleDefinition, exporter, electionSemesters);
+                validator, moduleDefinition, exporter, electionSemesters, moduleElectionMapper, electionStatusMapper);
     }
 
     @AfterEach

@@ -1,15 +1,11 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
+import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
-import ch.zhaw.vorwahlen.model.dto.ElectionStatusElementDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
-import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
-import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
+import ch.zhaw.vorwahlen.model.modules.*;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
@@ -35,6 +31,8 @@ public class ElectionService {
     private final ModuleDefinition moduleDefinition;
     private final ModuleElectionExporter exporter;
     private final ElectionSemesters electionSemesters;
+    private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
+    private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
 
     /**
      * Get election data for the specified user.
@@ -53,7 +51,7 @@ public class ElectionService {
      * @return module election from db if existent otherwise a new instance will be created.
      */
     public ModuleElectionDTO getModuleElectionForStudent(Student student) {
-        return DTOMapper.mapElectionToDto.apply(loadModuleElectionForStudent(student));
+        return moduleElectionMapper.toDto(loadModuleElectionForStudent(student));
     }
 
     /**
@@ -97,7 +95,9 @@ public class ElectionService {
                                                           ModuleElection moduleElection, boolean saved) {
         var electionStructure =
                 new ModuleStructureGenerator(moduleDefinition, student, moduleElection, electionSemesters).generateStructure();
-        return new ElectionTransferDTO(electionStructure, DTOMapper.mapModuleElectionStatusToDto(status), saved, moduleElection.isElectionValid());
+
+        return new ElectionTransferDTO(electionStructure,
+                electionStatusMapper.toDto(status), saved, moduleElection.isElectionValid());
     }
 
     private ModuleElection loadModuleElectionForStudent(Student student) {
