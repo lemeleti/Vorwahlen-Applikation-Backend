@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.modulevalidation;
+package ch.zhaw.vorwahlen.validation;
 
 import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;

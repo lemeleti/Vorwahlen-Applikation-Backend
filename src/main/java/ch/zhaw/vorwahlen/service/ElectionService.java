@@ -8,7 +8,7 @@ import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.modules.*;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
-import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
+import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import lombok.RequiredArgsConstructor;

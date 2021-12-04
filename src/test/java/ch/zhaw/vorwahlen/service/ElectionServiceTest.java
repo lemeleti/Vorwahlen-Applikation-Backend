@@ -9,7 +9,7 @@ import ch.zhaw.vorwahlen.model.modules.*;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.security.model.User;
-import ch.zhaw.vorwahlen.modulevalidation.ElectionValidator;
+import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
