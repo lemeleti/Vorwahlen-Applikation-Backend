@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.service.ModuleService;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,16 +15,19 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ch.zhaw.vorwahlen.util.ObjectMapperUtil.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("dev")
 @SpringBootTest(properties = "classpath:settings.properties")
@@ -51,8 +54,27 @@ class ModuleControllerTest {
     @MockBean
     ModuleService moduleService;
 
+    ModuleDTO nonExistentModuleDto;
+
     static {
         System.setProperty("ADMIN", "dev@zhaw.ch");
+    }
+
+    @BeforeEach
+    void setUp() {
+        nonExistentModuleDto = ModuleDTO.builder()
+                .moduleNo("t.BA.WM.HELLO.19HS")
+                .shortModuleNo("WM.HELLO")
+                .moduleTitle("Hello")
+                .moduleId(1)
+                .moduleGroup("AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6")
+                .isIPModule(true)
+                .institute("INIT")
+                .credits((byte) 4)
+                .language("English")
+                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5), List.of(7)))
+                .consecutiveModuleNo("")
+                .build();
     }
 
     /* **************************************************************************************************************
@@ -60,10 +82,7 @@ class ModuleControllerTest {
      * ************************************************************************************************************** */
     
     @Test
-    @Disabled
     void testGetAllModules() {
-        //todo adapt to new module load logic
-
         // prepare
         var expectedList = new ArrayList<ModuleDTO>();
         expectedList.add(ModuleDTO.builder().moduleNo("nr1").moduleTitle("title1").language(LANGUAGE_DE).credits((byte) CREDIT_2)
@@ -76,7 +95,7 @@ class ModuleControllerTest {
                                  .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5, PART_TIME_SEMESTER_LIST_6_8))
                                  .build());
 
-        when(moduleService.getAllModules(null)).thenReturn(expectedList);
+        when(moduleService.getAllModules(any())).thenReturn(expectedList);
 
         // execute
         try {
@@ -141,7 +160,98 @@ class ModuleControllerTest {
         }
 
         // verify
-        verify(moduleService, times(1)).getAllModules(null);
+        verify(moduleService, times(1)).getAllModules(any());
+    }
+
+    @Test
+    void testAddModule() throws URISyntaxException {
+        // prepare
+        when(moduleService.addAndReturnLocation(any())).thenReturn(new URI("/module/".concat(nonExistentModuleDto.getModuleNo())));
+
+        // execute
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .post(REQUEST_MAPPING_PREFIX)
+                                    .with(csrf())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(nonExistentModuleDto)))
+                                    .andExpect(status().isCreated())
+                                    .andDo(print());
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(moduleService, times(1)).addAndReturnLocation(any());
+    }
+
+    @Test
+    void testGetModuleById() {
+        // prepare
+        when(moduleService.getModuleById(anyString())).thenReturn(nonExistentModuleDto);
+
+        // execute
+        try {
+            var results = mockMvc.perform(MockMvcRequestBuilders
+                                    .get(REQUEST_MAPPING_PREFIX + "/" + nonExistentModuleDto.getModuleNo())
+                                    .with(csrf()))
+                                    .andExpect(status().isOk())
+                                    .andDo(print())
+                                    .andReturn();
+
+            var moduleDto = fromJsonResult(results, ModuleDTO.class);
+            assertEquals(nonExistentModuleDto, moduleDto);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(moduleService, times(1)).getModuleById(anyString());
+    }
+
+    @Test
+    void testDeleteModuleById() {
+        // prepare
+
+        // execute
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .delete(REQUEST_MAPPING_PREFIX + "/" + nonExistentModuleDto.getModuleNo())
+                                    .with(csrf()))
+                                    .andExpect(status().isNoContent())
+                                    .andDo(print());
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(moduleService, times(1)).deleteModuleById(anyString());
+    }
+
+    @Test
+    void testReplaceModuleById() {
+        // prepare
+        when(moduleService.replaceModule(anyString(), any())).thenReturn(nonExistentModuleDto);
+
+        // execute
+        try {
+            var results = mockMvc.perform(MockMvcRequestBuilders
+                                    .put(REQUEST_MAPPING_PREFIX + "/" + nonExistentModuleDto.getModuleNo())
+                                    .with(csrf())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(nonExistentModuleDto)))
+                                    .andExpect(status().isOk())
+                                    .andExpect(jsonPath("$").exists())
+                                    .andDo(print())
+                                    .andReturn();
+            var moduleDto = fromJsonResult(results, ModuleDTO.class);
+            assertEquals(nonExistentModuleDto, moduleDto);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(moduleService, times(1)).replaceModule(anyString(), any());
     }
 
     @Test
@@ -192,7 +302,6 @@ class ModuleControllerTest {
     /* **************************************************************************************************************
      * Negative tests
      * ************************************************************************************************************** */
-
 
     @Test
     void testSaveModulesFromExcel_WithoutAFile() {

@@ -78,8 +78,8 @@ public class ModuleController {
      * @return {@link ResponseEntity<ModuleDTO>} with status code no content.
      */
     @PutMapping(path = {"/{id}", "/{id}/"})
-    public ResponseEntity<ModuleDTO> replaceModule(@PathVariable String id,
-                                                   @Valid @RequestBody ModuleDTO moduleDTO) {
+    public ResponseEntity<ModuleDTO> replaceModuleById(@PathVariable String id,
+                                                       @Valid @RequestBody ModuleDTO moduleDTO) {
         return ResponseEntity.ok(moduleService.replaceModule(id, moduleDTO));
     }
 
