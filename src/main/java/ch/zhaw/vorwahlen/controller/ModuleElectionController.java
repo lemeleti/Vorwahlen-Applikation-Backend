@@ -29,7 +29,7 @@ import javax.transaction.Transactional;
 @RestController
 @RequestMapping("election")
 public class ModuleElectionController {
-    private static final String EXCEL_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    public static final String EXCEL_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private final ElectionService electionService;
 
     /**
@@ -72,7 +72,7 @@ public class ModuleElectionController {
      * @return byte array containing the file data.
      */
     @GetMapping(path = {"/export", "/export/"})
-    public ResponseEntity<byte[]> getModuleElection() {
+    public ResponseEntity<byte[]> exportModuleElection() {
         var fileName = "attachment; filename=module_election.xlsx";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(EXCEL_MIME))

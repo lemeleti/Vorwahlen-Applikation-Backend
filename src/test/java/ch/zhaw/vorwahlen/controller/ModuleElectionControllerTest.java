@@ -11,31 +11,42 @@ import ch.zhaw.vorwahlen.service.StudentService;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
+import javax.print.attribute.standard.Media;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static ch.zhaw.vorwahlen.util.ObjectMapperUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * https://rieckpil.de/write-integration-tests-for-your-spring-websocket-endpoints/
@@ -45,6 +56,10 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(properties = "classpath:settings.properties", webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 class ModuleElectionControllerTest {
     public static final String CONNECT_URL = "http://localhost:8080/stomp-ws-endpoint";
+    private static final String REQUEST_MAPPING_PREFIX = "/election";
+
+    @Autowired
+    MockMvc mockMvc;
 
     @MockBean
     ElectionService electionService;
@@ -68,6 +83,62 @@ class ModuleElectionControllerTest {
                 .email("dev@zhaw.ch")
                 .build();
         when(studentService.getStudentById(anyString())).thenReturn(studentDTO);
+    }
+
+    @Test
+    void testGetElection() {
+        // prepare
+        var statusDto = new ElectionStatusDTO(new ElectionStatusElementDTO(ModuleCategory.SUBJECT_MODULE, true, null),
+                                              new ElectionStatusElementDTO(ModuleCategory.CONTEXT_MODULE, true, null),
+                                              new ElectionStatusElementDTO(ModuleCategory.INTERDISCIPLINARY_MODULE, true, null),
+                                              new ElectionStatusElementDTO(null, true, null));
+        var transferDto = new ElectionTransferDTO(new ElectionStructureDTO(new ArrayList<>(), new ArrayList<>()),
+                                                  statusDto, false, true);
+        when(electionService.getElection(any())).thenReturn(transferDto);
+
+        // execute
+        try {
+            var results = mockMvc.perform(MockMvcRequestBuilders
+                                                  .get(REQUEST_MAPPING_PREFIX)
+                                                  .with(csrf()))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andReturn();
+
+            var resultDto = fromJsonResult(results, ElectionTransferDTO.class);
+            assertEquals(transferDto, resultDto);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(electionService, times(1)).getElection(any());
+    }
+
+    @Test
+    void testExportModuleElection() {
+        // prepare
+        var content = "Hello World!";
+        when(electionService.exportModuleElection()).thenReturn(content.getBytes());
+
+        // execute
+        try {
+            var results = mockMvc.perform(MockMvcRequestBuilders
+                                                  .get(REQUEST_MAPPING_PREFIX + "/export")
+                                                  .with(csrf()))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andReturn();
+
+            assertEquals(ModuleElectionController.EXCEL_MIME, results.getResponse().getContentType());
+            assertEquals("attachment; filename=module_election.xlsx", results.getResponse().getHeader(HttpHeaders.CONTENT_DISPOSITION));
+            assertEquals(content, results.getResponse().getContentAsString());
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(electionService, times(1)).exportModuleElection();
     }
 
     @Test
