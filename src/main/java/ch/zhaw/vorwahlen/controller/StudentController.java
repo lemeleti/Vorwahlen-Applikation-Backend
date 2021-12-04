@@ -85,8 +85,8 @@ public class StudentController {
      * @return {@link ResponseEntity<StudentDTO>} with status code no content.
      */
     @PutMapping(path = {"/{id}", "/{id}/"})
-    public ResponseEntity<StudentDTO> replaceStudent(@PathVariable String id,
-                                                     @Valid @RequestBody StudentDTO studentDTO) {
+    public ResponseEntity<StudentDTO> replaceStudentById(@PathVariable String id,
+                                                         @Valid @RequestBody StudentDTO studentDTO) {
         return ResponseEntity.ok(studentService.replaceStudent(id, studentDTO));
     }
 
