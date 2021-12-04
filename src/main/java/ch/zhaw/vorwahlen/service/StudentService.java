@@ -16,7 +16,6 @@ import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -176,12 +175,10 @@ public class StudentService {
                 dbStudent.setWpmDispensation(student.getWpmDispensation());
                 classListRepository.save(dbStudent);
             }));
-
         } catch (IOException e) {
             var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
             var message = String.format(formatString, file.getOriginalFilename());
             throw new ImportException(message, e);
         }
     }
-
 }
