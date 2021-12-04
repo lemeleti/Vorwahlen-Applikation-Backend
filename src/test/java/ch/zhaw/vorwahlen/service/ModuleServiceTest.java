@@ -7,6 +7,7 @@ import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
+import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -21,9 +22,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("dev")
@@ -32,6 +36,8 @@ class ModuleServiceTest {
     private static final String MODULE_LIST_FILE_NAME = "Liste_alle_Module_SM2025_SGL_Def_1.7-2021-03-29.xlsx";
     private static final String WORK_SHEET_NAME = "Module 2025";
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
+    private static final String MODULE_NO = "t.BA.WM.DAST-EN.19HS";
+    private static final String MODULE_NO_SHORT = "WM.DAST-EN";
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
@@ -68,6 +74,77 @@ class ModuleServiceTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(75, result.size());
+
+        var studentMock = mock(Student.class);
+        when(studentMock.isTZ()).thenReturn(true);
+        when(studentMock.isSecondElection()).thenReturn(false);
+
+        result = moduleService.getAllModules(studentMock);
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(59, result.size());
+
+        when(studentMock.isSecondElection()).thenReturn(true);
+
+        result = moduleService.getAllModules(studentMock);
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(67, result.size());
+    }
+
+    @Test
+    void testAddAndReturnLocation() throws URISyntaxException {
+        var moduleDto = ModuleDTO.builder()
+                        .moduleNo("t.BA.WM.HELLO.19HS")
+                        .shortModuleNo("WM.HELLO")
+                        .moduleTitle("Hello")
+                        .moduleId(1)
+                        .moduleGroup("AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6")
+                        .isIPModule(true)
+                        .institute("INIT")
+                        .credits((byte) 4)
+                        .language("English")
+                        .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5), List.of(7)))
+                        .consecutiveModuleNo("")
+                        .build();
+
+        assertThrows(ModuleNotFoundException.class, () -> moduleService.getModuleById(moduleDto.getModuleNo()));
+        var result = moduleService.addAndReturnLocation(moduleDto);
+        assertNotNull(moduleService.getModuleById(moduleDto.getModuleNo()));
+        assertEquals(new URI("/module/".concat(moduleDto.getModuleNo())), result);
+    }
+
+    @Test
+    @Sql("classpath:sql/modules.sql")
+    void testReplaceModule() {
+        var module = moduleService.getModuleById(MODULE_NO);
+        assertEquals(MODULE_NO_SHORT, module.getShortModuleNo());
+
+        var moduleDto = ModuleDTO.builder()
+                .moduleNo(MODULE_NO)
+                .shortModuleNo("WM.HELLO")
+                .moduleTitle("Hello")
+                .moduleId(1)
+                .moduleGroup("AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6")
+                .isIPModule(true)
+                .institute("INIT")
+                .credits((byte) 4)
+                .language("English")
+                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5), List.of(7)))
+                .consecutiveModuleNo("")
+                .build();
+        moduleService.replaceModule(MODULE_NO, moduleDto);
+
+        module = moduleService.getModuleById(MODULE_NO);
+        assertEquals("WM.HELLO", module.getShortModuleNo());
+    }
+
+    @Test
+    @Sql("classpath:sql/modules.sql")
+    void testDeleteModuleById() {
+        assertNotNull(moduleService.getModuleById(MODULE_NO));
+        moduleService.deleteModuleById(MODULE_NO);
+        assertThrows(ModuleNotFoundException.class, () -> moduleService.getModuleById(MODULE_NO));
     }
 
     @Test
