@@ -6,9 +6,9 @@ import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
+import ch.zhaw.vorwahlen.parser.DispensationParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,9 @@ import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -117,6 +119,13 @@ public class StudentService {
                 .toList();
     }
 
+    public List<StudentDTO> getAllStudentsByElection(boolean electionStatus) {
+        return classListRepository.getAllByElectionStatus(electionStatus)
+                .stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
     /**
      * Get student from the database by id.
      * @param id the id for the student
@@ -152,6 +161,27 @@ public class StudentService {
                 .orElse(addStudent(studentDTO));
 
         return mapper.toDto(updatedStudent);
+    }
+
+    /**
+     * Importing the Excel file and storing the needed content into the database.
+     * @param file the Excel file to be parsed and stored.
+     */
+    public void importDispensationExcel(MultipartFile file, String worksheet) {
+        try (InputStream is = file.getInputStream()) {
+            var dispensationParser = new DispensationParser(is, worksheet);
+            var parsedList = dispensationParser.parseModulesFromXLSX();
+            parsedList.forEach(student -> classListRepository.findById(student.getEmail()).ifPresent(dbStudent -> {
+                dbStudent.setPaDispensation(student.getPaDispensation());
+                dbStudent.setWpmDispensation(student.getWpmDispensation());
+                classListRepository.save(dbStudent);
+            }));
+
+        } catch (IOException e) {
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
+            var message = String.format(formatString, file.getOriginalFilename());
+            throw new ImportException(message, e);
+        }
     }
 
 }

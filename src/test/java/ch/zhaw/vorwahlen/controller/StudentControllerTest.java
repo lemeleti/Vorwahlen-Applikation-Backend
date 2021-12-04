@@ -35,8 +35,10 @@ class StudentControllerTest {
     private static final String CLASS_1 = "class1";
     private static final String CLASS_2 = "class2";
     private static final String REQUEST_MAPPING_PREFIX = "/students";
+    private static final String DISPENSATION_REQUEST_MAPPING_PREFIX = "/students/dispensations";
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
     private static final String CLASS_LIST_FILE_NAME = "Vorlage_Klassenzuteilungen.xlsx";
+    private static final String DISPENSATION_LIST_FILE_NAME = "Vorlage_Dispensationen.xlsx";
     private static final String WORKSHEET = "Sheet1";
 
     @Autowired
@@ -122,6 +124,30 @@ class StudentControllerTest {
         verify(studentService, times(1)).importClassListExcel(mockMultipartFile, WORKSHEET);
     }
 
+    @Test
+    void testSaveDispensationsFromExcel() throws IOException {
+        // prepare
+        var fis = getClass().getClassLoader().getResourceAsStream(CLASS_LIST_FILE_NAME);
+        var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, CLASS_LIST_FILE_NAME, "", fis);
+
+        // execute
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                            .multipart(DISPENSATION_REQUEST_MAPPING_PREFIX)
+                            .file(mockMultipartFile)
+                            .param("worksheet", WORKSHEET)
+                            .with(csrf())
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(studentService, times(1)).importDispensationExcel(mockMultipartFile, WORKSHEET);
+    }
+
     /* **************************************************************************************************************
      * Negative tests
      * ************************************************************************************************************** */
@@ -149,4 +175,26 @@ class StudentControllerTest {
         verify(studentService, times(0)).importClassListExcel(mockMultipartFile, WORKSHEET);
     }
 
+    @Test
+    void testSaveDispensationsFromExcel_WithoutAFile() {
+        // prepare
+        var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, "", "", "".getBytes());
+
+        // execute
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                            .multipart(DISPENSATION_REQUEST_MAPPING_PREFIX)
+                            .file(mockMultipartFile)
+                            .param("worksheet", WORKSHEET)
+                            .with(csrf())
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print());
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(studentService, times(0)).importDispensationExcel(mockMultipartFile, WORKSHEET);
+    }
 }

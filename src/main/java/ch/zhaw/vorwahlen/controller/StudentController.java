@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller for the Student entity.
@@ -33,8 +34,17 @@ public class StudentController {
      * @return {@link ResponseEntity<List<StudentDTO>>} with status code ok.
      */
     @GetMapping(path = {"/", ""})
-    public ResponseEntity<List<StudentDTO>> getAllStudents() {
-        return ResponseEntity.ok().body(studentService.getAllStudents());
+    public ResponseEntity<List<StudentDTO>> getAllStudents(
+            @RequestParam(name = "electionvalid", required = false) Optional<Boolean> electionStatus) {
+
+        List<StudentDTO> students;
+        if (electionStatus.isPresent()) {
+            students = studentService.getAllStudentsByElection(electionStatus.get());
+        } else {
+            students = studentService.getAllStudents();
+        }
+
+        return ResponseEntity.ok().body(students);
     }
 
     /**
@@ -93,4 +103,16 @@ public class StudentController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Import dispensation list from Excel.
+     * @param file the Excel file.
+     * @return {@link ResponseEntity<String>} with status code ok or bad request when the provided file is not there
+     */
+    @PostMapping(path = {"/dispensations", "/dispensations"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> saveDispensationListFromExcel(@RequestParam("file") MultipartFile file,
+                                                                @RequestParam("worksheet") String worksheet) {
+        if (file.isEmpty()) return ResponseEntity.badRequest().build();
+        studentService.importDispensationExcel(file, worksheet);
+        return ResponseEntity.ok().build();
+    }
 }
