@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.exception;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +34,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
-        var error = new ErrorResponse(ResourceBundleMessageLoader.getMessage("error.interner_server_error"));
+        log.severe(ex.getLocalizedMessage());
+        var error = new ErrorResponse(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_INTERNAL_SERVER_ERROR));
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -61,7 +63,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
-        var message = ResourceBundleMessageLoader.getMessage("error.method_argument_not_valid");
+        var message = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_METHOD_ARGUMENT_NOT_VALID);
         var messageBuilder = new StringBuilder();
         messageBuilder.append(message);
         messageBuilder.append(System.lineSeparator());

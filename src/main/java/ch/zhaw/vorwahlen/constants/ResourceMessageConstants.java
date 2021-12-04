@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResourceMessageConstants {
 
+    public static final String ERROR_INTERNAL_SERVER_ERROR = "error.internal_server_error";
+    public static final String ERROR_METHOD_ARGUMENT_NOT_VALID = "error.method_argument_not_valid";
     public static final String ERROR_SESSION_NOT_FOUND = "error.session_not_found";
     public static final String ERROR_USER_NOT_FOUND = "error.user_not_found";
     public static final String ERROR_STUDENT_NOT_FOUND = "error.student_not_found";
