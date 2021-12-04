@@ -23,7 +23,12 @@ public class ModuleDTO {
                                     List<Integer> partTimeSemesterList) {}
 
     private String moduleNo;
+    private String shortModuleNo;
     private String moduleTitle;
+    private int moduleId;
+    private String moduleGroup;
+    private boolean isIPModule;
+    private String institute;
     private ModuleCategory category;
     private byte credits;
     private String language;

@@ -15,7 +15,12 @@ public class ModuleMapper implements Mapper<ModuleDTO, Module> {
         //todo getConsecutiveModuleNo should not be nullable
         return ModuleDTO.builder()
                 .moduleNo(module.getModuleNo())
+                .shortModuleNo(module.getShortModuleNo())
                 .moduleTitle(module.getModuleTitle())
+                .moduleId(module.getModuleId())
+                .moduleGroup(module.getModuleGroup())
+                .isIPModule(module.isIPModule())
+                .institute(module.getInstitute())
                 .category(ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()))
                 .credits(module.getCredits())
                 .language(module.getLanguage())
