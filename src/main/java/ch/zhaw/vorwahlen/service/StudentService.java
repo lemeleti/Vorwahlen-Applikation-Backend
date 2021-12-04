@@ -87,7 +87,7 @@ public class StudentService {
      * Get all class lists from the database.
      * @return a list of {@link StudentDTO}.
      */
-    public List<StudentDTO> getAllClassLists() {
+    public List<StudentDTO> getAllStudents() {
         return classListRepository
                 .findAll()
                 .stream()

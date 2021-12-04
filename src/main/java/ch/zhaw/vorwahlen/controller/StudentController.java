@@ -33,8 +33,8 @@ public class StudentController {
      * @return {@link ResponseEntity<List<StudentDTO>>} with status code ok
      */
     @GetMapping(path = {"/", ""})
-    public ResponseEntity<List<StudentDTO>> getAllClassLists() {
-        return ResponseEntity.ok().body(studentService.getAllClassLists());
+    public ResponseEntity<List<StudentDTO>> getAllStudents() {
+        return ResponseEntity.ok().body(studentService.getAllStudents());
     }
 
     /**

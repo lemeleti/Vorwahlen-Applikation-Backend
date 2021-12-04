@@ -50,7 +50,7 @@ class StudentServiceTest {
     @Test
     @Sql("classpath:sql/class_list.sql")
     void testGetAllClassLists() {
-        var result = studentService.getAllClassLists();
+        var result = studentService.getAllStudents();
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(202, result.size());
@@ -86,7 +86,7 @@ class StudentServiceTest {
         assertDoesNotThrow(() -> studentService.importClassListExcel(mockMultipartFile, WORK_SHEET_NAME));
 
         // verify
-        var result = studentService.getAllClassLists();
+        var result = studentService.getAllStudents();
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
