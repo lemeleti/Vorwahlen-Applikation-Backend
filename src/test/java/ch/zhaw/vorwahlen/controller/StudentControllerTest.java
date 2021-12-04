@@ -34,7 +34,7 @@ class StudentControllerTest {
 
     private static final String CLASS_1 = "class1";
     private static final String CLASS_2 = "class2";
-    private static final String REQUEST_MAPPING_PREFIX = "/class";
+    private static final String REQUEST_MAPPING_PREFIX = "/students";
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
     private static final String CLASS_LIST_FILE_NAME = "Vorlage_Klassenzuteilungen.xlsx";
     private static final String WORKSHEET = "Sheet1";
