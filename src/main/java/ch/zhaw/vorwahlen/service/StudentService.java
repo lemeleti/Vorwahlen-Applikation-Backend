@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
@@ -45,7 +46,8 @@ public class StudentService {
             setSecondElection(classLists);
             classListRepository.saveAll(classLists);
         } catch (IOException e) {
-            var message = String.format(ResourceBundleMessageLoader.getMessage("error.import_exception"), file.getOriginalFilename());
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
+            var message = String.format(formatString, file.getOriginalFilename());
             throw new ImportException(message, e);
         }
     }
@@ -105,9 +107,8 @@ public class StudentService {
                 .findById(id)
                 .map(mapper::toDto)
                 .orElseThrow(() -> {
-                    var errorMessage =
-                            String.format(ResourceBundleMessageLoader.getMessage("error.student_not_found"), id);
-                    return new StudentNotFoundException(errorMessage);
+                    var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
+                    return new StudentNotFoundException(String.format(formatString, id));
                 });
     }
 

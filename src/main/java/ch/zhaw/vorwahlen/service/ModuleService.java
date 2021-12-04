@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
@@ -58,7 +59,8 @@ public class ModuleService {
             var updatedModules = setConsecutiveModules(modules);
             moduleRepository.saveAll(updatedModules);
         } catch (IOException e) {
-            var message = String.format(ResourceBundleMessageLoader.getMessage("error.import_exception"), file.getOriginalFilename());
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
+            var message = String.format(formatString, file.getOriginalFilename());
             throw new ImportException(message, e);
         }
     }
@@ -135,7 +137,8 @@ public class ModuleService {
                 .findById(id)
                 .map(moduleMapper::toDto)
                 .orElseThrow(() -> {
-                    var errorMessage = String.format(ResourceBundleMessageLoader.getMessage("error.module_not_found"), id);
+                    var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_NOT_FOUND);
+                    var errorMessage = String.format(formatString, id);
                     return new ModuleNotFoundException(errorMessage);
                 });
     }

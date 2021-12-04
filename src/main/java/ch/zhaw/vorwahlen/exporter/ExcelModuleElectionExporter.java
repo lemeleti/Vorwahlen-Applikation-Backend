@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.exporter;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ExportException;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
@@ -36,7 +37,7 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
                 return os.toByteArray();
             }
         } catch (IOException e) {
-            throw new ExportException(ResourceBundleMessageLoader.getMessage("error.export_exception"), e);
+            throw new ExportException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_EXPORT_EXCEPTION), e);
         }
     }
 

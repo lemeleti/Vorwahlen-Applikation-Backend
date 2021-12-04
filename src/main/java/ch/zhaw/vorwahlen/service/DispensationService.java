@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.parser.DispensationParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
@@ -41,7 +42,8 @@ public class DispensationService {
                 }
             });
         } catch (IOException e) {
-            var message = String.format(ResourceBundleMessageLoader.getMessage("error.import_exception"), file.getOriginalFilename());
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
+            var message = String.format(formatString, file.getOriginalFilename());
             throw new ImportException(message, e);
         }
     }

@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.controller;
 
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.security.authentication.CustomAuthToken;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.exception.SessionNotFoundException;
@@ -48,10 +49,10 @@ public class ModuleElectionController {
         var user = token != null ? token.getUser() : null;
         var sessionAttributes = headerAccessor.getSessionAttributes();
         if(sessionAttributes == null) {
-            throw new SessionNotFoundException(ResourceBundleMessageLoader.getMessage("error.session_not_found"));
+            throw new SessionNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_SESSION_NOT_FOUND));
         }
         if(user == null) {
-            throw new UserNotFoundException(ResourceBundleMessageLoader.getMessage("error.user_not_found"));
+            throw new UserNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_USER_NOT_FOUND));
         }
         var student = user.getStudent();
         return electionService.saveElection(student, moduleNo);

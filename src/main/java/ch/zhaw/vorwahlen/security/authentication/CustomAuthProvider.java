@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.security.authentication;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.SessionNotFoundException;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
         var authorities = new ArrayList<GrantedAuthority>();
 
         if (authToken.getShibbolethSession() == null || authToken.getShibbolethSession().isEmpty()) {
-            throw new SessionNotFoundException(ResourceBundleMessageLoader.getMessage("error.session_not_found"));
+            throw new SessionNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_SESSION_NOT_FOUND));
         }
 
         var user = authToken.getUser();
