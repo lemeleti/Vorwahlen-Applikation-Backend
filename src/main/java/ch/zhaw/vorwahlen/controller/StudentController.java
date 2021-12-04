@@ -3,7 +3,7 @@ package ch.zhaw.vorwahlen.controller;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.security.model.User;
-import ch.zhaw.vorwahlen.service.ClassListService;
+import ch.zhaw.vorwahlen.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,8 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("class")
-public class ClassListController {
-    private final ClassListService classListService;
+public class StudentController {
+    private final StudentService studentService;
 
     /**
      * Return all class lists.
@@ -34,7 +34,7 @@ public class ClassListController {
      */
     @GetMapping(path = {"/", ""})
     public ResponseEntity<List<StudentDTO>> getAllClassLists() {
-        return ResponseEntity.ok().body(classListService.getAllClassLists());
+        return ResponseEntity.ok().body(studentService.getAllClassLists());
     }
 
     /**
@@ -46,7 +46,7 @@ public class ClassListController {
     public ResponseEntity<String> saveClassListsFromExcel(@RequestParam("file") MultipartFile file,
                                                        @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
-        classListService.importClassListExcel(file, worksheet);
+        studentService.importClassListExcel(file, worksheet);
         return ResponseEntity.ok().build();
     }
 
@@ -55,7 +55,7 @@ public class ClassListController {
                                                          @RequestBody ValidationSettingDTO validationSettingDTO) {
         // todo: patch only changes not everything
         if(studentId.equals(user.getMail())) {
-           classListService.setValidationSettings(validationSettingDTO, studentId);
+           studentService.setValidationSettings(validationSettingDTO, studentId);
         }
         return ResponseEntity.ok().build();
     }

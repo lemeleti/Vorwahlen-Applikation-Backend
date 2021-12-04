@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @Service
 @Log
-public class ClassListService {
+public class StudentService {
 
     public static final int PA_DISPENSATION = 0;
     public static final int WPM_DISPENSATION = 0;

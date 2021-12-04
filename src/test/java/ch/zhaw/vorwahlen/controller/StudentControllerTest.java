@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.service.ClassListService;
+import ch.zhaw.vorwahlen.service.StudentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,8 +16,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static ch.zhaw.vorwahlen.service.ClassListService.PA_DISPENSATION;
-import static ch.zhaw.vorwahlen.service.ClassListService.WPM_DISPENSATION;
+import static ch.zhaw.vorwahlen.service.StudentService.PA_DISPENSATION;
+import static ch.zhaw.vorwahlen.service.StudentService.WPM_DISPENSATION;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 @SpringBootTest(properties = "classpath:settings.properties")
 @AutoConfigureMockMvc
-class ClassListControllerTest {
+class StudentControllerTest {
 
     private static final String CLASS_1 = "class1";
     private static final String CLASS_2 = "class2";
@@ -43,7 +43,7 @@ class ClassListControllerTest {
     MockMvc mockMvc;
 
     @MockBean
-    ClassListService classListService;
+    StudentService studentService;
 
     /* **************************************************************************************************************
      * Positive tests
@@ -58,7 +58,7 @@ class ClassListControllerTest {
         expectedList.add(StudentDTO.builder().email("mail2").name("name2").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
         expectedList.add(StudentDTO.builder().email("mail3").name("name3").clazz(CLASS_2).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
 
-        when(classListService.getAllClassLists()).thenReturn(expectedList);
+        when(studentService.getAllClassLists()).thenReturn(expectedList);
 
         // execute
         try {
@@ -95,7 +95,7 @@ class ClassListControllerTest {
         }
 
         // verify
-        verify(classListService, times(1)).getAllClassLists();
+        verify(studentService, times(1)).getAllClassLists();
     }
 
     @Test
@@ -119,7 +119,7 @@ class ClassListControllerTest {
         }
 
         // verify
-        verify(classListService, times(1)).importClassListExcel(mockMultipartFile, WORKSHEET);
+        verify(studentService, times(1)).importClassListExcel(mockMultipartFile, WORKSHEET);
     }
 
     /* **************************************************************************************************************
@@ -146,7 +146,7 @@ class ClassListControllerTest {
         }
 
         // verify
-        verify(classListService, times(0)).importClassListExcel(mockMultipartFile, WORKSHEET);
+        verify(studentService, times(0)).importClassListExcel(mockMultipartFile, WORKSHEET);
     }
 
 }

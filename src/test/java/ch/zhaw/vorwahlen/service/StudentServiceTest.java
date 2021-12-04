@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("dev")
-class ClassListServiceTest {
+class StudentServiceTest {
 
     private static final String CLASS_LIST_FILE_NAME = "Vorlage_Klassenzuteilungen.xlsx";
     private static final String WORK_SHEET_NAME = "Sheet1";
@@ -29,17 +29,17 @@ class ClassListServiceTest {
 
     private final ClassListRepository classListRepository;
     private final Mapper<StudentDTO, Student> mapper;
-    private ClassListService classListService;
+    private StudentService studentService;
 
     @Autowired
-    public ClassListServiceTest(ClassListRepository classListRepository, Mapper<StudentDTO, Student> mapper) {
+    public StudentServiceTest(ClassListRepository classListRepository, Mapper<StudentDTO, Student> mapper) {
         this.classListRepository = classListRepository;
         this.mapper = mapper;
     }
 
     @BeforeEach
     void setUp() {
-        classListService = new ClassListService(classListRepository, mapper);
+        studentService = new StudentService(classListRepository, mapper);
     }
 
     @AfterEach
@@ -50,7 +50,7 @@ class ClassListServiceTest {
     @Test
     @Sql("classpath:sql/class_list.sql")
     void testGetAllClassLists() {
-        var result = classListService.getAllClassLists();
+        var result = studentService.getAllClassLists();
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(202, result.size());
@@ -60,20 +60,20 @@ class ClassListServiceTest {
     @Sql("classpath:sql/class_list.sql")
     void testGetStudentById() {
         var studentId = "meierbob@students.zhaw.ch";
-        var result = classListService.getStudentById(studentId);
+        var result = studentService.getStudentById(studentId);
         assertEquals(studentId, result.getEmail());
     }
 
     @Test
     @Sql("classpath:sql/class_list.sql")
     void testGetStudentById_Null() {
-        assertThrows(InvalidDataAccessApiUsageException.class, () -> classListService.getStudentById(null));
+        assertThrows(InvalidDataAccessApiUsageException.class, () -> studentService.getStudentById(null));
     }
 
     @Test
     @Sql("classpath:sql/class_list.sql")
     void testGetStudentById_Blank() {
-        assertThrows(StudentNotFoundException.class, () -> classListService.getStudentById(" "));
+        assertThrows(StudentNotFoundException.class, () -> studentService.getStudentById(" "));
     }
 
     @Test
@@ -83,10 +83,10 @@ class ClassListServiceTest {
         var mockMultipartFile = new MockMultipartFile(MULTIPART_FILE_REQUEST_PARAMETER, CLASS_LIST_FILE_NAME, "", fis);
 
         // execute
-        assertDoesNotThrow(() -> classListService.importClassListExcel(mockMultipartFile, WORK_SHEET_NAME));
+        assertDoesNotThrow(() -> studentService.importClassListExcel(mockMultipartFile, WORK_SHEET_NAME));
 
         // verify
-        var result = classListService.getAllClassLists();
+        var result = studentService.getAllClassLists();
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());

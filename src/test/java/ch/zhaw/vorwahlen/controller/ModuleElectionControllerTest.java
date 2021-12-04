@@ -7,7 +7,7 @@ import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureElement;
-import ch.zhaw.vorwahlen.service.ClassListService;
+import ch.zhaw.vorwahlen.service.StudentService;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,6 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +50,7 @@ class ModuleElectionControllerTest {
     ElectionService electionService;
 
     @MockBean
-    ClassListService classListService;
+    StudentService studentService;
 
     private WebSocketStompClient webSocketStompClient;
 
@@ -68,7 +67,7 @@ class ModuleElectionControllerTest {
                 .clazz("dev")
                 .email("dev@zhaw.ch")
                 .build();
-        when(classListService.getStudentById(anyString())).thenReturn(studentDTO);
+        when(studentService.getStudentById(anyString())).thenReturn(studentDTO);
     }
 
     @Test
