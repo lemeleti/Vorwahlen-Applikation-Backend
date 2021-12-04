@@ -6,16 +6,19 @@ import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
+import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
+import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,6 +36,8 @@ public class StudentService {
     private static final int YEAR_2_SHORT_YEAR = 100;
 
     private final ClassListRepository classListRepository;
+    private final StudentClassRepository studentClassRepository;
+
     private final Mapper<StudentDTO, Student> mapper;
 
     /**
@@ -52,15 +57,30 @@ public class StudentService {
         }
     }
 
-    public void setValidationSettings(ValidationSettingDTO validationSettingDTO, String userId) {
-        var student = classListRepository.getById(userId);
+    private Student addStudent(StudentDTO studentDTO) {
+        var student = new Student();
+        var studentClass = studentClassRepository
+                .findById(studentDTO.getClazz())
+                .orElseThrow(() -> new RuntimeException());
+        student.setEmail(studentDTO.getEmail());
+        student.setName(studentDTO.getName());
+        student.setStudentClass(studentClass);
+        student.setPaDispensation(studentDTO.getPaDispensation());
+        student.setWpmDispensation(studentDTO.getWpmDispensation());
+        student.setIP(studentDTO.isIP());
+        student.setTZ(studentDTO.isTZ());
+        student.setSecondElection(studentDTO.isSecondElection());
 
-        var validationSetting = student.getElection().getValidationSetting();
-        validationSetting.setRepetent(validationSettingDTO.isRepetent());
-        validationSetting.setSkipConsecutiveModuleCheck(validationSettingDTO.isSkipConsecutiveModuleCheck());
-        validationSetting.setAlreadyElectedTwoConsecutiveModules(validationSettingDTO.hadAlreadyElectedTwoConsecutiveModules());
+        return classListRepository.save(student);
+    }
 
-        classListRepository.save(student);
+    public URI addAndReturnLocation(StudentDTO studentDTO) {
+        mapper.toDto(addStudent(studentDTO));
+        try {
+            return new URI("/students/".concat(studentDTO.getEmail()));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException();
+        }
     }
 
     private void setSecondElection(List<Student> students) {
@@ -110,6 +130,28 @@ public class StudentService {
                     var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
                     return new StudentNotFoundException(String.format(formatString, id));
                 });
+    }
+
+    public void deleteStudentById(String id) {
+        classListRepository.deleteById(id);
+    }
+
+    public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
+        var studentClass = studentClassRepository
+                .findById(studentDTO.getClazz())
+                .orElseThrow(() -> new RuntimeException());
+        var updatedStudent = classListRepository.findById(id)
+                .map(student -> {
+                    student.setName(studentDTO.getName());
+                    student.setStudentClass(studentClass);
+                    student.setPaDispensation(studentDTO.getPaDispensation());
+                    student.setWpmDispensation(studentDTO.getWpmDispensation());
+                    student.setSecondElection(studentDTO.isSecondElection());
+                    return classListRepository.save(student);
+                })
+                .orElse(addStudent(studentDTO));
+
+        return mapper.toDto(updatedStudent);
     }
 
 }

@@ -5,6 +5,7 @@ import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
+import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,18 +29,22 @@ class StudentServiceTest {
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
 
     private final ClassListRepository classListRepository;
+    private final StudentClassRepository studentClassRepository;
     private final Mapper<StudentDTO, Student> mapper;
     private StudentService studentService;
 
     @Autowired
-    public StudentServiceTest(ClassListRepository classListRepository, Mapper<StudentDTO, Student> mapper) {
+    public StudentServiceTest(ClassListRepository classListRepository,
+                              StudentClassRepository studentClassRepository,
+                              Mapper<StudentDTO, Student> mapper) {
         this.classListRepository = classListRepository;
+        this.studentClassRepository = studentClassRepository;
         this.mapper = mapper;
     }
 
     @BeforeEach
     void setUp() {
-        studentService = new StudentService(classListRepository, mapper);
+        studentService = new StudentService(classListRepository, studentClassRepository, mapper);
     }
 
     @AfterEach
