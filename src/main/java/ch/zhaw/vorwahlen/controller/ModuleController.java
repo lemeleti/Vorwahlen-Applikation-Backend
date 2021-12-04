@@ -88,7 +88,7 @@ public class ModuleController {
      * @param file the Excel file.
      * @return {@link ResponseEntity<String>} with status code ok or bad request if the provided file is not there
      */
-    @PostMapping(path = {"/", ""})
+    @PostMapping(path = {"/", ""}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> saveModulesFromExcel(@RequestParam("file") MultipartFile file,
                                                        @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
