@@ -76,9 +76,9 @@ public class StudentService {
     }
 
     public URI addAndReturnLocation(StudentDTO studentDTO) {
-        mapper.toDto(addStudent(studentDTO));
+        var addedStudent = addStudent(studentDTO);
         try {
-            return new URI("/students/".concat(studentDTO.getEmail()));
+            return new URI("/students/".concat(addedStudent.getEmail()));
         } catch (URISyntaxException e) {
             throw new RuntimeException();
         }
