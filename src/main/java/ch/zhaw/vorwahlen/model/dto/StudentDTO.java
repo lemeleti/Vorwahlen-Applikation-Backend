@@ -34,4 +34,6 @@ public class StudentDTO {
     private boolean isIP;
     @NotNull(message = "{validation.tz.null}")
     private boolean isTZ;
+    @NotNull(message = "{validation.second.election.invalid}")
+    private boolean isSecondElection;
 }
