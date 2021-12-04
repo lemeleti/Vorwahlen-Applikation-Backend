@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Business logic for the modules.
@@ -128,6 +131,39 @@ public class ModuleService {
         return modules.stream().map(moduleMapper::toDto).toList();
     }
 
+    private Module addModule(ModuleDTO moduleDTO) {
+        Function<List<Integer>, String> parseExecutionSemesterList = list ->
+                list.stream()
+                        .sorted()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(";"));
+        var executionSemester = moduleDTO.getExecutionSemester();
+        var module = Module.builder()
+                .moduleNo(moduleDTO.getModuleNo())
+                .shortModuleNo(moduleDTO.getShortModuleNo())
+                .moduleTitle(moduleDTO.getModuleTitle())
+                .moduleId(moduleDTO.getModuleId())
+                .moduleGroup(moduleDTO.getModuleGroup())
+                .isIPModule(moduleDTO.isIPModule())
+                .institute(moduleDTO.getInstitute())
+                .credits(moduleDTO.getCredits())
+                .language(moduleDTO.getLanguage())
+                .fullTimeSemester(parseExecutionSemesterList.apply(executionSemester.fullTimeSemesterList()))
+                .partTimeSemester(parseExecutionSemesterList.apply(executionSemester.partTimeSemesterList()))
+                .consecutiveModuleNo(moduleDTO.getConsecutiveModuleNo())
+                .build();
+        return moduleRepository.save(module);
+    }
+
+    public URI addAndReturnLocation(ModuleDTO moduleDTO) {
+        var addedModule = addModule(moduleDTO);
+        try {
+            return new URI("/module/".concat(addedModule.getModuleNo()));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException();
+        }
+    }
+
     /**
      * Get module from the database by id.
      * @return {@link ModuleDTO}.
@@ -141,6 +177,26 @@ public class ModuleService {
                     var errorMessage = String.format(formatString, id);
                     return new ModuleNotFoundException(errorMessage);
                 });
+    }
+
+    public void deleteModuleById(String id) {
+        moduleRepository.deleteById(id);
+    }
+
+    public ModuleDTO replaceModule(String id, ModuleDTO moduleDTO) {
+        var updatedModule = moduleRepository.findById(id)
+                .map(module -> {
+                    module.setModuleNo(moduleDTO.getModuleNo());
+                    module.setModuleTitle(moduleDTO.getModuleTitle());
+                    module.setCredits(moduleDTO.getCredits());
+                    module.setLanguage(moduleDTO.getLanguage());
+                    // todo: module.executionSemester(toExecutionSemester(moduleDTO));
+                    module.setConsecutiveModuleNo(moduleDTO.getConsecutiveModuleNo());
+                    return moduleRepository.save(module);
+                })
+                .orElse(addModule(moduleDTO));
+
+        return moduleMapper.toDto(updatedModule);
     }
 
     /**

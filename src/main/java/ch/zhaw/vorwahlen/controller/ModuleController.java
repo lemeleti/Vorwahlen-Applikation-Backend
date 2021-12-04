@@ -5,16 +5,21 @@ import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.service.ModuleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -33,6 +38,49 @@ public class ModuleController {
     @GetMapping(path = {"/", ""})
     public ResponseEntity<List<ModuleDTO>> getAllModules(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok().body(moduleService.getAllModules(user.getStudent()));
+    }
+
+    /**
+     * Add a module.
+     * @param moduleDTO to be added module.
+     * @return {@link ResponseEntity<Void>} with status code ok.
+     */
+    @PostMapping(path = {"/", ""}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> addModule(@Valid @RequestBody ModuleDTO moduleDTO) {
+        return ResponseEntity.created(moduleService.addAndReturnLocation(moduleDTO)).build();
+    }
+
+    /**
+     * Returns the module by his id.
+     * @param id of module.
+     * @return {@link ResponseEntity<ModuleDTO>} with status code ok.
+     */
+    @GetMapping(path = {"/{id}", "/{id}/"})
+    public ResponseEntity<ModuleDTO> getModuleById(@PathVariable String id) {
+        return ResponseEntity.ok(moduleService.getModuleById(id));
+    }
+
+    /**
+     * Deletes a module by his id.
+     * @param id of module.
+     * @return {@link ResponseEntity<Void>} with status code no content.
+     */
+    @DeleteMapping(path = {"/{id}", "/{id}/"})
+    public ResponseEntity<Void> deleteModuleById(@PathVariable String id) {
+        moduleService.deleteModuleById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Replace a module by his id.
+     * @param id of module.
+     * @param moduleDTO the new module.
+     * @return {@link ResponseEntity<ModuleDTO>} with status code no content.
+     */
+    @PutMapping(path = {"/{id}", "/{id}/"})
+    public ResponseEntity<ModuleDTO> replaceModule(@PathVariable String id,
+                                                   @Valid @RequestBody ModuleDTO moduleDTO) {
+        return ResponseEntity.ok(moduleService.replaceModule(id, moduleDTO));
     }
 
     /**
