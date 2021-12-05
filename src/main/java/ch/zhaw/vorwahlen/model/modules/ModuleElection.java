@@ -25,7 +25,7 @@ public class ModuleElection {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
     private ValidationSetting validationSetting;
 
     @Column(columnDefinition = "tinyint(1) default 0")
