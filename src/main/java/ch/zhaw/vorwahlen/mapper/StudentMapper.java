@@ -18,4 +18,17 @@ public class StudentMapper implements Mapper<StudentDTO, Student> {
                 .isTZ(student.isTZ())
                 .build();
     }
+
+    @Override
+    public Student toInstance(StudentDTO studentDTO) {
+        return Student.builder()
+                .email(studentDTO.getEmail())
+                .name(studentDTO.getName())
+                .paDispensation(studentDTO.getPaDispensation())
+                .wpmDispensation(studentDTO.getWpmDispensation())
+                .isIP(studentDTO.isIP())
+                .isTZ(studentDTO.isTZ())
+                .isSecondElection(studentDTO.isSecondElection())
+                .build();
+    }
 }
