@@ -6,7 +6,10 @@ import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.modules.StudentClass;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.parser.DispensationParser;
 import ch.zhaw.vorwahlen.repository.ClassListRepository;
@@ -59,20 +62,28 @@ public class StudentService {
     }
 
     private Student addStudent(StudentDTO studentDTO) {
-        var student = new Student();
-        var studentClass = studentClassRepository
-                .findById(studentDTO.getClazz())
-                .orElseThrow(() -> new RuntimeException());
-        student.setEmail(studentDTO.getEmail());
-        student.setName(studentDTO.getName());
+        var student = mapper.toInstance(studentDTO);
+        var moduleElection = new ModuleElection();
+        var validationSetting = new ValidationSetting();
+        var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
+
+        moduleElection.setStudent(student);
+        moduleElection.setValidationSetting(validationSetting);
+
+        student.setElection(moduleElection);
         student.setStudentClass(studentClass);
-        student.setPaDispensation(studentDTO.getPaDispensation());
-        student.setWpmDispensation(studentDTO.getWpmDispensation());
-        student.setIP(studentDTO.isIP());
-        student.setTZ(studentDTO.isTZ());
-        student.setSecondElection(studentDTO.isSecondElection());
 
         return classListRepository.save(student);
+    }
+
+    private StudentClass getOrCreateStudentClass(String className) {
+        return studentClassRepository
+                .findById(className)
+                .orElseGet(() -> {
+                    var sc = new StudentClass();
+                    sc.setName(className);
+                    return sc;
+                });
     }
 
     public URI addAndReturnLocation(StudentDTO studentDTO) {
@@ -135,19 +146,19 @@ public class StudentService {
                 .findById(id)
                 .map(mapper::toDto)
                 .orElseThrow(() -> {
-                    var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
+                    var formatString =
+                            ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
                     return new StudentNotFoundException(String.format(formatString, id));
                 });
     }
 
     public void deleteStudentById(String id) {
+
         classListRepository.deleteById(id);
     }
 
     public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
-        var studentClass = studentClassRepository
-                .findById(studentDTO.getClazz())
-                .orElseThrow(() -> new RuntimeException());
+        var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
         var updatedStudent = classListRepository.findById(id)
                 .map(student -> {
                     student.setName(studentDTO.getName());
