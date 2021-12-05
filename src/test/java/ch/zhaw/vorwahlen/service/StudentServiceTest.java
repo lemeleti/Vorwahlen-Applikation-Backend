@@ -54,6 +54,7 @@ class StudentServiceTest {
     @AfterEach
     void tearDown() {
         classListRepository.deleteAll();
+        studentClassRepository.deleteAll();
     }
 
     @Test

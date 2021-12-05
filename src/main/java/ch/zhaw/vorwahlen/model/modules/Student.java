@@ -34,7 +34,7 @@ public class Student {
     @Id
     private String email;
     private String name;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "class_name")
     private StudentClass studentClass;
 
@@ -49,7 +49,7 @@ public class Student {
     @Column(columnDefinition = "tinyint(1) default 0")
     private boolean isSecondElection;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)
     @JoinColumn(name = "election_id")
     private ModuleElection election;
 
