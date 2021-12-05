@@ -4,6 +4,7 @@ import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,18 +65,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
         var message = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_METHOD_ARGUMENT_NOT_VALID);
-        var messageBuilder = new StringBuilder();
-        messageBuilder.append(message);
-        messageBuilder.append(System.lineSeparator());
-        ex
+        var causes = ex
                 .getBindingResult()
                 .getFieldErrors()
-                .forEach(fieldError ->  {
-                    messageBuilder.append(fieldError.getDefaultMessage());
-                    messageBuilder.append(System.lineSeparator());
-                });
-        log.log(Level.SEVERE, messageBuilder.toString(), ex);
-        var error = new ErrorResponse(messageBuilder.toString());
+                .stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
+        log.log(Level.SEVERE, message, ex);
+        var error = new ErrorResponse(message, causes);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 

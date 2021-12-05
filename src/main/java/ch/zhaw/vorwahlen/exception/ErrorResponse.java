@@ -1,7 +1,20 @@
 package ch.zhaw.vorwahlen.exception;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * This record is used by the {@link ApiExceptionHandler} to create custom error responses.
+ * This class is used by the {@link ApiExceptionHandler} to create custom error responses.
  */
-public record ErrorResponse(String message) {}
+@RequiredArgsConstructor
+@AllArgsConstructor
+@Data
+public class ErrorResponse {
+    private final String message;
+    List<String> causes = new ArrayList<>();
+}
