@@ -45,7 +45,7 @@ public class ModuleStructureGenerator {
 
     private void dispensateModulesByCategory(int dispensedCredits, ModuleCategory structureCategory,
                                                 ModuleCategory replacementCategory) {
-        if(!student.isSecondElection()) return;
+        if(student.isTZ() && !student.isSecondElection()) return;
 
         while (dispensedCredits > 0) {
             var elementOptional = electedModuleStructure
