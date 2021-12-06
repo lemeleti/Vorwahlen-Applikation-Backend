@@ -13,7 +13,7 @@ import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.parser.DispensationParser;
-import ch.zhaw.vorwahlen.repository.ClassListRepository;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -43,7 +43,7 @@ public class StudentService {
     public static final int WPM_DISPENSATION = 0;
     private static final int YEAR_2_SHORT_YEAR = 100;
 
-    private final ClassListRepository classListRepository;
+    private final StudentRepository studentRepository;
     private final StudentClassRepository studentClassRepository;
     private final JavaMailSender emailSender;
 
@@ -58,7 +58,7 @@ public class StudentService {
             var classListParser = new ClassListParser(file.getInputStream(), worksheet);
             var classLists = classListParser.parseModulesFromXLSX();
             setSecondElection(classLists);
-            classListRepository.saveAll(classLists);
+            studentRepository.saveAll(classLists);
         } catch (IOException e) {
             var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
             var message = String.format(formatString, file.getOriginalFilename());
@@ -78,7 +78,7 @@ public class StudentService {
         student.setElection(moduleElection);
         student.setStudentClass(studentClass);
 
-        return classListRepository.save(student);
+        return studentRepository.save(student);
     }
 
     private StudentClass getOrCreateStudentClass(String className) {
@@ -127,7 +127,7 @@ public class StudentService {
      * @return a list of {@link StudentDTO}.
      */
     public List<StudentDTO> getAllStudents() {
-        return classListRepository
+        return studentRepository
                 .findAll()
                 .stream()
                 .map(mapper::toDto)
@@ -135,7 +135,7 @@ public class StudentService {
     }
 
     public List<StudentDTO> getAllStudentsByElection(boolean electionStatus) {
-        return classListRepository.getAllByElectionStatus(electionStatus)
+        return studentRepository.getAllByElectionStatus(electionStatus)
                 .stream()
                 .map(mapper::toDto)
                 .toList();
@@ -147,7 +147,7 @@ public class StudentService {
      * @return Optional<StudentDTO>
      */
     public StudentDTO getStudentById(String id) {
-        return classListRepository
+        return studentRepository
                 .findById(id)
                 .map(mapper::toDto)
                 .orElseThrow(() -> {
@@ -159,19 +159,19 @@ public class StudentService {
 
     public void deleteStudentById(String id) {
 
-        classListRepository.deleteById(id);
+        studentRepository.deleteById(id);
     }
 
     public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
-        var updatedStudent = classListRepository.findById(id)
+        var updatedStudent = studentRepository.findById(id)
                 .map(student -> {
                     student.setName(studentDTO.getName());
                     student.setStudentClass(studentClass);
                     student.setPaDispensation(studentDTO.getPaDispensation());
                     student.setWpmDispensation(studentDTO.getWpmDispensation());
                     student.setSecondElection(studentDTO.isSecondElection());
-                    return classListRepository.save(student);
+                    return studentRepository.save(student);
                 })
                 .orElse(addStudent(studentDTO));
 
@@ -186,10 +186,10 @@ public class StudentService {
         try (InputStream is = file.getInputStream()) {
             var dispensationParser = new DispensationParser(is, worksheet);
             var parsedList = dispensationParser.parseModulesFromXLSX();
-            parsedList.forEach(student -> classListRepository.findById(student.getEmail()).ifPresent(dbStudent -> {
+            parsedList.forEach(student -> studentRepository.findById(student.getEmail()).ifPresent(dbStudent -> {
                 dbStudent.setPaDispensation(student.getPaDispensation());
                 dbStudent.setWpmDispensation(student.getWpmDispensation());
-                classListRepository.save(dbStudent);
+                studentRepository.save(dbStudent);
             }));
         } catch (IOException e) {
             var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);

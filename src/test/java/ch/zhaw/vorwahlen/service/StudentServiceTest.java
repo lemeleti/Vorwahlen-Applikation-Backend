@@ -5,7 +5,7 @@ import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
-import ch.zhaw.vorwahlen.repository.ClassListRepository;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -32,28 +33,29 @@ class StudentServiceTest {
     private static final String WORK_SHEET_NAME = "Sheet1";
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
 
-    private final ClassListRepository classListRepository;
+    private final StudentRepository studentRepository;
     private final StudentClassRepository studentClassRepository;
     private final Mapper<StudentDTO, Student> mapper;
     private StudentService studentService;
 
     @Autowired
-    public StudentServiceTest(ClassListRepository classListRepository,
+    public StudentServiceTest(StudentRepository studentRepository,
                               StudentClassRepository studentClassRepository,
                               Mapper<StudentDTO, Student> mapper) {
-        this.classListRepository = classListRepository;
+        this.studentRepository = studentRepository;
         this.studentClassRepository = studentClassRepository;
         this.mapper = mapper;
     }
 
     @BeforeEach
     void setUp() {
-        studentService = new StudentService(classListRepository, studentClassRepository, mapper);
+        var mailSenderImpl = new JavaMailSenderImpl();
+        studentService = new StudentService(studentRepository, studentClassRepository, mailSenderImpl, mapper);
     }
 
     @AfterEach
     void tearDown() {
-        classListRepository.deleteAll();
+        studentRepository.deleteAll();
         studentClassRepository.deleteAll();
     }
 
@@ -123,7 +125,7 @@ class StudentServiceTest {
         assertDoesNotThrow(() -> studentService.importDispensationExcel(mockMultipartFile, WORK_SHEET_NAME));
 
         // verify
-        var result = classListRepository.findAll();
+        var result = studentRepository.findAll();
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());

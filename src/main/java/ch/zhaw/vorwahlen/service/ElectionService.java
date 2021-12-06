@@ -78,7 +78,7 @@ public class ElectionService {
      * @return byte array containing the formatted module election.
      */
     public byte[] exportModuleElection() {
-        return exporter.export(electionRepository.findAll());
+        return exporter.export(electionRepository.findAllModulesToExport());
     }
 
     private void migrateElectionChanges(ModuleElection moduleElection, String moduleNo) {

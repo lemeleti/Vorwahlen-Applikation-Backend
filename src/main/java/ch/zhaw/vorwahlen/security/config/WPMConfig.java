@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.security.config;
 
 import ch.zhaw.vorwahlen.security.authentication.AuthFilter;
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.repository.ClassListRepository;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 public class WPMConfig {
-    private final ClassListRepository classListRepository;
+    private final StudentRepository studentRepository;
 
     /**
      * Run the application with {@link AuthFilter} in development mode.
@@ -37,7 +37,7 @@ public class WPMConfig {
                 "role", "ADMIN"
         );
 
-        var filter = new AuthFilter(false, classListRepository);
+        var filter = new AuthFilter(false, studentRepository);
         var student = new Student();
         student.setEmail(userData.get("mail"));
         filter.setStudent(student);
@@ -53,6 +53,6 @@ public class WPMConfig {
     @Qualifier("authFilter")
     @Bean
     public AuthFilter productionAuthFilter() {
-        return new AuthFilter(true, classListRepository);
+        return new AuthFilter(true, studentRepository);
     }
 }
