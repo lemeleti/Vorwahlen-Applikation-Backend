@@ -92,7 +92,8 @@ class ModuleServiceTest {
                         .consecutiveModuleNo("")
                         .build();
 
-        assertThrows(ModuleNotFoundException.class, () -> moduleService.getModuleById(moduleDto.getModuleNo()));
+        var moduleNo = moduleDto.getModuleNo();
+        assertThrows(ModuleNotFoundException.class, () -> moduleService.getModuleById(moduleNo));
         var result = moduleService.addAndReturnLocation(moduleDto);
         assertNotNull(moduleService.getModuleById(moduleDto.getModuleNo()));
         assertEquals(new URI("/module/".concat(moduleDto.getModuleNo())), result);
