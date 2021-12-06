@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ModuleCategoryTest {
+public class ModuleCategoryTest {
 
     public static final String VALID_MODULE_GROUP_IT5 = "IT5";
     public static final String VALID_MODULE_GROUP_IT6 = "IT6";
