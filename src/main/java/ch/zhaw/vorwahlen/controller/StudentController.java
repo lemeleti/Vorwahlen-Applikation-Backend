@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.controller;
 
+import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.service.StudentService;
 import lombok.RequiredArgsConstructor;
@@ -113,6 +114,12 @@ public class StudentController {
                                                                 @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
         studentService.importDispensationExcel(file, worksheet);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = {"/notify", "/notify/"})
+    public ResponseEntity<Void> notifyStudents(@Valid @RequestBody NotificationDTO notificationDTO) {
+        studentService.notifyStudents(notificationDTO);
         return ResponseEntity.ok().build();
     }
 }
