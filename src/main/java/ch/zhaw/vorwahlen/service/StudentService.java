@@ -5,6 +5,7 @@ import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
+import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
@@ -16,6 +17,9 @@ import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +45,7 @@ public class StudentService {
 
     private final ClassListRepository classListRepository;
     private final StudentClassRepository studentClassRepository;
+    private final JavaMailSender emailSender;
 
     private final Mapper<StudentDTO, Student> mapper;
 
@@ -191,5 +196,19 @@ public class StudentService {
             var message = String.format(formatString, file.getOriginalFilename());
             throw new ImportException(message, e);
         }
+    }
+
+    public void notifyStudents(NotificationDTO notificationDTO) {
+        var message = new SimpleMailMessage();
+        var emailSenderImpl = (JavaMailSenderImpl) emailSender;
+        emailSenderImpl.setUsername(notificationDTO.email());
+        emailSenderImpl.setPassword(notificationDTO.password());
+
+        message.setFrom(notificationDTO.email());
+        message.setTo(notificationDTO.studentMailAddresses());
+        message.setSubject(notificationDTO.subject());
+        message.setText(notificationDTO.message());
+
+        emailSenderImpl.send(message);
     }
 }
