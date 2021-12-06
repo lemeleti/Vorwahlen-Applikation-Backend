@@ -47,7 +47,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler({UserNotFoundException.class, StudentNotFoundException.class, MailTemplateNotFoundException.class})
     public ResponseEntity<Object> handleUserNotFoundException(Exception ex, WebRequest request) {
         log.severe(ex.getLocalizedMessage());
         var error = new ErrorResponse(ex.getLocalizedMessage());
