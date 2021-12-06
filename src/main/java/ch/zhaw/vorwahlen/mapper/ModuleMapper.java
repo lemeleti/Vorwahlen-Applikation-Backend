@@ -19,7 +19,6 @@ public class ModuleMapper implements Mapper<ModuleDTO, Module> {
                 .moduleTitle(module.getModuleTitle())
                 .moduleId(module.getModuleId())
                 .moduleGroup(module.getModuleGroup())
-                .isIPModule(module.isIPModule())
                 .institute(module.getInstitute())
                 .category(ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()))
                 .credits(module.getCredits())
@@ -32,8 +31,7 @@ public class ModuleMapper implements Mapper<ModuleDTO, Module> {
 
     private ModuleDTO.ExecutionSemester toExecutionSemester(Module module) {
         var fullTimeSemesterList = executionSemestersToIntegers(module.getFullTimeSemester());
-        var partTimeSemesterList = executionSemestersToIntegers(module.getPartTimeSemester());
-        return new ModuleDTO.ExecutionSemester(fullTimeSemesterList, partTimeSemesterList);
+        return new ModuleDTO.ExecutionSemester(fullTimeSemesterList);
     }
 
     private List<Integer> executionSemestersToIntegers(String executionSemesters) {

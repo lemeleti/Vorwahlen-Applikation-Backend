@@ -87,7 +87,6 @@ class ModuleParserTest {
 
         var expectedModule = Module.builder()
                 .moduleId(Integer.parseInt(DEFAULT_CELL_VALUE))
-                .isIPModule(false)
                 .moduleGroup(MODULE_GROUPS_CONTAINS_IT5)
                 .moduleNo(DEFAULT_CELL_VALUE)
                 .moduleTitle(DEFAULT_CELL_VALUE)
@@ -96,7 +95,6 @@ class ModuleParserTest {
                 .institute(DEFAULT_CELL_VALUE)
                 .language(DEFAULT_CELL_VALUE)
                 .fullTimeSemester(DEFAULT_CELL_VALUE)
-                .partTimeSemester(DEFAULT_CELL_VALUE)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
@@ -111,7 +109,7 @@ class ModuleParserTest {
         // verify
         assertNotNull(resultModule);
         assertEquals(expectedModule, resultModule);
-        verify(rowMock, times(12)).getCell(anyInt());
+        verify(rowMock, times(10)).getCell(anyInt());
         verify(rowMock, times(2)).getCell(GROUP_CELL_NUMBER);
     }
 
@@ -122,7 +120,6 @@ class ModuleParserTest {
 
         var expectedModule = Module.builder()
                 .moduleId(Integer.parseInt(DEFAULT_CELL_VALUE))
-                .isIPModule(false)
                 .moduleGroup(MODULE_GROUPS_CONTAINS_IT6)
                 .moduleNo(DEFAULT_CELL_VALUE)
                 .moduleTitle(DEFAULT_CELL_VALUE)
@@ -131,7 +128,6 @@ class ModuleParserTest {
                 .institute(DEFAULT_CELL_VALUE)
                 .language(DEFAULT_CELL_VALUE)
                 .fullTimeSemester(DEFAULT_CELL_VALUE)
-                .partTimeSemester(DEFAULT_CELL_VALUE)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
@@ -146,7 +142,7 @@ class ModuleParserTest {
         // verify
         assertNotNull(resultModule);
         assertEquals(expectedModule, resultModule);
-        verify(rowMock, times(12)).getCell(anyInt());
+        verify(rowMock, times(10)).getCell(anyInt());
         verify(rowMock, times(2)).getCell(GROUP_CELL_NUMBER);
     }
 

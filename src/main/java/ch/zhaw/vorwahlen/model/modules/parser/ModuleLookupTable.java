@@ -17,12 +17,10 @@ public enum ModuleLookupTable implements LookupTable<ModuleLookupTable> {
     TITLE("Modulbezeichnung Deutsch(Farbcode nach Curriculum)"),
     ID("Modul-ID"),
     GROUP("Modulgruppe"),
-    IP("IP-Modul"),
     INSTITUTE("Institut/Zentrum"),
     CREDITS("Credits/SWL"),
     LANGUAGE("Unterrichtssprache"),
-    SEMESTER_FULL_TIME("IT-VZ"),
-    SEMESTER_PART_TIME("IT-TZ");
+    SEMESTER_FULL_TIME("IT-VZ");
 
     private final String cellHeaderName;
     @Setter

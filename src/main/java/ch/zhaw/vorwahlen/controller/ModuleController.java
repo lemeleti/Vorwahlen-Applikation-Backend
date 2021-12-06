@@ -36,8 +36,8 @@ public class ModuleController {
      * @return {@link ResponseEntity<List<ModuleDTO>>} with status code ok
      */
     @GetMapping(path = {"/", ""})
-    public ResponseEntity<List<ModuleDTO>> getAllModules(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok().body(moduleService.getAllModules(user.getStudent()));
+    public ResponseEntity<List<ModuleDTO>> getAllModules() {
+        return ResponseEntity.ok().body(moduleService.getAllModules());
     }
 
     /**

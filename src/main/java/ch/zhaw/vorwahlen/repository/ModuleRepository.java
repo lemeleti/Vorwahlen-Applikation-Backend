@@ -13,9 +13,4 @@ import java.util.List;
 @Repository
 public interface ModuleRepository extends JpaRepository<Module, String> {
 
-    @Query("SELECT m FROM Module m WHERE m.partTimeSemester LIKE '%7%' OR m.partTimeSemester LIKE '%8%'")
-    List<Module> findAllModulesTZSecondHalf();
-
-    @Query("SELECT m FROM Module m WHERE m.partTimeSemester LIKE '%5%' OR m.partTimeSemester LIKE '%6%'")
-    List<Module> findAllModulesTZFirstHalf();
 }
