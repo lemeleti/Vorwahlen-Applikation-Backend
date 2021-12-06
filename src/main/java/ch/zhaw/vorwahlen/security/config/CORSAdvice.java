@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebMvc
 public class CORSAdvice implements WebMvcConfigurer {
-    protected static final String[] ALLOWED_ORIGINS = {"http://localhost:8081", "http://localhost",
+    public static final String[] ALLOWED_ORIGINS = {"http://localhost:8081", "http://localhost",
             "http://vorwahlen.cloudlab.zhaw.ch", "https://vorwahlen.cloudlab.zhaw.ch"};
 
     @Override
