@@ -9,7 +9,6 @@ import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;

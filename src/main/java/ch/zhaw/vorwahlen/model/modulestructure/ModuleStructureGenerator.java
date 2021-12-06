@@ -30,13 +30,9 @@ public class ModuleStructureGenerator {
     public ElectionStructureDTO generateStructure() {
         electedModuleList = new ArrayList<>(Set.copyOf(election.getElectedModules()));
         hasElectedModules = !election.getElectedModules().isEmpty();
-        System.out.println("---------------------");
-        System.out.println("Before generated ElectionStructure - electedmodules: " + electedModuleList.size());
         for (ModuleCategory category : ModuleCategory.values()) {
             generateModuleElements(moduleDefinition.getDefinitionByCategory(category), category);
         }
-        electedModuleList.forEach(m -> System.out.printf("ID: %s\tCategory: %s%n", m.getModuleNo(), ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup())));
-        System.out.println("After generated ElectionStructure - electedmodules: " + electedModuleList.size());
         generateOverflowedModules();
         applyDispensations();
         return new ElectionStructureDTO(electedModuleStructure, overflowedModuleStructure);
