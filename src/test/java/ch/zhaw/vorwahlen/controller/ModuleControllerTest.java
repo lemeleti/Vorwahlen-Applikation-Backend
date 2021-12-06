@@ -68,11 +68,10 @@ class ModuleControllerTest {
                 .moduleTitle("Hello")
                 .moduleId(1)
                 .moduleGroup("AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6")
-                .isIPModule(true)
                 .institute("INIT")
                 .credits((byte) 4)
                 .language("English")
-                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5), List.of(7)))
+                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5)))
                 .consecutiveModuleNo("")
                 .build();
     }
@@ -86,16 +85,16 @@ class ModuleControllerTest {
         // prepare
         var expectedList = new ArrayList<ModuleDTO>();
         expectedList.add(ModuleDTO.builder().moduleNo("nr1").moduleTitle("title1").language(LANGUAGE_DE).credits((byte) CREDIT_2)
-                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5, PART_TIME_SEMESTER_LIST_5_7))
+                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5))
                                  .build());
         expectedList.add(ModuleDTO.builder().moduleNo("nr2").moduleTitle("title2").language(LANGUAGE_EN).credits((byte) CREDIT_4)
-                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5_6, PART_TIME_SEMESTER_LIST_5_7 ))
+                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5_6))
                                  .build());
         expectedList.add(ModuleDTO.builder().moduleNo("nr3").moduleTitle("title3").language(LANGUAGE_DE).credits((byte) CREDIT_6)
-                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5, PART_TIME_SEMESTER_LIST_6_8))
+                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5))
                                  .build());
 
-        when(moduleService.getAllModules(any())).thenReturn(expectedList);
+        when(moduleService.getAllModules()).thenReturn(expectedList);
 
         // execute
         try {
@@ -140,27 +139,13 @@ class ModuleControllerTest {
                     .andExpect(jsonPath("$.[2].executionSemester.fullTimeSemesterList.[*]", anyOf(
                             hasItem(FULL_TIME_SEMESTER_LIST_5.get(0))
                     )))
-                    .andExpect(jsonPath("$.[*].executionSemester.partTimeSemesterList").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].executionSemester.partTimeSemesterList.[*]").isNotEmpty())
-                    .andExpect(jsonPath("$.[0].executionSemester.partTimeSemesterList.[*]", anyOf(
-                            hasItem(PART_TIME_SEMESTER_LIST_5_7.get(0)),
-                            hasItem(PART_TIME_SEMESTER_LIST_5_7.get(1))
-                    )))
-                    .andExpect(jsonPath("$.[1].executionSemester.partTimeSemesterList.[*]", anyOf(
-                            hasItem(PART_TIME_SEMESTER_LIST_5_7.get(0)),
-                            hasItem(PART_TIME_SEMESTER_LIST_5_7.get(1))
-                    )))
-                    .andExpect(jsonPath("$.[2].executionSemester.partTimeSemesterList.[*]", anyOf(
-                            hasItem(PART_TIME_SEMESTER_LIST_6_8.get(0)),
-                            hasItem(PART_TIME_SEMESTER_LIST_6_8.get(1))
-                    )))
                     .andDo(print());
         } catch (Exception e) {
             fail(e);
         }
 
         // verify
-        verify(moduleService, times(1)).getAllModules(any());
+        verify(moduleService, times(1)).getAllModules();
     }
 
     @Test

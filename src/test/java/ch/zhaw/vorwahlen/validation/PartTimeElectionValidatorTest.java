@@ -20,9 +20,8 @@ import static org.mockito.Mockito.when;
 
 class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
-    public static final String SEMESTER_6_AND_8 = "6;8";
+    public static final String SEMESTER_6 = "6.0";
     public static final String SEMESTER_5 = "5.0";
-    public static final String SEMESTER_7 = "7.0";
     public static final int NUM_NON_CONSECUTIVE_SUBJECT_MODULES = 2;
 
     @Override
@@ -503,7 +502,7 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
         var i = 0;
         for (var context: contextMocks) {
-            when(context.getPartTimeSemester()).thenReturn((i % 3 == 0) ? SEMESTER_6_AND_8 : SEMESTER_5);
+            when(context.getFullTimeSemester()).thenReturn((i % 3 == 0) ? SEMESTER_6 : SEMESTER_5);
             when(context.getCredits()).thenReturn((byte) CREDITS_PER_CONTEXT_MODULE);
             when(context.getLanguage()).thenReturn(LANGUAGE_ENGLISCH);
             when(context.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_5);
@@ -513,7 +512,7 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         }
 
         for (var interdisciplinary: interdisciplinaryMocks) {
-            when(interdisciplinary.getPartTimeSemester()).thenReturn(SEMESTER_7);
+            when(interdisciplinary.getFullTimeSemester()).thenReturn(SEMESTER_5);
             when(interdisciplinary.getCredits()).thenReturn((byte) CREDITS_PER_INTERDISCIPLINARY_MODULE);
             when(interdisciplinary.getLanguage()).thenReturn(LANGUAGE_DEUTSCH);
             when(interdisciplinary.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
@@ -523,7 +522,7 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
         i = 0;
         for (var subject: subjectMocks) {
-            when(subject.getPartTimeSemester()).thenReturn(SEMESTER_6_AND_8);
+            when(subject.getFullTimeSemester()).thenReturn(SEMESTER_6);
             when(subject.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
             when(subject.getLanguage()).thenReturn(LANGUAGE_ENGLISCH);
             when(subject.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
@@ -548,7 +547,7 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         for (i = NUM_NON_CONSECUTIVE_SUBJECT_MODULES + 1; i < subjectMocks.size(); i += 2) {
             var mock1 = subjectMocks.get(mockCounter);
             mockCounter++;
-            when(mock1.getPartTimeSemester()).thenReturn(SEMESTER_6_AND_8);
+            when(mock1.getFullTimeSemester()).thenReturn(SEMESTER_6);
             when(mock1.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
             when(mock1.getLanguage()).thenReturn(LANGUAGE_ENGLISCH);
             when(mock1.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
@@ -558,7 +557,7 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
             var mock2 = subjectMocks.get(mockCounter);
             mockCounter++;
-            when(mock2.getPartTimeSemester()).thenReturn(SEMESTER_6_AND_8);
+            when(mock2.getFullTimeSemester()).thenReturn(SEMESTER_6);
             when(mock2.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
             when(mock2.getLanguage()).thenReturn(LANGUAGE_ENGLISCH);
             when(mock2.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_6);
@@ -576,7 +575,7 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
     @Override
     void addModule(Set<Module> set, String moduleNo, Module module, int credits) {
-        when(module.getPartTimeSemester()).thenReturn(SEMESTER_6_AND_8);
+        when(module.getFullTimeSemester()).thenReturn(SEMESTER_6);
         super.addModule(set, moduleNo, module, credits);
     }
 

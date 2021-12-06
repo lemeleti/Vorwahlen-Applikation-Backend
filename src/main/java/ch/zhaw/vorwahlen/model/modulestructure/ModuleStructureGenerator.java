@@ -110,16 +110,11 @@ public class ModuleStructureGenerator {
     }
 
     private boolean hasModuleForSemester(Module module, int compareSemester) {
-        var executionSemestersStr = module.getFullTimeSemester();
-        if (student.isTZ()) {
-            executionSemestersStr = module.getPartTimeSemester();
-        }
-        return executionSemestersStr.contains(String.valueOf(compareSemester));
+        return module.getFullTimeSemester().contains(String.valueOf(compareSemester));
     }
 
     private int calculateSemester(Module module) {
-        var executionSemesterStr = student.isTZ() ? module.getPartTimeSemester() : module.getFullTimeSemester();
-        var executionSemesters = executionSemesterStr.split(";");
+        var executionSemesters = module.getFullTimeSemester().split(";");
         var semester = (int) Float.parseFloat(executionSemesters[0]);
         if (student.isTZ() && student.isSecondElection()) {
             semester = (int) Float.parseFloat(executionSemesters[executionSemesters.length - 1]);

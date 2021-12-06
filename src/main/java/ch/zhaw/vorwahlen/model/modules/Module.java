@@ -31,12 +31,10 @@ public class Module {
     private String moduleTitle;
     private int moduleId;
     private String moduleGroup;
-    private boolean isIPModule;
     private String institute;
     private byte credits;
     private String language;
     private String fullTimeSemester;
-    private String partTimeSemester;
     private String consecutiveModuleNo;
 
     @Override

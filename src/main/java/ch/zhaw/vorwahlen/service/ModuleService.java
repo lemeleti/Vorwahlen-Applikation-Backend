@@ -117,18 +117,8 @@ public class ModuleService {
      * Get all modules from the database.
      * @return a list of {@link ModuleDTO}.
      */
-    public List<ModuleDTO> getAllModules(Student student) {
-        List<Module> modules;
-
-        if (student != null && student.isTZ() && student.isSecondElection()) {
-            modules = moduleRepository.findAllModulesTZSecondHalf();
-        } else if (student != null && student.isTZ()) {
-            modules = moduleRepository.findAllModulesTZFirstHalf();
-        } else {
-            modules = moduleRepository.findAll();
-        }
-
-        return modules.stream().map(moduleMapper::toDto).toList();
+    public List<ModuleDTO> getAllModules() {
+        return moduleRepository.findAll().stream().map(moduleMapper::toDto).toList();
     }
 
     private Module addModule(ModuleDTO moduleDTO) {
@@ -144,12 +134,10 @@ public class ModuleService {
                 .moduleTitle(moduleDTO.getModuleTitle())
                 .moduleId(moduleDTO.getModuleId())
                 .moduleGroup(moduleDTO.getModuleGroup())
-                .isIPModule(moduleDTO.isIPModule())
                 .institute(moduleDTO.getInstitute())
                 .credits(moduleDTO.getCredits())
                 .language(moduleDTO.getLanguage())
                 .fullTimeSemester(parseExecutionSemesterList.apply(executionSemester.fullTimeSemesterList()))
-                .partTimeSemester(parseExecutionSemesterList.apply(executionSemester.partTimeSemesterList()))
                 .consecutiveModuleNo(moduleDTO.getConsecutiveModuleNo())
                 .build();
         return moduleRepository.save(module);

@@ -19,15 +19,13 @@ import java.util.List;
 @Data
 @Builder
 public class ModuleDTO {
-    public record ExecutionSemester(List<Integer> fullTimeSemesterList,
-                                    List<Integer> partTimeSemesterList) {}
+    public record ExecutionSemester(List<Integer> fullTimeSemesterList) {}
 
     private String moduleNo;
     private String shortModuleNo;
     private String moduleTitle;
     private int moduleId;
     private String moduleGroup;
-    private boolean isIPModule;
     private String institute;
     private ModuleCategory category;
     private byte credits;

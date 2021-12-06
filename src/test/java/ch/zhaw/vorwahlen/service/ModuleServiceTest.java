@@ -70,26 +70,10 @@ class ModuleServiceTest {
     @Test
     @Sql("classpath:sql/modules.sql")
     void testGetAllModules() {
-        var result = moduleService.getAllModules(null);
+        var result = moduleService.getAllModules();
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(75, result.size());
-
-        var studentMock = mock(Student.class);
-        when(studentMock.isTZ()).thenReturn(true);
-        when(studentMock.isSecondElection()).thenReturn(false);
-
-        result = moduleService.getAllModules(studentMock);
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertEquals(59, result.size());
-
-        when(studentMock.isSecondElection()).thenReturn(true);
-
-        result = moduleService.getAllModules(studentMock);
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertEquals(67, result.size());
     }
 
     @Test
@@ -100,11 +84,10 @@ class ModuleServiceTest {
                         .moduleTitle("Hello")
                         .moduleId(1)
                         .moduleGroup("AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6")
-                        .isIPModule(true)
                         .institute("INIT")
                         .credits((byte) 4)
                         .language("English")
-                        .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5), List.of(7)))
+                        .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5)))
                         .consecutiveModuleNo("")
                         .build();
 
@@ -126,11 +109,10 @@ class ModuleServiceTest {
                 .moduleTitle("Hello")
                 .moduleId(1)
                 .moduleGroup("AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6")
-                .isIPModule(true)
                 .institute("INIT")
                 .credits((byte) 4)
                 .language("English")
-                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5), List.of(7)))
+                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5)))
                 .consecutiveModuleNo("")
                 .build();
         moduleService.replaceModule(MODULE_NO, moduleDto);
@@ -157,7 +139,7 @@ class ModuleServiceTest {
         assertDoesNotThrow(() -> moduleService.importModuleExcel(mockMultipartFile, WORK_SHEET_NAME));
 
         // verify
-        var result = moduleService.getAllModules(null);
+        var result = moduleService.getAllModules();
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(75, result.size());
@@ -168,12 +150,11 @@ class ModuleServiceTest {
     @Sql("classpath:sql/modules.sql")
     void testGetModuleById() {
         var expected = ModuleDTO.builder()
-                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5), List.of(7)))
+                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5)))
                 .moduleNo("t.BA.WM.DHEAL-EN.19HS")
                 .shortModuleNo("WM.DHEAL-EN")
                 .moduleId(1653946)
                 .moduleGroup("DS6,ET5,IT6,MT7,ST5,WI6")
-                .isIPModule(true)
                 .institute("INIT")
                 .category(ModuleCategory.INTERDISCIPLINARY_MODULE)
                 .credits((byte) 4)
