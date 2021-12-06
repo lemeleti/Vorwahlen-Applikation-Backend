@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class ModuleStructureGenerator {
@@ -29,9 +30,13 @@ public class ModuleStructureGenerator {
     public ElectionStructureDTO generateStructure() {
         electedModuleList = new ArrayList<>(Set.copyOf(election.getElectedModules()));
         hasElectedModules = !election.getElectedModules().isEmpty();
+        System.out.println("---------------------");
+        System.out.println("Before generated ElectionStructure - electedmodules: " + electedModuleList.size());
         for (ModuleCategory category : ModuleCategory.values()) {
             generateModuleElements(moduleDefinition.getDefinitionByCategory(category), category);
         }
+        electedModuleList.forEach(m -> System.out.printf("ID: %s\tCategory: %s%n", m.getModuleNo(), ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup())));
+        System.out.println("After generated ElectionStructure - electedmodules: " + electedModuleList.size());
         generateOverflowedModules();
         applyDispensations();
         return new ElectionStructureDTO(electedModuleStructure, overflowedModuleStructure);
@@ -44,7 +49,8 @@ public class ModuleStructureGenerator {
 
     private void dispensateModulesByCategory(int dispensedCredits, ModuleCategory structureCategory,
                                                 ModuleCategory replacementCategory) {
-        //todo für Teilzeit nur im zweiten Durchlauf.
+        if(!student.isSecondElection()) return;
+
         while (dispensedCredits > 0) {
             var elementOptional = electedModuleStructure
                     .stream()
@@ -77,8 +83,9 @@ public class ModuleStructureGenerator {
 
     private void generateModuleElements(Map<Integer, Integer> modules, ModuleCategory category) {
         if (student.isTZ()) {
-            var electionSemesters = this.electionSemesters.getSemestersForStudent(student);
-            electionSemesters.forEach(modules::remove);
+            modules = modules.entrySet().stream()
+                            .filter(entry -> electionSemesters.getSemestersForStudent(student).contains(entry.getKey()))
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
 
         for (var entry : modules.entrySet()) {
@@ -110,6 +117,13 @@ public class ModuleStructureGenerator {
     }
 
     private boolean hasModuleForSemester(Module module, int compareSemester) {
+        // todo not beautiful enough code, to refactore
+        if(compareSemester == 7) {
+            compareSemester = 5;
+        }
+        if(compareSemester == 8) {
+            compareSemester = 6;
+        }
         return module.getFullTimeSemester().contains(String.valueOf(compareSemester));
     }
 
