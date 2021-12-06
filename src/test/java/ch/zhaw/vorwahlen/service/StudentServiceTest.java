@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
@@ -23,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("dev")
@@ -130,6 +132,26 @@ class StudentServiceTest {
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
         areListsEqual(sortByEmail(expected), sortByEmail(result));
+    }
+
+    @Test
+    void testImportClassListExcel_IOException() throws IOException {
+        // prepare
+        var mockMultipartFileMock = mock(MockMultipartFile.class);
+        when(mockMultipartFileMock.getInputStream()).thenThrow(new IOException());
+
+        // execute
+        assertThrows(ImportException.class, () -> studentService.importClassListExcel(mockMultipartFileMock, WORK_SHEET_NAME));
+    }
+
+    @Test
+    void testImportDispensationExcel_IOException() throws IOException {
+        // prepare
+        var mockMultipartFileMock = mock(MockMultipartFile.class);
+        when(mockMultipartFileMock.getInputStream()).thenThrow(new IOException());
+
+        // execute
+        assertThrows(ImportException.class, () -> studentService.importDispensationExcel(mockMultipartFileMock, WORK_SHEET_NAME));
     }
 
     private List<Student> sortByEmail(List<Student> list) {

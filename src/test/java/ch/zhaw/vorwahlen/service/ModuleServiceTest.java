@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
@@ -182,6 +183,16 @@ class ModuleServiceTest {
     @Sql("classpath:sql/")
     void testGetEventoDataById() {
         // todo: create sql data
+    }
+
+    @Test
+    void testImportModuleExcel_IOException() throws IOException {
+        // prepare
+        var mockMultipartFileMock = mock(MockMultipartFile.class);
+        when(mockMultipartFileMock.getInputStream()).thenThrow(new IOException());
+
+        // execute
+        assertThrows(ImportException.class, () -> moduleService.importModuleExcel(mockMultipartFileMock, WORK_SHEET_NAME));
     }
 
 }
