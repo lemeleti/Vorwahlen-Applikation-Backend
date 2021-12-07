@@ -8,6 +8,7 @@ import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
+import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
@@ -32,7 +33,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Business logic for the modules.
@@ -121,12 +121,6 @@ public class ModuleService {
     }
 
     private Module addModule(ModuleDTO moduleDTO) {
-        Function<List<Integer>, String> parseExecutionSemesterList = list ->
-                list.stream()
-                        .sorted()
-                        .map(String::valueOf)
-                        .collect(Collectors.joining(";"));
-        var executionSemester = moduleDTO.getExecutionSemester();
         var module = Module.builder()
                 .moduleNo(moduleDTO.getModuleNo())
                 .shortModuleNo(moduleDTO.getShortModuleNo())
@@ -136,7 +130,7 @@ public class ModuleService {
                 .institute(moduleDTO.getInstitute())
                 .credits(moduleDTO.getCredits())
                 .language(moduleDTO.getLanguage())
-                .fullTimeSemester(parseExecutionSemesterList.apply(executionSemester.fullTimeSemesterList()))
+                .semester(ExecutionSemester.parseFromInt(moduleDTO.getSemester()))
                 .consecutiveModuleNo(moduleDTO.getConsecutiveModuleNo())
                 .build();
         return moduleRepository.save(module);

@@ -34,7 +34,7 @@ public class Module {
     private String institute;
     private byte credits;
     private String language;
-    private String fullTimeSemester;
+    private ExecutionSemester semester;
     private String consecutiveModuleNo;
 
     @Override

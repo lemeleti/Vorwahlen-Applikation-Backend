@@ -94,7 +94,6 @@ class ModuleParserTest {
                 .credits(Byte.parseByte(DEFAULT_CELL_VALUE))
                 .institute(DEFAULT_CELL_VALUE)
                 .language(DEFAULT_CELL_VALUE)
-                .fullTimeSemester(DEFAULT_CELL_VALUE)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
@@ -127,7 +126,6 @@ class ModuleParserTest {
                 .credits(Byte.parseByte(DEFAULT_CELL_VALUE))
                 .institute(DEFAULT_CELL_VALUE)
                 .language(DEFAULT_CELL_VALUE)
-                .fullTimeSemester(DEFAULT_CELL_VALUE)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);

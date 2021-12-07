@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.parser;
 
+import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.parser.ModuleLookupTable;
 import org.apache.poi.ss.usermodel.Cell;
@@ -55,7 +56,7 @@ public class ModuleParser extends ExcelParser<Module, ModuleLookupTable> {
             case INSTITUTE -> builder.institute(data.toUpperCase());
             case CREDITS -> builder.credits((byte) Double.parseDouble(data));
             case LANGUAGE -> builder.language(data);
-            case SEMESTER_FULL_TIME -> builder.fullTimeSemester(data);
+            case SEMESTER_FULL_TIME -> builder.semester(ExecutionSemester.parseFromString(data));
         }
     }
 

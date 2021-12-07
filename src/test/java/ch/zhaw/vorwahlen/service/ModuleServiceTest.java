@@ -6,9 +6,9 @@ import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
+import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
-import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -25,10 +25,10 @@ import org.springframework.test.context.jdbc.Sql;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("dev")
@@ -88,7 +88,7 @@ class ModuleServiceTest {
                         .institute("INIT")
                         .credits((byte) 4)
                         .language("English")
-                        .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5)))
+                        .semester(ExecutionSemester.AUTUMN.getSemester())
                         .consecutiveModuleNo("")
                         .build();
 
@@ -114,7 +114,7 @@ class ModuleServiceTest {
                 .institute("INIT")
                 .credits((byte) 4)
                 .language("English")
-                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5)))
+                .semester(ExecutionSemester.AUTUMN.getSemester())
                 .consecutiveModuleNo("")
                 .build();
         moduleService.replaceModule(MODULE_NO, moduleDto);
@@ -152,7 +152,7 @@ class ModuleServiceTest {
     @Sql("classpath:sql/modules.sql")
     void testGetModuleById() {
         var expected = ModuleDTO.builder()
-                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5)))
+                .semester(ExecutionSemester.AUTUMN.getSemester())
                 .moduleNo("t.BA.WM.DHEAL-EN.19HS")
                 .shortModuleNo("WM.DHEAL-EN")
                 .moduleId(1653946)

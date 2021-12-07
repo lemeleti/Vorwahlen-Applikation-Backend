@@ -107,14 +107,6 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
         return moduleTitle.concat(" ".concat(shortModuleNo));
     };
 
-    private final Function<Module, String> mapModule = module -> {
-        var fullTimeSemester = module.getFullTimeSemester();
-        String semester = "(HS)";
-        if (fullTimeSemester.contains("6") && fullTimeSemester.contains("5")) {
-            semester = "(HS)/(FS)";
-        } else if (fullTimeSemester.contains("6")) {
-            semester = "(FS)";
-        }
-        return mapConsecutiveModule.apply(module).concat(" ").concat(semester);
-    };
+    private final Function<Module, String> mapModule = module ->
+            mapConsecutiveModule.apply(module).concat(" ").concat(module.getSemester().getDescription());
 }

@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 
 
 /**
@@ -19,8 +17,6 @@ import java.util.List;
 @Data
 @Builder
 public class ModuleDTO {
-    public record ExecutionSemester(List<Integer> fullTimeSemesterList) {}
-
     private String moduleNo;
     private String shortModuleNo;
     private String moduleTitle;
@@ -30,7 +26,7 @@ public class ModuleDTO {
     private ModuleCategory category;
     private byte credits;
     private String language;
-    private ExecutionSemester executionSemester;
+    private int semester;
     // todo maybe link with another module
     private String consecutiveModuleNo;
 }

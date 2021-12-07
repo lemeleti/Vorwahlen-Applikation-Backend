@@ -18,16 +18,18 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 
-import static ch.zhaw.vorwahlen.util.ObjectMapperUtil.*;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.any;
+import static ch.zhaw.vorwahlen.util.ObjectMapperUtil.fromJsonResult;
+import static ch.zhaw.vorwahlen.util.ObjectMapperUtil.toJson;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("dev")
 @SpringBootTest(properties = "classpath:settings.properties")
@@ -43,10 +45,8 @@ class ModuleControllerTest {
     private static final int CREDIT_2 = 2;
     private static final int CREDIT_4 = 4;
     private static final int CREDIT_6 = 6;
-    private static final List<Integer> PART_TIME_SEMESTER_LIST_5_7 = List.of(5, 7);
-    private static final List<Integer> PART_TIME_SEMESTER_LIST_6_8 = List.of(6, 8);
-    private static final List<Integer> FULL_TIME_SEMESTER_LIST_5 = List.of(5);
-    private static final List<Integer> FULL_TIME_SEMESTER_LIST_5_6 = List.of(5, 6);
+    private static final int SEMESTER_5 = 5;
+    private static final int SEMESTER_5_6 = 7;
 
     @Autowired
     MockMvc mockMvc;
@@ -71,7 +71,7 @@ class ModuleControllerTest {
                 .institute("INIT")
                 .credits((byte) 4)
                 .language("English")
-                .executionSemester(new ModuleDTO.ExecutionSemester(List.of(5)))
+                .semester(5)
                 .consecutiveModuleNo("")
                 .build();
     }
@@ -85,13 +85,13 @@ class ModuleControllerTest {
         // prepare
         var expectedList = new ArrayList<ModuleDTO>();
         expectedList.add(ModuleDTO.builder().moduleNo("nr1").moduleTitle("title1").language(LANGUAGE_DE).credits((byte) CREDIT_2)
-                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5))
+                                 .semester(SEMESTER_5)
                                  .build());
         expectedList.add(ModuleDTO.builder().moduleNo("nr2").moduleTitle("title2").language(LANGUAGE_EN).credits((byte) CREDIT_4)
-                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5_6))
+                                 .semester(SEMESTER_5_6)
                                  .build());
         expectedList.add(ModuleDTO.builder().moduleNo("nr3").moduleTitle("title3").language(LANGUAGE_DE).credits((byte) CREDIT_6)
-                                 .executionSemester(new ModuleDTO.ExecutionSemester(FULL_TIME_SEMESTER_LIST_5))
+                                 .semester(SEMESTER_5)
                                  .build());
 
         when(moduleService.getAllModules()).thenReturn(expectedList);
@@ -126,18 +126,10 @@ class ModuleControllerTest {
                             hasItem(LANGUAGE_DE),
                             hasItem(LANGUAGE_EN)
                     )))
-                    .andExpect(jsonPath("$.[*].executionSemester").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].executionSemester.fullTimeSemesterList").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].executionSemester.fullTimeSemesterList.[*]").isNotEmpty())
-                    .andExpect(jsonPath("$.[0].executionSemester.fullTimeSemesterList.[*]", anyOf(
-                            hasItem(FULL_TIME_SEMESTER_LIST_5.get(0))
-                    )))
-                    .andExpect(jsonPath("$.[1].executionSemester.fullTimeSemesterList.[*]", anyOf(
-                            hasItem(FULL_TIME_SEMESTER_LIST_5_6.get(0)),
-                            hasItem(FULL_TIME_SEMESTER_LIST_5_6.get(1))
-                    )))
-                    .andExpect(jsonPath("$.[2].executionSemester.fullTimeSemesterList.[*]", anyOf(
-                            hasItem(FULL_TIME_SEMESTER_LIST_5.get(0))
+                    .andExpect(jsonPath("$.[*].semester").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].semester", anyOf(
+                            hasItem(SEMESTER_5),
+                            hasItem(SEMESTER_5_6)
                     )))
                     .andDo(print());
         } catch (Exception e) {
