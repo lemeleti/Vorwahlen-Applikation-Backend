@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.model.modulestructure;
 
 import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
 import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
+import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
@@ -9,6 +10,7 @@ import ch.zhaw.vorwahlen.model.modules.Student;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +31,7 @@ public class ModuleStructureGenerator {
 
     public ElectionStructureDTO generateStructure() {
         electedModuleList = new ArrayList<>(Set.copyOf(election.getElectedModules()));
+        electedModuleList.sort(Comparator.comparingInt(o -> o.getSemester().getSemester()));
         hasElectedModules = !election.getElectedModules().isEmpty();
         for (ModuleCategory category : ModuleCategory.values()) {
             generateModuleElements(moduleDefinition.getDefinitionByCategory(category), category);
@@ -71,7 +74,7 @@ public class ModuleStructureGenerator {
         while (iterator.hasNext()) {
             var module = iterator.next();
             iterator.remove();
-            var semester = calculateSemester(module); // todo use real semester
+            var semester = module.getSemester().getSemester();
             var category = ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup());
             overflowedModuleStructure.add(createStructureElement(module, category, semester));
         }
@@ -87,14 +90,14 @@ public class ModuleStructureGenerator {
         for (var entry : modules.entrySet()) {
             for (var i = 0; i < entry.getValue(); i++) {
                 var semester = entry.getKey();
-                var module = findModuleByCategory(category, semester);
+                var module = findModuleByCategory(category);
                 var element = createStructureElement(module, category, semester);
                 electedModuleStructure.add(element);
             }
         }
     }
 
-    private Module findModuleByCategory(ModuleCategory category, int semester) {
+    private Module findModuleByCategory(ModuleCategory category) {
         Module module = null;
         Predicate<Module> hasModuleForCategory = m ->
                 category.equals(ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup())) &&
@@ -110,27 +113,6 @@ public class ModuleStructureGenerator {
             }
         }
         return module;
-    }
-
-    private boolean hasModuleForSemester(Module module, int compareSemester) {
-        // todo not beautiful enough code, to refactore
-        if(compareSemester == 7) {
-            compareSemester = 5;
-        }
-        if(compareSemester == 8) {
-            compareSemester = 6;
-        }
-        return module.getFullTimeSemester().contains(String.valueOf(compareSemester));
-    }
-
-    private int calculateSemester(Module module) {
-        var executionSemesters = module.getFullTimeSemester().split(";");
-        var semester = (int) Float.parseFloat(executionSemesters[0]);
-        if (student.isTZ() && student.isSecondElection()) {
-            semester = (int) Float.parseFloat(executionSemesters[executionSemesters.length - 1]);
-        }
-
-        return semester;
     }
 
     private ModuleStructureElement createStructureElement(Module module, ModuleCategory category, int semester) {
