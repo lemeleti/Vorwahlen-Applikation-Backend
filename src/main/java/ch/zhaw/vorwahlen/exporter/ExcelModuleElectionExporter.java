@@ -13,6 +13,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -26,11 +28,11 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
     private static final String DELIMITER = "; ";
 
     @Override
-    public byte[] export(List<ModuleElection> electionList) {
+    public byte[] export(Set<ModuleElection> electionSet) {
         try (var workbook = new XSSFWorkbook()) {
             var sheet = workbook.createSheet("Modulvorwahlen");
             writeHeaderToSheet(sheet);
-            writeElectionsToSheet(electionList, sheet);
+            writeElectionsToSheet(electionSet, sheet);
 
             try (var os = new ByteArrayOutputStream()) {
                 workbook.write(os);
@@ -49,9 +51,9 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
         }
     }
 
-    private void writeElectionsToSheet(List<ModuleElection> electionList, XSSFSheet sheet) {
+    private void writeElectionsToSheet(Set<ModuleElection> electionSet, XSSFSheet sheet) {
         var rowCounter = 1;
-        for (ModuleElection moduleElection : electionList) {
+        for (ModuleElection moduleElection : electionSet) {
             var row = sheet.createRow(rowCounter++);
             var cellCounter = 0;
             var electionData = transformModuleElectionToData(moduleElection);
@@ -67,8 +69,10 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
         var modules = election.getElectedModules().stream().toList();
         Predicate<Module> isConsecutiveModule = m -> m.getConsecutiveModuleNo() != null &&
                 !m.getConsecutiveModuleNo().isBlank();
-        Predicate<Module> isSubjectModule = m -> m.getConsecutiveModuleNo() == null &&
-                ModuleCategory.SUBJECT_MODULE.equals(ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup()));
+        Predicate<Module> isSubjectModule = m -> (m.getConsecutiveModuleNo() == null &&
+                ModuleCategory.SUBJECT_MODULE.equals(ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup()))) ||
+                (m.getConsecutiveModuleNo() == null &&
+                        ModuleCategory.INTERDISCIPLINARY_MODULE.equals(ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup())));
         Predicate<Module> isContextModule = m ->
                 ModuleCategory.CONTEXT_MODULE.equals(ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup()));
 
@@ -76,17 +80,41 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
                 student.getEmail(),
                 student.getName(),
                 student.getStudentClass().getName(),
-                getModulesAsStringForPredicate(modules, isConsecutiveModule),
-                getModulesAsStringForPredicate(modules, isSubjectModule),
-                getModulesAsStringForPredicate(modules, isContextModule)
+                getModulesAsString(modules, mapConsecutiveModule, isConsecutiveModule),
+                getModulesAsString(modules, mapModule, isSubjectModule),
+                getModulesAsString(modules, mapModule, isContextModule)
         };
     }
 
-    private String getModulesAsStringForPredicate(List<Module> modules, Predicate<Module> predicate) {
+    private String getModulesAsString(List<Module> modules,
+                                                  Function<Module, String> map,
+                                                  Predicate<Module> predicate) {
         return modules
                 .stream()
                 .filter(predicate)
-                .map(Module::getModuleTitle)
+                .map(map)
                 .collect(Collectors.joining(DELIMITER));
     }
+
+    private final Function<Module, String> mapConsecutiveModule = module -> {
+        var moduleTitle = module.getModuleTitle();
+        var shortModuleNoSplit = module.getShortModuleNo().split("\\.");
+        if ("Englisch".equals(module.getLanguage())) {
+            moduleTitle = moduleTitle.concat(" (E)");
+        }
+        var shortModuleNo = shortModuleNoSplit.length > 1 ? shortModuleNoSplit[1] : shortModuleNoSplit[0];
+
+        return moduleTitle.concat(" ".concat(shortModuleNo));
+    };
+
+    private final Function<Module, String> mapModule = module -> {
+        var fullTimeSemester = module.getFullTimeSemester();
+        String semester = "(HS)";
+        if (fullTimeSemester.contains("6") && fullTimeSemester.contains("5")) {
+            semester = "(HS)/(FS)";
+        } else if (fullTimeSemester.contains("6")) {
+            semester = "(FS)";
+        }
+        return mapConsecutiveModule.apply(module).concat(" ").concat(semester);
+    };
 }

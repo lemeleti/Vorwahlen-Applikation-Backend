@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Repository for the module election.
@@ -21,7 +21,7 @@ public interface ElectionRepository extends JpaRepository<ModuleElection, Long> 
     LEFT JOIN FETCH e.student
     LEFT JOIN FETCH e.electedModules
     """)
-    List<ModuleElection> findAllModulesToExport();
+    Set<ModuleElection> findAllModulesToExport();
 
     @Query("""
     SELECT e
