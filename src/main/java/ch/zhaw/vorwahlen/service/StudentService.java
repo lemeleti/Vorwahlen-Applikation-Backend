@@ -56,9 +56,10 @@ public class StudentService {
     public void importClassListExcel(MultipartFile file, String worksheet) {
         try {
             var classListParser = new ClassListParser(file.getInputStream(), worksheet);
-            var classLists = classListParser.parseModulesFromXLSX();
-            setSecondElection(classLists);
-            studentRepository.saveAll(classLists);
+            var students = classListParser.parseModulesFromXLSX();
+            setSecondElection(students);
+            createAndSetModuleElection(students);
+            studentRepository.saveAll(students);
         } catch (IOException e) {
             var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
             var message = String.format(formatString, file.getOriginalFilename());
@@ -104,6 +105,19 @@ public class StudentService {
         students.stream()
                 .filter(Student::isTZ)
                 .forEach(student-> student.setSecondElection(isSecondElection(student.getStudentClass().getName())));
+    }
+
+    private void createAndSetModuleElection(List<Student> students) {
+        students.forEach(student -> {
+                    var moduleElection = new ModuleElection();
+                    var validationSetting = new ValidationSetting();
+
+                    moduleElection.setStudent(student);
+                    moduleElection.setValidationSetting(validationSetting);
+                    moduleElection.setElectedModules(new HashSet<>());
+
+                    student.setElection(moduleElection);
+                });
     }
 
     private boolean isSecondElection(String clazz) {
