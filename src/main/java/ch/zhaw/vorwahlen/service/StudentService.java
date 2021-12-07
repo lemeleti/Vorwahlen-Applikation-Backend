@@ -7,14 +7,15 @@ import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.dto.StudentFirstTimeSetupDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.parser.DispensationParser;
-import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.mail.SimpleMailMessage;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -190,6 +192,18 @@ public class StudentService {
                 .orElse(addStudent(studentDTO));
 
         return mapper.toDto(updatedStudent);
+    }
+
+    public void updateFirstTimeSetup(String id, StudentFirstTimeSetupDTO firstTimeSetupDTO) {
+        var student = studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    var formatString =
+                            ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
+                    return new StudentNotFoundException(String.format(formatString, id));
+                });
+
+        student.setFirstTimeSetup(firstTimeSetupDTO.isFirstTimeSetup());
+        studentRepository.save(student);
     }
 
     /**

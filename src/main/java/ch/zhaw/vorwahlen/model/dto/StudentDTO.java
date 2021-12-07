@@ -7,7 +7,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * DTO for a module
@@ -36,4 +40,7 @@ public class StudentDTO {
     private boolean isTZ;
     @NotNull(message = "{validation.second.election.invalid}")
     private boolean isSecondElection;
+    private long moduleElectionId;
+    private boolean firstTimeSetup;
+    private boolean canElect;
 }

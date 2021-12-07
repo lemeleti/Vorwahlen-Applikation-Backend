@@ -16,6 +16,10 @@ public class StudentMapper implements Mapper<StudentDTO, Student> {
                 .wpmDispensation(student.getWpmDispensation())
                 .isIP(student.isIP())
                 .isTZ(student.isTZ())
+                .isSecondElection(student.isSecondElection())
+                .moduleElectionId(student.getElection() != null ? student.getElection().getId() : 0)
+                .firstTimeSetup(student.isFirstTimeSetup())
+                .canElect(student.isCanElect())
                 .build();
     }
 
@@ -29,6 +33,8 @@ public class StudentMapper implements Mapper<StudentDTO, Student> {
                 .isIP(studentDTO.isIP())
                 .isTZ(studentDTO.isTZ())
                 .isSecondElection(studentDTO.isSecondElection())
+                .canElect(studentDTO.isCanElect())
+                .firstTimeSetup(studentDTO.isFirstTimeSetup())
                 .build();
     }
 }

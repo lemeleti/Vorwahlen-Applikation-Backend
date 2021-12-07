@@ -48,6 +48,10 @@ public class Student {
     private boolean isTZ;
     @Column(columnDefinition = "tinyint(1) default 0")
     private boolean isSecondElection;
+    @Column(columnDefinition = "tinyint(1) default 1")
+    private boolean firstTimeSetup;
+    @Column(columnDefinition = "tinyint(1) default 1")
+    private boolean canElect;
 
     @OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)
     @JoinColumn(name = "election_id")
