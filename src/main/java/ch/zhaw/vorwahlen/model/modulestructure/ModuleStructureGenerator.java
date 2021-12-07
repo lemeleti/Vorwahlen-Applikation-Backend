@@ -100,8 +100,7 @@ public class ModuleStructureGenerator {
     private Module findModuleByCategory(ModuleCategory category) {
         Module module = null;
         Predicate<Module> hasModuleForCategory = m ->
-                category.equals(ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup())) &&
-                        hasModuleForSemester(m, semester);
+                (category.equals(ModuleCategory.parse(m.getModuleNo(), m.getModuleGroup())));
 
         if (hasElectedModules) {
             var moduleOptional = electedModuleList.stream()
@@ -119,6 +118,10 @@ public class ModuleStructureGenerator {
         var notAvailableModuleId = "N/A";
         var moduleData = Optional.ofNullable(module)
                 .orElse(Module.builder().moduleNo(notAvailableModuleId).moduleTitle(category.getDescription()).build());
+
+        if (module != null && !ExecutionSemester.AUTUMN_AND_SPRING.equals(module.getSemester())) {
+            semester = module.getSemester().getSemester();
+        }
 
         return new ModuleStructureElement(
                 moduleData.getModuleTitle(), moduleData.getModuleNo(),
