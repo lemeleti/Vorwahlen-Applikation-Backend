@@ -11,11 +11,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum ModuleCategory {
-    SUBJECT_MODULE(4),
-    INTERDISCIPLINARY_MODULE(4),
     CONTEXT_MODULE(2),
     PROJECT_MODULE(6),
     BACHELOR_MODULE(12),
+    SUBJECT_MODULE(4),
+    INTERDISCIPLINARY_MODULE(4),
     DISPENSED_PA_MODULE(6),
     DISPENSED_WPM_MODULE(4);
 
