@@ -25,18 +25,12 @@ public class StudentController {
 
     /**
      * Return all students.
-     * @param electionStatus optional flag to filter valid or invalid elections.
      * @return {@link ResponseEntity} containing list of {@link StudentDTO}.
      */
     @GetMapping(path = {"/", ""})
-    public ResponseEntity<List<StudentDTO>> getAllStudents(
-            @RequestParam(name = "electionvalid", required = false) Optional<Boolean> electionStatus) {
+    public ResponseEntity<List<StudentDTO>> getAllStudents() {
 
-        var students = electionStatus.isPresent()
-                ? studentService.getAllStudentsByElectionStatus(electionStatus.get())
-                : studentService.getAllStudents();
-
-        return ResponseEntity.ok().body(students);
+        return ResponseEntity.ok().body(studentService.getAllStudents());
     }
 
     /**

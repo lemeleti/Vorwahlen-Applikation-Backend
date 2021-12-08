@@ -4,8 +4,12 @@ import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
+import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -21,7 +25,11 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -62,8 +70,80 @@ class StudentServiceTest {
     }
 
     @Test
+    void testAddStudent() {
+        var dto = StudentDTO.builder()
+                .email("hello@mail.ch")
+                .name("Hello World")
+                .clazz("IT19a_WIN")
+                .build();
+        assertEquals(0, studentRepository.count());
+        studentService.addAndReturnLocation(dto);
+        assertEquals(1, studentRepository.count());
+    }
+
+    @Test
+    void testDeleteStudentById() {
+        // prepare
+        var dto = StudentDTO.builder()
+                .email("hello@mail.ch")
+                .name("Hello World")
+                .clazz("IT19a_WIN")
+                .build();
+        assertEquals(0, studentRepository.count());
+        studentService.addAndReturnLocation(dto);
+        assertEquals(1, studentRepository.count());
+
+        // execute
+        studentService.deleteStudentById(dto.getEmail());
+        assertEquals(0, studentRepository.count());
+    }
+
+    @Test
+    void testReplaceStudent() {
+        // prepare
+        var dto = StudentDTO.builder()
+                .email("hello@mail.ch")
+                .name("Hello World")
+                .clazz("IT19a_WIN")
+                .build();
+        assertEquals(0, studentRepository.count());
+        studentService.addAndReturnLocation(dto);
+        assertEquals(1, studentRepository.count());
+
+        dto.setName("Hello Server");
+        // execute
+        studentService.replaceStudent(dto.getEmail(), dto);
+        assertEquals(dto.getName(), studentService.getStudentById(dto.getEmail()).getName());
+    }
+
+    @Test
+    void testUpdateStudentEditableField() {
+        // prepare
+        var dto = StudentDTO.builder()
+                .email("hello@mail.ch")
+                .name("Hello World")
+                .clazz("IT19a_WIN")
+                .firstTimeSetup(false)
+                .isIP(false)
+                .build();
+        assertEquals(0, studentRepository.count());
+        studentService.addAndReturnLocation(dto);
+        assertEquals(1, studentRepository.count());
+
+        var map = Map.of("ip", true);
+        // execute
+        studentService.updateStudentEditableFields(dto.getEmail(), map);
+        assertTrue(studentService.getStudentById(dto.getEmail()).isIP());
+
+        map = Map.of("firstTimeSetup", true);
+        // execute
+        studentService.updateStudentEditableFields(dto.getEmail(), map);
+        assertTrue(studentService.getStudentById(dto.getEmail()).isFirstTimeSetup());
+    }
+
+    @Test
     @Sql("classpath:sql/class_list.sql")
-    void testGetAllClassLists() {
+    void testGetAllStudents() {
         var result = studentService.getAllStudents();
         assertNotNull(result);
         assertFalse(result.isEmpty());

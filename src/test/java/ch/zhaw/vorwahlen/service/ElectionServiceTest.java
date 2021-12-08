@@ -1,10 +1,12 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
+import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
@@ -44,6 +46,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("dev")
 class ElectionServiceTest {
+
+    public static final long NON_EXISTENT_ID = 9999L;
     private final ElectionRepository electionRepository;
     private final ElectionValidator validator;
     private final ModuleDefinition moduleDefinition;
@@ -117,6 +121,130 @@ class ElectionServiceTest {
     // Positive tests
     // ================================================================================================================
 
+    @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
+    @Sql("classpath:sql/modules_test_election.sql")
+    void testGetAllModuleElections() {
+        // prepare
+        var validElection = validElectionSetForElection();
+        var moduleElection = new ModuleElection();
+        var validationSetting = new ValidationSetting();
+
+        var electedModules = validElection
+                .stream()
+                .map(s -> Module.builder().moduleNo(s).build())
+                .collect(Collectors.toSet());
+
+        moduleElection.setElectedModules(electedModules);
+        moduleElection.setValidationSetting(validationSetting);
+        moduleElection.setStudent(student);
+        electionRepository.save(moduleElection);
+
+        // execute
+        var result = electionService.getAllModuleElections();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
+    @Sql("classpath:sql/modules_test_election.sql")
+    void testGetModuleElectionById() {
+        // prepare
+        var validElection = validElectionSetForElection();
+        var moduleElection = new ModuleElection();
+        var validationSetting = new ValidationSetting();
+
+        var electedModules = validElection
+                .stream()
+                .map(s -> Module.builder().moduleNo(s).build())
+                .collect(Collectors.toSet());
+
+        moduleElection.setElectedModules(electedModules);
+        moduleElection.setValidationSetting(validationSetting);
+        moduleElection.setStudent(student);
+        moduleElection = electionRepository.save(moduleElection);
+
+        // execute
+        var result = electionService.getModuleElectionById(moduleElection.getId());
+        assertNotNull(result);
+    }
+
+    @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
+    @Sql("classpath:sql/modules_test_election.sql")
+    void testCreateModuleElection() {
+        // prepare
+        var moduleElectionDto = ModuleElectionDTO.builder()
+                .studentEmail(student.getEmail())
+                .electedModules(validElectionSetForElection())
+                .validationSettingDTO(new ValidationSettingDTO(false, false, false))
+                .build();
+
+        // execute
+        var count = electionRepository.count();
+        electionService.createModuleElection(moduleElectionDto);
+        assertEquals(count + 1, electionRepository.count());
+    }
+
+    @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
+    @Sql("classpath:sql/modules_test_election.sql")
+    void testDeleteModuleElectionById() {
+        // prepare
+
+        var validElection = validElectionSetForElection();
+        var moduleElection = new ModuleElection();
+        var validationSetting = new ValidationSetting();
+
+        var electedModules = validElection
+                .stream()
+                .map(s -> Module.builder().moduleNo(s).build())
+                .collect(Collectors.toSet());
+
+        moduleElection.setElectedModules(electedModules);
+        moduleElection.setValidationSetting(validationSetting);
+        moduleElection.setStudent(student);
+
+        var count = electionRepository.count();
+        moduleElection = electionRepository.save(moduleElection);
+        assertEquals(count + 1, electionRepository.count());
+
+        // execute
+        electionService.deleteModuleElectionById(moduleElection.getId());
+        assertEquals(count, electionRepository.count());
+    }
+
+    @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
+    @Sql("classpath:sql/modules_test_election.sql")
+    void testUpdateModuleElection() {
+        // prepare
+        var validElection = validElectionSetForElection();
+        var moduleElection = new ModuleElection();
+        var validationSetting = new ValidationSetting();
+
+        var electedModules = validElection
+                .stream()
+                .map(s -> Module.builder().moduleNo(s).build())
+                .collect(Collectors.toSet());
+
+        moduleElection.setElectedModules(electedModules);
+        moduleElection.setValidationSetting(validationSetting);
+        moduleElection.setStudent(student);
+        moduleElection = electionRepository.save(moduleElection);
+
+        assertFalse(moduleElection.isElectionValid());
+
+        var dto = moduleElectionMapper.toDto(moduleElection);
+        dto.setElectionValid(true);
+        // execute
+        electionService.updateModuleElection(moduleElection.getId(), dto);
+
+        // verify
+        var election = electionService.getModuleElectionById(moduleElection.getId());
+        assertTrue(election.isElectionValid());
+    }
     @Test
     @Sql("classpath:sql/election_service_test_user.sql")
     @Sql("classpath:sql/modules_test_election.sql")
@@ -345,6 +473,12 @@ class ElectionServiceTest {
 
         assertEquals(12, electionService.getModuleElectionForStudent(student2).getElectedModules().size());
         assertEquals(2, validationSettingRepository.count());
+    }
+
+
+    @Test
+    void testGetModuleElectionById_NonExistentId() {
+        assertThrows(ModuleElectionNotFoundException.class, () -> electionService.getModuleElectionById(NON_EXISTENT_ID));
     }
 
 

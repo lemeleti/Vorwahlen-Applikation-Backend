@@ -114,55 +114,6 @@ class StudentControllerTest {
     }
 
     @Test
-    void testGetAllStudents_ElectionValid() {
-        // prepare
-        var expectedList = new ArrayList<StudentDTO>();
-
-        expectedList.add(StudentDTO.builder().email("mail1").name("name1").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
-        expectedList.add(StudentDTO.builder().email("mail2").name("name2").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
-        expectedList.add(StudentDTO.builder().email("mail3").name("name3").clazz(CLASS_2).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
-
-        when(studentService.getAllStudentsByElectionStatus(anyBoolean())).thenReturn(expectedList);
-
-        // execute
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                    .get(REQUEST_MAPPING_PREFIX + "?electionvalid=true")
-                    .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").exists())
-                    .andExpect(jsonPath("$.[*].email").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].email", anyOf(
-                            hasItem(expectedList.get(PA_DISPENSATION).getEmail()),
-                            hasItem(expectedList.get(1).getEmail()),
-                            hasItem(expectedList.get(2).getEmail())
-                    )))
-                    .andExpect(jsonPath("$.[*].name").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].name", anyOf(
-                            hasItem(expectedList.get(PA_DISPENSATION).getName()),
-                            hasItem(expectedList.get(1).getName()),
-                            hasItem(expectedList.get(2).getName())
-                    )))
-                    .andExpect(jsonPath("$.[*].class").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].class", anyOf(
-                            hasItem(CLASS_1),
-                            hasItem(CLASS_2)
-                    )))
-                    .andExpect(jsonPath("$.[*].paDispensation").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].paDispensation", anyOf(hasItem(PA_DISPENSATION))))
-                    .andExpect(jsonPath("$.[*].wpmDispensation").isNotEmpty())
-                    .andExpect(jsonPath("$.[*].wpmDispensation", anyOf(hasItem(PA_DISPENSATION))))
-                    .andDo(print());
-            // todo: test ip and tz flag
-        } catch (Exception e) {
-            fail(e);
-        }
-
-        // verify
-        verify(studentService, times(1)).getAllStudentsByElectionStatus(anyBoolean());
-    }
-
-    @Test
     void testAddStudent() throws URISyntaxException {
         // prepare
         when(studentService.addAndReturnLocation(any())).thenReturn(new URI("/students/".concat(nonExistentStudentDto.getEmail())));

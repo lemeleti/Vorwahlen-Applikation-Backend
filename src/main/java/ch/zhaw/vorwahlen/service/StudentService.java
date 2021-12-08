@@ -156,18 +156,6 @@ public class StudentService {
     }
 
     /**
-     * Ge all students by election status
-     * @param electionStatus true: valid elections, false: invalid elections
-     * @return a list of {@link StudentDTO}.
-     */
-    public List<StudentDTO> getAllStudentsByElectionStatus(boolean electionStatus) {
-        return studentRepository.getAllByElectionStatus(electionStatus)
-                .stream()
-                .map(mapper::toDto)
-                .toList();
-    }
-
-    /**
      * Get student from the database by id.
      * @param id the id for the student
      * @return Optional<StudentDTO>

@@ -48,7 +48,7 @@ public class ElectionService {
      * @return list of {@link ModuleElectionDTO}
      */
     public List<ModuleElectionDTO> getAllModuleElections() {
-        return electionRepository.findAll()
+        return electionRepository.findAllModules()
                 .stream()
                 .map(moduleElectionMapper::toDto)
                 .toList();
@@ -139,7 +139,7 @@ public class ElectionService {
      * @return byte array containing the formatted module election.
      */
     public byte[] exportModuleElection() {
-        return exporter.export(electionRepository.findAllModulesToExport());
+        return exporter.export(electionRepository.findAllModules());
     }
 
     private void migrateElectionChanges(ModuleElection moduleElection, String moduleNo) {
@@ -160,7 +160,7 @@ public class ElectionService {
     }
 
     private ModuleElection fetchModuleElectionById(Long id) {
-        return electionRepository.findById(id).orElseThrow(() -> {
+        return electionRepository.findModuleElectionById(id).orElseThrow(() -> {
             var resourceMessage = ResourceBundleMessageLoader.getMessage(ERROR_MODULE_ELECTION_NOT_FOUND);
             var errorMessage = String.format(resourceMessage, id);
             return new ModuleElectionNotFoundException(errorMessage);

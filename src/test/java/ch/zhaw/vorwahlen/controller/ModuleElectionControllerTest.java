@@ -4,11 +4,14 @@ import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionStatusElementDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
+import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureElement;
 import ch.zhaw.vorwahlen.service.StudentService;
 import ch.zhaw.vorwahlen.service.ElectionService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +32,9 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
-import javax.print.attribute.standard.Media;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -114,6 +116,137 @@ class ModuleElectionControllerTest {
 
         // verify
         verify(electionService, times(1)).getElection(any());
+    }
+
+    @Test
+    void testGetAllModuleElections() {
+        // prepare
+        var moduleElectionDtoList = List.of(ModuleElectionDTO.builder().id(1L).build());
+        when(electionService.getAllModuleElections()).thenReturn(moduleElectionDtoList);
+
+        // execute
+        try {
+            var results = mockMvc.perform(MockMvcRequestBuilders
+                                                  .get(REQUEST_MAPPING_PREFIX)
+                                                  .with(csrf()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").exists())
+                    .andDo(print())
+                    .andReturn();
+
+            var resultDtos = fromJsonResult(results, new TypeReference<List<ModuleElectionDTO>>(){});
+            assertIterableEquals(moduleElectionDtoList, resultDtos);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(electionService, times(1)).getAllModuleElections();
+    }
+
+    @Test
+    void testGetModuleElectionById() {
+        // prepare
+        var moduleElectionDTO = ModuleElectionDTO.builder().id(1L).build();
+        when(electionService.getModuleElectionById(anyLong())).thenReturn(moduleElectionDTO);
+
+        // execute
+        try {
+            var results = mockMvc.perform(MockMvcRequestBuilders
+                                                  .get(REQUEST_MAPPING_PREFIX + "/" + moduleElectionDTO.getId())
+                                                  .with(csrf()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").exists())
+                    .andDo(print())
+                    .andReturn();
+
+            var resultDto = fromJsonResult(results, ModuleElectionDTO.class);
+            assertEquals(moduleElectionDTO, resultDto);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(electionService, times(1)).getModuleElectionById(anyLong());
+    }
+
+    @Test
+    void testAddModuleElection() {
+        // prepare
+        var moduleElectionDTO = ModuleElectionDTO.builder()
+                .id(1L)
+                .studentEmail("hello@mail.ch")
+                .electedModules(new HashSet<>())
+                .validationSettingDTO(new ValidationSettingDTO(false, false, false))
+                .build();
+        doNothing().when(electionService).createModuleElection(any());
+
+        // execute
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                                                  .post(REQUEST_MAPPING_PREFIX)
+                                                  .contentType(MediaType.APPLICATION_JSON)
+                                                  .content(toJson(moduleElectionDTO))
+                                                  .with(csrf()))
+                    .andExpect(status().isNoContent())
+                    .andDo(print())
+                    .andReturn();
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(electionService, times(1)).createModuleElection(any());
+    }
+
+    @Test
+    void testDeleteModuleElection() {
+        // prepare
+        var moduleElectionDTO = ModuleElectionDTO.builder().id(1L).build();
+
+        // execute
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                                                  .delete(REQUEST_MAPPING_PREFIX + "/" + moduleElectionDTO.getId())
+                                                  .with(csrf()))
+                    .andExpect(status().isNoContent())
+                    .andDo(print())
+                    .andReturn();
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(electionService, times(1)).deleteModuleElectionById(anyLong());
+    }
+
+    @Test
+    void testReplaceModuleElectionById() {
+        // prepare
+        var moduleElectionDTO = ModuleElectionDTO.builder()
+                .id(1L)
+                .studentEmail("hello@mail.ch")
+                .electedModules(new HashSet<>())
+                .validationSettingDTO(new ValidationSettingDTO(false, false, false))
+                .build();
+        doNothing().when(electionService).updateModuleElection(anyLong(), any());
+
+        // execute
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .put(REQUEST_MAPPING_PREFIX + "/" + moduleElectionDTO.getId())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(moduleElectionDTO))
+                                    .with(csrf()))
+                    .andExpect(status().isNoContent())
+                    .andDo(print())
+                    .andReturn();
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(electionService, times(1)).updateModuleElection(anyLong(), any());
     }
 
     @Test

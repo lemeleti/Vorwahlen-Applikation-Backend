@@ -21,7 +21,16 @@ public interface ElectionRepository extends JpaRepository<ModuleElection, Long> 
     LEFT JOIN FETCH e.student
     LEFT JOIN FETCH e.electedModules
     """)
-    Set<ModuleElection> findAllModulesToExport();
+    Set<ModuleElection> findAllModules();
+
+    @Query("""
+    SELECT e
+    FROM ModuleElection e
+    LEFT JOIN FETCH e.student
+    LEFT JOIN FETCH e.electedModules
+    WHERE e.id = :id
+    """)
+    Optional<ModuleElection> findModuleElectionById(@Param("id") long id);
 
     @Query("""
     SELECT e
