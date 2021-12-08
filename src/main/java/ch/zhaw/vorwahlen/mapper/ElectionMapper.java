@@ -33,7 +33,7 @@ public class ElectionMapper implements Mapper<ModuleElectionDTO, ModuleElection>
                 .builder()
                 .id(moduleElection.getId())
                 .studentEmail(moduleElection.getStudent().getEmail())
-                .isElectionValid(moduleElection.isElectionValid())
+                .electionValid(moduleElection.isElectionValid())
                 .electedModules(modulesToModuleNos(moduleElection.getElectedModules()))
                 .validationSettingDTO(mapper.toDto(moduleElection.getValidationSetting()))
                 .build();

@@ -25,7 +25,7 @@ public class ModuleElectionDTO {
     private String studentEmail;
     @Getter(onMethod_=@JsonProperty)
     @Setter(onMethod_=@JsonIgnore)
-    private boolean isElectionValid;
+    private boolean electionValid;
     @NotNull
     private Set<String> electedModules;
     private ValidationSettingDTO validationSettingDTO;
