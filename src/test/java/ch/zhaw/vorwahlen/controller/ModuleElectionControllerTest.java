@@ -99,9 +99,10 @@ class ModuleElectionControllerTest {
         // execute
         try {
             var results = mockMvc.perform(MockMvcRequestBuilders
-                                                  .get(REQUEST_MAPPING_PREFIX)
+                                                  .get(REQUEST_MAPPING_PREFIX + "/structure")
                                                   .with(csrf()))
                     .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").exists())
                     .andDo(print())
                     .andReturn();
 
