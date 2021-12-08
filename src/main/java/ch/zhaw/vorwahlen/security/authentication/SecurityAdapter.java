@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 /**
  * Configure the permissions and filter the incoming requests.
@@ -34,6 +35,6 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and().httpBasic().disable()
                 .addFilterBefore(authFilter, BasicAuthenticationFilter.class)
-                .csrf().disable();
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
 }
