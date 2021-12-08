@@ -8,17 +8,13 @@ import org.springframework.stereotype.Component;
 public class UserMapper implements Mapper<UserDTO, User> {
     @Override
     public UserDTO toDto(User user) {
-        var student = user.getStudent();
         return new UserDTO(
                 user.getName(),
                 user.getLastName(),
                 user.getAffiliation(),
                 user.getHomeOrg(),
                 user.getMail(),
-                user.getRole(),
-                student.isIP(),
-                student.isTZ(),
-                student.isSecondElection()
+                user.getRole()
         );
     }
 }
