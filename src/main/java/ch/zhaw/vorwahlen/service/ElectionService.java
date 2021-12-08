@@ -1,22 +1,31 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.modules.*;
+import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
+import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
+import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
-import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
+import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+
+import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_MODULE_ELECTION_NOT_FOUND;
 
 /**
  * Business logic for the election.
@@ -33,6 +42,36 @@ public class ElectionService {
     private final ElectionSemesters electionSemesters;
     private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
     private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
+
+    public List<ModuleElectionDTO> getAllModuleElections() {
+        return electionRepository.findAll()
+                .stream()
+                .map(moduleElectionMapper::toDto)
+                .toList();
+    }
+
+    public ModuleElectionDTO getModuleElectionById(Long id) {
+        return moduleElectionMapper.toDto(fetchModuleElectionById(id));
+    }
+
+    public void createModuleElection(ModuleElectionDTO moduleElectionDTO) {
+        electionRepository.save(moduleElectionMapper.toInstance(moduleElectionDTO));
+    }
+
+    public void deleteModuleElectionById(Long id) {
+        var moduleElection = fetchModuleElectionById(id);
+        moduleElection.getStudent().setElection(null);
+        moduleElection.setStudent(null);
+        electionRepository.delete(moduleElection);
+    }
+
+    public void updateModuleElection(Long id, ModuleElectionDTO moduleElectionDTO) {
+        var savedModuleElection = fetchModuleElectionById(id);
+        var newModuleElection = moduleElectionMapper.toInstance(moduleElectionDTO);
+        newModuleElection.setId(savedModuleElection.getId());
+
+        electionRepository.save(newModuleElection);
+    }
 
     /**
      * Get election data for the specified user.
@@ -83,8 +122,6 @@ public class ElectionService {
 
     private void migrateElectionChanges(ModuleElection moduleElection, String moduleNo) {
         var module = moduleRepository.findById(moduleNo).orElseThrow();
-
-        // todo check if user is allowed to elect module
         var electedModules = moduleElection.getElectedModules();
         if (!electedModules.removeIf(m -> moduleNo.equals(m.getModuleNo()))) {
             electedModules.add(module);
@@ -98,6 +135,14 @@ public class ElectionService {
 
         return new ElectionTransferDTO(electionStructure,
                 electionStatusMapper.toDto(status), saved, moduleElection.isElectionValid());
+    }
+
+    private ModuleElection fetchModuleElectionById(Long id) {
+        return electionRepository.findById(id).orElseThrow(() -> {
+            var resourceMessage = ResourceBundleMessageLoader.getMessage(ERROR_MODULE_ELECTION_NOT_FOUND);
+            var errorMessage = String.format(resourceMessage, id);
+            return new ModuleElectionNotFoundException(errorMessage);
+        });
     }
 
     private ModuleElection loadModuleElectionForStudent(Student student) {
