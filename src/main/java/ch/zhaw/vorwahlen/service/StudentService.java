@@ -7,7 +7,6 @@ import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentFirstTimeSetupDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
@@ -31,6 +30,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -163,14 +163,7 @@ public class StudentService {
      * @return Optional<StudentDTO>
      */
     public StudentDTO getStudentById(String id) {
-        return studentRepository
-                .findById(id)
-                .map(mapper::toDto)
-                .orElseThrow(() -> {
-                    var formatString =
-                            ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
-                    return new StudentNotFoundException(String.format(formatString, id));
-                });
+        return mapper.toDto(fetchStudentById(id));
     }
 
     public void deleteStudentById(String id) {
@@ -194,15 +187,19 @@ public class StudentService {
         return mapper.toDto(updatedStudent);
     }
 
-    public void updateFirstTimeSetup(String id, StudentFirstTimeSetupDTO firstTimeSetupDTO) {
-        var student = studentRepository.findById(id)
-                .orElseThrow(() -> {
-                    var formatString =
-                            ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
-                    return new StudentNotFoundException(String.format(formatString, id));
-                });
+    public void updateStudentEditableFields(String id, Map<String, Boolean> patchedFields) {
+        var student = fetchStudentById(id);
+        var ip = "ip";
+        var firstTimeSetup = "firstTimeSetup";
 
-        student.setFirstTimeSetup(firstTimeSetupDTO.isFirstTimeSetup());
+        if (patchedFields.containsKey(ip)) {
+            student.setIP(patchedFields.get(ip));
+        }
+
+        if (patchedFields.containsKey(firstTimeSetup)) {
+            student.setFirstTimeSetup(patchedFields.get(firstTimeSetup));
+        }
+
         studentRepository.save(student);
     }
 
@@ -238,5 +235,15 @@ public class StudentService {
         message.setText(notificationDTO.message());
 
         emailSenderImpl.send(message);
+    }
+
+    private Student fetchStudentById(String id) {
+        return studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    var formatString =
+                            ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
+                    return new StudentNotFoundException(String.format(formatString, id));
+                });
+
     }
 }

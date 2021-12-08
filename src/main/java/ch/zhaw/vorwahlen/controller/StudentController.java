@@ -2,7 +2,6 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentFirstTimeSetupDTO;
 import ch.zhaw.vorwahlen.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -12,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -85,9 +85,9 @@ public class StudentController {
     }
 
     @PatchMapping(path = {"/{id}", "/{id}/"})
-    public ResponseEntity<Void> updateFirstTimeSetup(@PathVariable String id,
-                                                     @RequestBody StudentFirstTimeSetupDTO firstTimeSetupDTO) {
-        studentService.updateFirstTimeSetup(id, firstTimeSetupDTO);
+    public ResponseEntity<Void> patchFields(@PathVariable String id,
+                                            @RequestBody Map<String, Boolean> patchedFields) {
+        studentService.updateStudentEditableFields(id, patchedFields);
         return ResponseEntity.noContent().build();
     }
 
