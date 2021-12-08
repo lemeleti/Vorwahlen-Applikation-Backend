@@ -120,6 +120,7 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
                 case CONTEXT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getContextValidation(), count, neededModules);
                 case SUBJECT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getSubjectValidation(), count, neededModules);
                 case INTERDISCIPLINARY_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getInterdisciplinaryValidation(), count, neededModules);
+                default -> {}
             }
         }
         return isValid;

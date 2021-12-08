@@ -12,8 +12,8 @@ import java.util.Optional;
  */
 public interface ValidationSettingRepository extends JpaRepository<ValidationSetting, Long> {
     @Query("""
-    SELECT s.election.validationSetting 
-    FROM Student s 
+    SELECT s.election.validationSetting
+    FROM Student s
     WHERE s.email = :email
     """)
     Optional<ValidationSetting> findValidationSettingByStudentMail(@Param("email") String email);
