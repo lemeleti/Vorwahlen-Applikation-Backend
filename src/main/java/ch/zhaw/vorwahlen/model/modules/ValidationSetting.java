@@ -11,6 +11,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+/**
+ * Model/Entity class for validation settings.
+ */
 @Entity
 @Getter @Setter
 @NoArgsConstructor

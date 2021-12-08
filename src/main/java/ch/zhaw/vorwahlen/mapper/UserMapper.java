@@ -4,6 +4,9 @@ import ch.zhaw.vorwahlen.model.dto.UserDTO;
 import ch.zhaw.vorwahlen.security.model.User;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapping class for {@link User}.
+ */
 @Component
 public class UserMapper implements Mapper<UserDTO, User> {
     @Override

@@ -24,19 +24,17 @@ public class StudentController {
     private final StudentService studentService;
 
     /**
-     * Return all class lists.
-     * @return {@link ResponseEntity<List<StudentDTO>>} with status code ok.
+     * Return all students.
+     * @param electionStatus optional flag to filter valid or invalid elections.
+     * @return {@link ResponseEntity} containing list of {@link StudentDTO}.
      */
     @GetMapping(path = {"/", ""})
     public ResponseEntity<List<StudentDTO>> getAllStudents(
             @RequestParam(name = "electionvalid", required = false) Optional<Boolean> electionStatus) {
 
-        List<StudentDTO> students;
-        if (electionStatus.isPresent()) {
-            students = studentService.getAllStudentsByElection(electionStatus.get());
-        } else {
-            students = studentService.getAllStudents();
-        }
+        var students = electionStatus.isPresent()
+                ? studentService.getAllStudentsByElectionStatus(electionStatus.get())
+                : studentService.getAllStudents();
 
         return ResponseEntity.ok().body(students);
     }
@@ -44,7 +42,7 @@ public class StudentController {
     /**
      * Add a student.
      * @param studentDTO to be added student.
-     * @return {@link ResponseEntity<Void>} with status code ok.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PostMapping(path = {"/", ""}, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> addStudent(@Valid @RequestBody StudentDTO studentDTO) {
@@ -54,7 +52,7 @@ public class StudentController {
     /**
      * Returns the student by his id.
      * @param id of student.
-     * @return {@link ResponseEntity<StudentDTO>} with status code ok.
+     * @return {@link ResponseEntity} containing the {@link StudentDTO}.
      */
     @GetMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<StudentDTO> getStudentById(@PathVariable String id) {
@@ -64,7 +62,7 @@ public class StudentController {
     /**
      * Deletes a student by his id.
      * @param id of student.
-     * @return {@link ResponseEntity<Void>} with status code no content.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @DeleteMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<Void> deleteStudentById(@PathVariable String id) {
@@ -76,7 +74,7 @@ public class StudentController {
      * Replace a student by his id.
      * @param id of student.
      * @param studentDTO the new student.
-     * @return {@link ResponseEntity<StudentDTO>} with status code no content.
+     * @return {@link ResponseEntity} containing the {@link StudentDTO}.
      */
     @PutMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<StudentDTO> replaceStudentById(@PathVariable String id,
@@ -84,6 +82,12 @@ public class StudentController {
         return ResponseEntity.ok(studentService.replaceStudent(id, studentDTO));
     }
 
+    /**
+     * Patch student informations.
+     * @param id the student id.
+     * @param patchedFields fields to be patched.
+     * @return {@link ResponseEntity} containing {@link Void}.
+     */
     @PatchMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<Void> patchFields(@PathVariable String id,
                                             @RequestBody Map<String, Boolean> patchedFields) {
@@ -94,11 +98,11 @@ public class StudentController {
     /**
      * Import class list from Excel.
      * @param file the Excel file.
-     * @return {@link ResponseEntity<String>} with status code ok or bad request if the provided file is not there.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PostMapping(path = {"/", ""}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> saveClassListsFromExcel(@RequestParam("file") MultipartFile file,
-                                                          @RequestParam("worksheet") String worksheet) {
+    public ResponseEntity<Void> saveClassListsFromExcel(@RequestParam("file") MultipartFile file,
+                                                        @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
         studentService.importClassListExcel(file, worksheet);
         return ResponseEntity.ok().build();
@@ -107,16 +111,21 @@ public class StudentController {
     /**
      * Import dispensation list from Excel.
      * @param file the Excel file.
-     * @return {@link ResponseEntity<String>} with status code ok or bad request when the provided file is not there
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PostMapping(path = {"/dispensations", "/dispensations"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> saveDispensationListFromExcel(@RequestParam("file") MultipartFile file,
-                                                                @RequestParam("worksheet") String worksheet) {
+    public ResponseEntity<Void> saveDispensationListFromExcel(@RequestParam("file") MultipartFile file,
+                                                              @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
         studentService.importDispensationExcel(file, worksheet);
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Send notification to the students.
+     * @param notificationDTO the notification to be send.
+     * @return {@link ResponseEntity} containing {@link Void}.
+     */
     @PostMapping(path = {"/notify", "/notify/"})
     public ResponseEntity<Void> notifyStudents(@Valid @RequestBody NotificationDTO notificationDTO) {
         studentService.notifyStudents(notificationDTO);

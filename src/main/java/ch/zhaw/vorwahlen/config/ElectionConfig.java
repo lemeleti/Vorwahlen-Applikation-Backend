@@ -19,9 +19,17 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * Configuration for the election.
+ */
 @Configuration
 @RequiredArgsConstructor
 public class ElectionConfig {
+
+    /**
+     * Returns the validator based on the current student.
+     * @return ElectionValidator
+     */
     @Bean
     @Scope(value = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
     public ElectionValidator electionValidator() {
@@ -33,32 +41,52 @@ public class ElectionConfig {
         return electionValidator;
     }
 
+    /**
+     * Returns the module definition. Values loaded based on the current student.
+     * @return ModuleDefinition
+     */
     @Bean
     @Primary
     @Scope(value = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public ModuleDefinition moduleStructure() {
+    public ModuleDefinition moduleDefinition() {
         var student = getStudentFromSecurityContext();
         return student.isTZ() ? moduleDefinitionPartTime() : moduleDefinitionFullTime();
     }
 
+    /**
+     * Returns a new module definition values loaded by prefix tz.
+     * @return ModuleDefinition
+     */
     @Bean
     @ConfigurationProperties(prefix = "tz")
     public ModuleDefinition moduleDefinitionPartTime() {
         return new ModuleDefinition();
     }
 
+    /**
+     * Returns a new module definition values loaded by prefix vz.
+     * @return ModuleDefinition
+     */
     @Bean
     @ConfigurationProperties(prefix = "vz")
     public ModuleDefinition moduleDefinitionFullTime() {
         return new ModuleDefinition();
     }
 
+    /**
+     * Returns a new election semesters instance. Values loaded by student prefix.
+     * @return ElectionSemesters
+     */
     @Bean
     @ConfigurationProperties(prefix = "student")
     public ElectionSemesters electionSemesters() {
         return new ElectionSemesters();
     }
 
+    /**
+     * Returns a new election exporter instance.
+     * @return ModuleElectionExporter
+     */
     @Bean
     public ModuleElectionExporter moduleElectionExporter() {
         return new ExcelModuleElectionExporter();

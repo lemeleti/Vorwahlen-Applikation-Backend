@@ -9,6 +9,9 @@ import ch.zhaw.vorwahlen.model.modules.Student;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Concrete validator for parttime students.
+ */
 public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     public static final int MIN_CREDITS_FIRST_ELECTION = 8;

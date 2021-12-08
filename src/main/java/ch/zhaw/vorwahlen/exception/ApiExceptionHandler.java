@@ -26,10 +26,9 @@ import java.util.logging.Level;
 @Log
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
-
     /**
      * Catches all {@link Exception} and returns it with the information what went wrong.
-     * @param ex {@link Exception}
+     * @param ex the caught exception
      * @param request {@link WebRequest}
      * @return ResponseEntity<Object>
      */
@@ -40,6 +39,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /**
+     * Catch session exceptions and returns it with the information what went wrong.
+     * @param ex the caught exception
+     * @param request {@link WebRequest}
+     * @return ResponseEntity<Object>
+     */
     @ExceptionHandler(SessionNotFoundException.class)
     public ResponseEntity<Object> handleSessionAuthenticationException(Exception ex, WebRequest request) {
         log.severe(ex.getLocalizedMessage());
@@ -47,14 +52,27 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({UserNotFoundException.class, StudentNotFoundException.class, MailTemplateNotFoundException.class,
-                        ModuleElectionNotFoundException.class})
+    /**
+     * Catch not found exceptions and returns it with the information what went wrong.
+     * @param ex the caught exception
+     * @param request {@link WebRequest}
+     * @return ResponseEntity<Object>
+     */
+    @ExceptionHandler({ UserNotFoundException.class, StudentNotFoundException.class,
+                        MailTemplateNotFoundException.class,
+                        ModuleNotFoundException.class, ModuleElectionNotFoundException.class })
     public ResponseEntity<Object> handleNotFoundExceptions(Exception ex, WebRequest request) {
         log.severe(ex.getLocalizedMessage());
         var error = new ErrorResponse(ex.getLocalizedMessage());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Catch import export exceptions and returns it with the information what went wrong.
+     * @param ex the caught exception
+     * @param request {@link WebRequest}
+     * @return ResponseEntity<Object>
+     */
     @ExceptionHandler({ ExportException.class, ImportException.class })
     public ResponseEntity<Object> handleImportExportException(Exception ex, WebRequest request) {
         log.log(Level.SEVERE, ex.getLocalizedMessage(), ex);

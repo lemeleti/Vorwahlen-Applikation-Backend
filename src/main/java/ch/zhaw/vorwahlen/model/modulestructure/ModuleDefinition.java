@@ -6,6 +6,9 @@ import lombok.Data;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class defining which semester for which category has how many modules to be selected.
+ */
 @Data
 public class ModuleDefinition {
     private Map<Integer, Integer> contextModules;
@@ -14,6 +17,11 @@ public class ModuleDefinition {
     private Map<Integer, Integer> subjectModules;
     private Map<Integer, Integer> bachelorModule;
 
+    /**
+     * Get the definition by category
+     * @param category the category to return the definition.
+     * @return {@code Map<Integer, Integer>}
+     */
     Map<Integer, Integer> getDefinitionByCategory(ModuleCategory category) {
         return switch (category) {
             case CONTEXT_MODULE -> contextModules;

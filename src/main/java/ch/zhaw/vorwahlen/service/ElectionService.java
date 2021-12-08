@@ -43,6 +43,10 @@ public class ElectionService {
     private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
     private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
 
+    /**
+     * Return all module elections
+     * @return list of {@link ModuleElectionDTO}
+     */
     public List<ModuleElectionDTO> getAllModuleElections() {
         return electionRepository.findAll()
                 .stream()
@@ -50,14 +54,27 @@ public class ElectionService {
                 .toList();
     }
 
+    /**
+     * Get module election by id
+     * @param id identifier of the module election
+     * @return ModuleElectionDTO
+     */
     public ModuleElectionDTO getModuleElectionById(Long id) {
         return moduleElectionMapper.toDto(fetchModuleElectionById(id));
     }
 
+    /**
+     * Add new module election
+     * @param moduleElectionDTO to be added module election
+     */
     public void createModuleElection(ModuleElectionDTO moduleElectionDTO) {
         electionRepository.save(moduleElectionMapper.toInstance(moduleElectionDTO));
     }
 
+    /**
+     * Delete module election by id
+     * @param id to be deleted module election
+     */
     public void deleteModuleElectionById(Long id) {
         var moduleElection = fetchModuleElectionById(id);
         moduleElection.getStudent().setElection(null);
@@ -65,6 +82,11 @@ public class ElectionService {
         electionRepository.delete(moduleElection);
     }
 
+    /**
+     * Replace module election by id
+     * @param id to be replaced module election
+     * @param moduleElectionDTO new module election
+     */
     public void updateModuleElection(Long id, ModuleElectionDTO moduleElectionDTO) {
         var savedModuleElection = fetchModuleElectionById(id);
         var newModuleElection = moduleElectionMapper.toInstance(moduleElectionDTO);

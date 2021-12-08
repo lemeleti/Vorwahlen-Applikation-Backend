@@ -94,6 +94,11 @@ public class StudentService {
                 });
     }
 
+    /**
+     * Add student.
+     * @param studentDTO to be added student.
+     * @return path where the student can be fetched.
+     */
     public URI addAndReturnLocation(StudentDTO studentDTO) {
         var addedStudent = addStudent(studentDTO);
         try {
@@ -139,7 +144,7 @@ public class StudentService {
     }
 
     /**
-     * Get all class lists from the database.
+     * Get all students from the database.
      * @return a list of {@link StudentDTO}.
      */
     public List<StudentDTO> getAllStudents() {
@@ -150,7 +155,12 @@ public class StudentService {
                 .toList();
     }
 
-    public List<StudentDTO> getAllStudentsByElection(boolean electionStatus) {
+    /**
+     * Ge all students by election status
+     * @param electionStatus true: valid elections, false: invalid elections
+     * @return a list of {@link StudentDTO}.
+     */
+    public List<StudentDTO> getAllStudentsByElectionStatus(boolean electionStatus) {
         return studentRepository.getAllByElectionStatus(electionStatus)
                 .stream()
                 .map(mapper::toDto)
@@ -166,11 +176,20 @@ public class StudentService {
         return mapper.toDto(fetchStudentById(id));
     }
 
+    /**
+     * Delete student by id
+     * @param id identifier of the student.
+     */
     public void deleteStudentById(String id) {
-
         studentRepository.deleteById(id);
     }
 
+    /**
+     * Replace a student by id.
+     * @param id identifier of the student to be replaced.
+     * @param studentDTO new student.
+     * @return the saved student
+     */
     public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
         var updatedStudent = studentRepository.findById(id)
@@ -187,6 +206,11 @@ public class StudentService {
         return mapper.toDto(updatedStudent);
     }
 
+    /**
+     * Patch student informations for a student.
+     * @param id identifier of the student
+     * @param patchedFields map of fields to be updated and it's new values.
+     */
     public void updateStudentEditableFields(String id, Map<String, Boolean> patchedFields) {
         var student = fetchStudentById(id);
         var ip = "ip";
@@ -223,6 +247,10 @@ public class StudentService {
         }
     }
 
+    /**
+     * Notify students per email.
+     * @param notificationDTO the notification to be send.
+     */
     public void notifyStudents(NotificationDTO notificationDTO) {
         var message = new SimpleMailMessage();
         var emailSenderImpl = (JavaMailSenderImpl) emailSender;

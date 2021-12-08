@@ -3,6 +3,9 @@ package ch.zhaw.vorwahlen.constants;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * This class contains codes for the localized messages as constans.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResourceMessageConstants {
 

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
- * DTO for a module
+ * Dto for the {@link ch.zhaw.vorwahlen.model.modules.Student}.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor

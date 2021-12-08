@@ -4,6 +4,9 @@ import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapping class for {@link EventoData}.
+ */
 @Component
 public class EventoDataMapper implements Mapper<EventoDataDTO, EventoData> {
     @Override

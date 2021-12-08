@@ -10,7 +10,7 @@ import java.util.Set;
 public interface ModuleElectionExporter {
     /**
      * Exports the module election from the provided list as byte array.
-     * @param electionSet list containing all module elections
+     * @param electionSet list containing all module elections.
      * @return byte array which can either be sent via http or saved in a file.
      */
     byte[] export(Set<ModuleElection> electionSet);

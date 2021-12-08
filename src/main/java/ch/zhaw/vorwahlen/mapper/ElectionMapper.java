@@ -19,6 +19,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Mapping class for {@link ModuleElection}.
+ */
 @Component
 @RequiredArgsConstructor
 public class ElectionMapper implements Mapper<ModuleElectionDTO, ModuleElection> {

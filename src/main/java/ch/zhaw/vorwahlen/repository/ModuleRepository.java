@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * Repository for the modules.
+ * Repository for {@link Module}.
  */
 @Repository
 public interface ModuleRepository extends JpaRepository<Module, String> {

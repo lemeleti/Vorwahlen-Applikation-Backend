@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import java.util.Objects;
 
 /**
- * Model / Entity class for a module
+ * Model / Entity class for a module.
  */
 @Entity
 @Table(name = "modules")

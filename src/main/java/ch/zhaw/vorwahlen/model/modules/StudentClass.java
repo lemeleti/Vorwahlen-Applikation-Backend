@@ -14,6 +14,9 @@ import javax.persistence.Table;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Model / Entity class for the classes.
+ */
 @Entity
 @Table(name = "classes")
 @Getter @Setter

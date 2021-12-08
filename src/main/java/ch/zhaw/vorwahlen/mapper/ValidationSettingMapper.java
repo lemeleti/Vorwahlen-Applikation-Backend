@@ -4,6 +4,9 @@ import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapping class for {@link ValidationSetting}.
+ */
 @Component
 public class ValidationSettingMapper implements Mapper<ValidationSettingDTO, ValidationSetting> {
     @Override

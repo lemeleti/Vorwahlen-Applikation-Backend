@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Concrete validator for fulltime students.
+ */
 public class FullTimeElectionValidator extends AbstractElectionValidator {
 
     public static final int MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA = 42; // PA = 6 Credits, BA = 12 Credits

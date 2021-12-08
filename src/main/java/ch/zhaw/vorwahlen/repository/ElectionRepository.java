@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Repository for the module election.
+ * Repository for the {@link ModuleElection}.
  */
 @Repository
 public interface ElectionRepository extends JpaRepository<ModuleElection, Long> {

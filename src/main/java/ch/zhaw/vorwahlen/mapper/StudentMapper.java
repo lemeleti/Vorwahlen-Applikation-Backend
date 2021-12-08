@@ -4,6 +4,9 @@ import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapping class for {@link Student}.
+ */
 @Component
 public class StudentMapper implements Mapper<StudentDTO, Student> {
     @Override

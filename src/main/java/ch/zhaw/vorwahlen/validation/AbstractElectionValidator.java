@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Abstract election validator with blueprint to what needs to be checked.
+ */
 @RequiredArgsConstructor
 @Getter
 public abstract class AbstractElectionValidator implements ElectionValidator {

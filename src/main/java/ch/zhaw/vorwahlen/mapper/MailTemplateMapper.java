@@ -4,6 +4,9 @@ import ch.zhaw.vorwahlen.model.dto.MailTemplateDTO;
 import ch.zhaw.vorwahlen.model.modules.MailTemplate;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapping class for {@link MailTemplate}.
+ */
 @Component
 public class MailTemplateMapper implements Mapper<MailTemplateDTO, MailTemplate> {
     @Override

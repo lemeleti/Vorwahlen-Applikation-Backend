@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Repository for the class list.
+ * Repository for {@link Student}.
  */
 @Repository
 public interface StudentRepository extends JpaRepository<Student, String> {

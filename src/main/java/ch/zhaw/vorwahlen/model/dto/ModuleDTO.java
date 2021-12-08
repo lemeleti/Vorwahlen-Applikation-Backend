@@ -7,10 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-
 /**
- * DTO for a module
+ * Dto for the {@link ch.zhaw.vorwahlen.model.modules.Module}.
  */
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

@@ -31,7 +31,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * Controller for a module.
+ * Controller for a module election.
  */
 @RequiredArgsConstructor
 @RestController
@@ -44,8 +44,7 @@ public class ModuleElectionController {
      * Stores the selection from student in session.
      * @param headerAccessor header data which contains the user session.
      * @param moduleNo module number that the user wants to elect.
-     * @return true - if election could be saved <br>
-     *         false - if election could not be saved or session not found
+     * @return {@link ElectionTransferDTO}
      */
     @MessageMapping("/save")
     @SendToUser("/queue/electionSaveStatus")
@@ -53,7 +52,7 @@ public class ModuleElectionController {
     public ElectionTransferDTO saveElection(SimpMessageHeaderAccessor headerAccessor,
                                             String moduleNo) {
         // todo improve
-        var token = ((CustomAuthToken) headerAccessor.getUser());
+        var token = (CustomAuthToken) headerAccessor.getUser();
         var user = token != null ? token.getUser() : null;
         var sessionAttributes = headerAccessor.getSessionAttributes();
         if(sessionAttributes == null) {
@@ -66,38 +65,63 @@ public class ModuleElectionController {
         return electionService.saveElection(student, moduleNo);
     }
 
+    /**
+     * Get all module elections.
+     * @return {@link ResponseEntity} containing list of {@link ModuleElectionDTO}
+     */
     @GetMapping(path = {"", "/"})
     public ResponseEntity<List<ModuleElectionDTO>> getAllModuleElections() {
         return ResponseEntity.ok(electionService.getAllModuleElections());
     }
 
+    /**
+     * Get module election by id.
+     * @param id of the module election.
+     * @return {@link ResponseEntity} containing the {@link ModuleElectionDTO}
+     */
     @GetMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<ModuleElectionDTO> getModuleElectionById(@PathVariable Long id) {
         return ResponseEntity.ok(electionService.getModuleElectionById(id));
     }
 
+    /**
+     * Add a new module election.
+     * @param moduleElectionDTO to be created module election.
+     * @return {@link ResponseEntity} containing {@link Void}.
+     */
     @PostMapping(path = {"", "/"})
-    public ResponseEntity<Void> createModuleElection(@RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
+    public ResponseEntity<Void> addModuleElection(@RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
         electionService.createModuleElection(moduleElectionDTO);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Delete a module election by id.
+     * @param id of the module election.
+     * @return {@link ResponseEntity} containing {@link Void}.
+     */
     @DeleteMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<Void> deleteModuleElectionById(@PathVariable Long id) {
         electionService.deleteModuleElectionById(id);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Replaces a module election by id.
+     * @param id of the module election.
+     * @param moduleElectionDTO new module election.
+     * @return {@link ResponseEntity} containing {@link Void}.
+     */
     @PutMapping(path = {"/{id}", "/{id}/"})
-    public ResponseEntity<Void> updateModuleElectionById(@PathVariable Long id,
-                                                         @RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
+    public ResponseEntity<Void> replaceModuleElectionById(@PathVariable Long id,
+                                                          @RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
         electionService.updateModuleElection(id, moduleElectionDTO);
         return ResponseEntity.noContent().build();
     }
 
     /**
-     * Returns the stored selection from student in session.
-     * @return List of module ids (example: "t.BA.WM.RASOP-EN.19HS")
+     * Returns the stored election from student in session.
+     * @return {@link ElectionTransferDTO}
      */
     @GetMapping(path = {"/structure", "/structure/" })
     public ElectionTransferDTO getElection(@AuthenticationPrincipal User user) {
@@ -106,7 +130,7 @@ public class ModuleElectionController {
 
     /**
      * Returns all stored module elections as MS-Excel file.
-     * @return byte array containing the file data.
+     * @return {@link ResponseEntity} containing byte array with the file data.
      */
     @GetMapping(path = {"/export", "/export/"})
     public ResponseEntity<byte[]> exportModuleElection() {

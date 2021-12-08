@@ -5,6 +5,9 @@ import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapping class for {@link Module}.
+ */
 @Component
 public class ModuleMapper implements Mapper<ModuleDTO, Module> {
     @Override

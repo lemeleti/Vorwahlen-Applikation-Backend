@@ -7,6 +7,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
+/**
+ * Repository for {@link ValidationSetting}.
+ */
 public interface ValidationSettingRepository extends JpaRepository<ValidationSetting, Long> {
     @Query("""
     SELECT s.election.validationSetting 

@@ -22,8 +22,8 @@ public class SessionController {
     private final UserMapper mapper;
 
     /**
-     * Get the user information of the current session
-     * @return {@link ResponseEntity<User>} with status code ok
+     * Get the user information of the current session.
+     * @return {@link ResponseEntity} containing the {@link UserDTO}.
      */
     // todo base path would be better than info
     @GetMapping(path = "info")
@@ -33,7 +33,7 @@ public class SessionController {
 
     /**
      * Destroy the current session.
-     * @return {@link ResponseEntity<Void>} with status code ok
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     //todo delete mapping would be better
     @GetMapping(path = "destroy")
@@ -44,7 +44,7 @@ public class SessionController {
 
     /**
      * Says if the user in the current session is an admin.
-     * @return {@link ResponseEntity<Boolean>} with status code ok
+     * @return {@link ResponseEntity} containing true or false.
      */
     @GetMapping(path = "is-admin")
     public ResponseEntity<Boolean> isUserAdmin(@AuthenticationPrincipal User user) {
@@ -53,7 +53,7 @@ public class SessionController {
 
     /**
      * Says if the user in the current session is authenticated.
-     * @return {@link ResponseEntity<Boolean>} with status code ok
+     * @return {@link ResponseEntity} containing true or false.
      */
     @GetMapping(path = "/is-authenticated")
     public ResponseEntity<Boolean> isUserAuthenticated(@AuthenticationPrincipal User user) {

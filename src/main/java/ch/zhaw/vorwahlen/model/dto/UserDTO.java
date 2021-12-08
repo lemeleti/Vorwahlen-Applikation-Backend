@@ -1,5 +1,9 @@
 package ch.zhaw.vorwahlen.model.dto;
 
+
+/**
+ * Dto for the {@link ch.zhaw.vorwahlen.security.model.User}.
+ */
 public record UserDTO(String name,
                       String lastName,
                       String affiliation,

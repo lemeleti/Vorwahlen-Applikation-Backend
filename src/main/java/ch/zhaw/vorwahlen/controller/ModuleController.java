@@ -31,7 +31,7 @@ public class ModuleController {
 
     /**
      * Return all modules.
-     * @return {@link ResponseEntity<List<ModuleDTO>>} with status code ok
+     * @return {@link ResponseEntity} containing list of {@link ModuleDTO}.
      */
     @GetMapping(path = {"/", ""})
     public ResponseEntity<List<ModuleDTO>> getAllModules() {
@@ -41,7 +41,7 @@ public class ModuleController {
     /**
      * Add a module.
      * @param moduleDTO to be added module.
-     * @return {@link ResponseEntity<Void>} with status code ok.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PostMapping(path = {"/", ""}, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> addModule(@Valid @RequestBody ModuleDTO moduleDTO) {
@@ -51,7 +51,7 @@ public class ModuleController {
     /**
      * Returns the module by his id.
      * @param id of module.
-     * @return {@link ResponseEntity<ModuleDTO>} with status code ok.
+     * @return {@link ResponseEntity} containing the {@link ModuleDTO}.
      */
     @GetMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<ModuleDTO> getModuleById(@PathVariable String id) {
@@ -61,7 +61,7 @@ public class ModuleController {
     /**
      * Deletes a module by his id.
      * @param id of module.
-     * @return {@link ResponseEntity<Void>} with status code no content.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @DeleteMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<Void> deleteModuleById(@PathVariable String id) {
@@ -73,7 +73,7 @@ public class ModuleController {
      * Replace a module by his id.
      * @param id of module.
      * @param moduleDTO the new module.
-     * @return {@link ResponseEntity<ModuleDTO>} with status code no content.
+     * @return {@link ResponseEntity} containing the new stored module.
      */
     @PutMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<ModuleDTO> replaceModuleById(@PathVariable String id,
@@ -84,10 +84,10 @@ public class ModuleController {
     /**
      * Import module list from Excel.
      * @param file the Excel file.
-     * @return {@link ResponseEntity<String>} with status code ok or bad request if the provided file is not there
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PostMapping(path = {"/", ""}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> saveModulesFromExcel(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<Void> saveModulesFromExcel(@RequestParam("file") MultipartFile file,
                                                        @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
         moduleService.importModuleExcel(file, worksheet);
@@ -96,7 +96,7 @@ public class ModuleController {
 
     /**
      * Returns the additional data of a module.
-     * @return {@link ResponseEntity<EventoDataDTO>} with status code ok
+     * @return {@link ResponseEntity} containing the {@link EventoDataDTO}.
      */
     @GetMapping(path = {"/eventodata/{moduleKuerzel}"})
     public ResponseEntity<EventoDataDTO> getAdditionalModuleDataByKuerzel(@PathVariable String moduleKuerzel) {
@@ -105,10 +105,10 @@ public class ModuleController {
 
     /**
      * Scrape external website to retrieve additional data from the module list.
-     * @return {@link ResponseEntity<String>} with status code ok
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PostMapping(path = "/scrape")
-    public ResponseEntity<String> fetchAdditionalModuleData() {
+    public ResponseEntity<Void> fetchAdditionalModuleData() {
         moduleService.fetchAdditionalModuleData();
         return ResponseEntity.ok().build();
     }

@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+/**
+ * Controller to manage mail templates.
+ */
 @RestController
 @RequestMapping(path = "mailtemplates")
 @RequiredArgsConstructor
-/**
- * Controller to manage mail templates
- */
 public class MailTemplateController {
     private final MailTemplateService mailTemplateService;
 
     /**
-     * Get all mail templates
+     * Get all mail templates.
      * @return {@link ResponseEntity} containing a list of {@link MailTemplateDTO}
      */
     @GetMapping(path = {"", "/"})
@@ -35,8 +35,8 @@ public class MailTemplateController {
     }
 
     /**
-     * Get mail template by id
-     * @param id of the template
+     * Get mail template by id.
+     * @param id of the template.
      * @return {@link MailTemplateDTO}
      */
     @GetMapping(path = {"/{id}", "/{id}/"})
@@ -45,9 +45,9 @@ public class MailTemplateController {
     }
 
     /**
-     * Create and save mail template
-     * @param mailTemplateDTO to be saved
-     * @return {@link ResponseEntity} containing {@link Void}
+     * Create and save mail template.
+     * @param mailTemplateDTO to be saved.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PostMapping(path = {"", "/"})
     public ResponseEntity<Void> createMailTemplate(@Valid @RequestBody MailTemplateDTO mailTemplateDTO) {
@@ -56,9 +56,9 @@ public class MailTemplateController {
     }
 
     /**
-     * Remove mail template by id
-     * @param id of the mail template
-     * @return {@link ResponseEntity} containing {@link Void}
+     * Delete mail template by id.
+     * @param id of the mail template.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @DeleteMapping(path = {"/{id}", "/{id/}"})
     public ResponseEntity<Void> deleteMailTemplate(@PathVariable Long id) {
@@ -67,10 +67,10 @@ public class MailTemplateController {
     }
 
     /**
-     * Update mail template data
-     * @param id of the mail template
-     * @param mailTemplateDTO containing updates fields
-     * @return {@link ResponseEntity} containing {@link Void}
+     * Update mail template data.
+     * @param id of the mail template.
+     * @param mailTemplateDTO containing updates fields.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PutMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<Void> updateMailTemplate(@PathVariable Long id,

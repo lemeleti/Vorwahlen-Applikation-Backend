@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import java.util.Objects;
 
 /**
- * Model / Entity class for the additional module data
+ * Model / Entity class for the additional module data.
  */
 @Entity
 @Getter @Setter

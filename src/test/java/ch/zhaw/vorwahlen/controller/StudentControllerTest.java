@@ -122,7 +122,7 @@ class StudentControllerTest {
         expectedList.add(StudentDTO.builder().email("mail2").name("name2").clazz(CLASS_1).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
         expectedList.add(StudentDTO.builder().email("mail3").name("name3").clazz(CLASS_2).paDispensation(PA_DISPENSATION).wpmDispensation(WPM_DISPENSATION).build());
 
-        when(studentService.getAllStudentsByElection(anyBoolean())).thenReturn(expectedList);
+        when(studentService.getAllStudentsByElectionStatus(anyBoolean())).thenReturn(expectedList);
 
         // execute
         try {
@@ -159,7 +159,7 @@ class StudentControllerTest {
         }
 
         // verify
-        verify(studentService, times(1)).getAllStudentsByElection(anyBoolean());
+        verify(studentService, times(1)).getAllStudentsByElectionStatus(anyBoolean());
     }
 
     @Test

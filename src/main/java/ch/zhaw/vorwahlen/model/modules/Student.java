@@ -20,7 +20,7 @@ import javax.persistence.Table;
 import java.util.Objects;
 
 /**
- * Model / Entity class for a class list entry
+ * Model / Entity class for a student.
  */
 @Entity
 @Table(name = "students")

@@ -7,8 +7,16 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Configuration for module validation.
+ */
 @Configuration
 public class MessageValidatorConfig implements WebMvcConfigurer {
+
+    /**
+     * Load messages from messages.properties
+     * @return MessageSource
+     */
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();

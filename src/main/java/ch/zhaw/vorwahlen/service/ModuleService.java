@@ -85,6 +85,12 @@ public class ModuleService {
         return consecutiveSet;
     }
 
+    /**
+     * Check if the module short numbers differ by only one numeric value.
+     * @param m1 the first {@link Module} to be compared
+     * @param m2 the other {@link Module} to be compared
+     * @return true or false
+     */
     public static boolean doTheModulesDifferOnlyInTheNumber(Module m1, Module m2) {
         var levenshteinDistance = LevenshteinDistance.getDefaultInstance()
                 .apply(m1.getShortModuleNo(), m2.getShortModuleNo());
@@ -136,6 +142,11 @@ public class ModuleService {
         return moduleRepository.save(module);
     }
 
+    /**
+     * Add a new module.
+     * @param moduleDTO to be added module.
+     * @return path where the module can be fetched.
+     */
     public URI addAndReturnLocation(ModuleDTO moduleDTO) {
         var addedModule = addModule(moduleDTO);
         try {
@@ -160,10 +171,20 @@ public class ModuleService {
                 });
     }
 
+    /**
+     * Delete module by id.
+     * @param id to be deleted module.
+     */
     public void deleteModuleById(String id) {
         moduleRepository.deleteById(id);
     }
 
+    /**
+     * Replace module by id.
+     * @param id to be replaced module
+     * @param moduleDTO new module
+     * @return saved module
+     */
     public ModuleDTO replaceModule(String id, ModuleDTO moduleDTO) {
         var updatedModule = moduleRepository.findById(id)
                 .map(module -> {

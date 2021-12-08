@@ -18,6 +18,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * This class generates the structure to be displayed in the frontend.
+ */
 @RequiredArgsConstructor
 public class ModuleStructureGenerator {
     private final List<ModuleStructureElement> electedModuleStructure = new ArrayList<>();
@@ -29,6 +32,10 @@ public class ModuleStructureGenerator {
     private List<Module> electedModuleList;
     private boolean hasElectedModules;
 
+    /**
+     * Generate the election structure.
+     * @return ElectionStructureDTO
+     */
     public ElectionStructureDTO generateStructure() {
         electedModuleList = new ArrayList<>(Set.copyOf(election.getElectedModules()));
         electedModuleList.sort(Comparator.comparingInt(o -> o.getSemester().getSemester()));

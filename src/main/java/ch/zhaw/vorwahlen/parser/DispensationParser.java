@@ -6,6 +6,9 @@ import org.apache.poi.ss.usermodel.Row;
 
 import java.io.InputStream;
 
+/**
+ * Parser for dispensation excel.
+ */
 public class DispensationParser extends ExcelParser<Student, DispensationLookupTable> {
 
     /**
