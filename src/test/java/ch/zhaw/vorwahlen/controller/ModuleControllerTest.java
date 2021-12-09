@@ -263,7 +263,7 @@ class ModuleControllerTest {
         // execute
         try {
             mockMvc.perform(MockMvcRequestBuilders
-                    .post(REQUEST_MAPPING_PREFIX + "/scrape")
+                    .post(REQUEST_MAPPING_PREFIX + "/eventodata/scrape")
                     .with(csrf())
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
