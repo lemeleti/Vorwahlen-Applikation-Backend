@@ -25,14 +25,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.Function;
+import java.util.logging.Level;
 
 /**
  * Business logic for the modules.
@@ -41,9 +38,6 @@ import java.util.function.Function;
 @Service
 @Log
 public class ModuleService {
-
-    private static final int MAX_THREAD_NUMBER = 10;
-
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
     private final Mapper<ModuleDTO, Module> moduleMapper;
@@ -215,11 +209,21 @@ public class ModuleService {
      * Runs the scraper for all modules to retrieve additional data.
      */
     @Async
-    public void fetchAdditionalModuleData() {
-        var executorService = Executors.newFixedThreadPool(MAX_THREAD_NUMBER);
-        var startedThreads = startThreads(executorService);
-        saveFetchedModuleData(startedThreads);
-        executorService.shutdown();
+    public void scrapeEventoDataForAllModules() {
+        var eventoDataList = new ArrayList<EventoData>();
+        var modules = moduleRepository.findAll();
+        for (var module : modules) {
+            var eventoUrl = String.format(EventoScraper.SITE_URL, module.getModuleId());
+            var data = EventoScraper.parseModuleByURL(eventoUrl, module);
+            eventoDataList.add(data);
+            log.info(data.toString());
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                log.log(Level.WARNING, e.getLocalizedMessage(), e);
+            }
+        }
+        eventoDataRepository.saveAll(eventoDataList);
     }
 
     private void saveFetchedModuleData(List<Future<EventoData>> futures) {
@@ -245,4 +249,13 @@ public class ModuleService {
                 .toList();
     }
 
+    private Module fetchModuleById(String id) {
+        return moduleRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_NOT_FOUND);
+                    var errorMessage = String.format(formatString, id);
+                    return new ModuleNotFoundException(errorMessage);
+                });
+    }
 }

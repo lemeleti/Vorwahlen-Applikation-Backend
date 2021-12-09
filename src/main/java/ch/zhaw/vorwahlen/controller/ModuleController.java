@@ -98,18 +98,18 @@ public class ModuleController {
      * Returns the additional data of a module.
      * @return {@link ResponseEntity} containing the {@link EventoDataDTO}.
      */
-    @GetMapping(path = {"/eventodata/{moduleKuerzel}"})
-    public ResponseEntity<EventoDataDTO> getAdditionalModuleDataByKuerzel(@PathVariable String moduleKuerzel) {
-        return ResponseEntity.ok().body(moduleService.getEventoDataById(moduleKuerzel));
+    @GetMapping(path = {"{id}/eventodata"})
+    public ResponseEntity<EventoDataDTO> getAdditionalModuleDataByKuerzel(@PathVariable String id) {
+        return ResponseEntity.ok().body(moduleService.getEventoDataById(id));
     }
 
     /**
-     * Scrape external website to retrieve additional data from the module list.
+     * Scrape external website to retrieve additional data.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PostMapping(path = "/scrape")
-    public ResponseEntity<Void> fetchAdditionalModuleData() {
-        moduleService.fetchAdditionalModuleData();
+    @PostMapping(path = "/eventodata/scrape")
+    public ResponseEntity<Void> scrapeEventoDataForAllModules() {
+        moduleService.scrapeEventoDataForAllModules();
         return ResponseEntity.ok().build();
     }
 
