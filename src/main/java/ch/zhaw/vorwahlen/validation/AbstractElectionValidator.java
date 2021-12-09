@@ -16,6 +16,18 @@ import java.util.Set;
 
 /**
  * Abstract election validator with blueprint to what needs to be checked.
+ * It should check following point:
+ * - a student must elect 3 context modules
+ * - a student must elect 1 interdisciplinary modules
+ * - a student must elect 2 times 2 consecutive modules
+ * - a student must have elected a total of 8 modules (subject + consecutive)
+ * - a student in international profile must have elected at least of 20 credits worth of english modules
+ * - a student in international profile must have elected to following modules: WVK.ICAM-EN
+ *
+ * For a fulltime student the above applies.
+ * For a parttime student the also applies but only in total.
+ * Since the parttime student elects two times over two years and we don't store the election of the first year,
+ * we skip some validation.
  */
 @RequiredArgsConstructor
 @Getter
