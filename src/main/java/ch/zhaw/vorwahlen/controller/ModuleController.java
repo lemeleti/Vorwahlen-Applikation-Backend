@@ -113,4 +113,13 @@ public class ModuleController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Scrape external website to retrieve additional data for selected module.
+     * @param id of the module
+     * @return scraped {@link EventoDataDTO}
+     */
+    @PostMapping(path = "{id}/eventodata/scrape")
+    public ResponseEntity<EventoDataDTO> scrapeEventoDataForModuleId(@PathVariable String id) {
+        return ResponseEntity.ok(moduleService.scrapeEventoDataForId(id));
+    }
 }

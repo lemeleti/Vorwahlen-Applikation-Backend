@@ -273,7 +273,7 @@ class ModuleControllerTest {
         }
 
         // verify
-        verify(moduleService, times(1)).fetchAdditionalModuleData();
+        verify(moduleService, times(1)).scrapeEventoDataForAllModules();
     }
 
     /* **************************************************************************************************************

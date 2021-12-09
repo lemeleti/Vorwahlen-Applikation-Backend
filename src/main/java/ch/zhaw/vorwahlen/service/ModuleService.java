@@ -226,27 +226,10 @@ public class ModuleService {
         eventoDataRepository.saveAll(eventoDataList);
     }
 
-    private void saveFetchedModuleData(List<Future<EventoData>> futures) {
-        for (var future : futures) {
-            try {
-                eventoDataRepository.save(future.get());
-            } catch (InterruptedException | ExecutionException e) {
-                // not re-interrupting because this is not critical and is logged
-                log.severe(e.getMessage());
-            }
-        }
-    }
-
-    private List<Future<EventoData>> startThreads(ExecutorService executorService) {
-        Function<Module, Future<EventoData>> startThread = module -> executorService.submit(() -> {
-            var eventoUrl = String.format(EventoScraper.SITE_URL, module.getModuleId());
-            return EventoScraper.parseModuleByURL(eventoUrl, module);
-        });
-
-        return moduleRepository.findAll()
-                .stream()
-                .map(startThread)
-                .toList();
+    public EventoDataDTO scrapeEventoDataForId(String id) {
+        var module = fetchModuleById(id);
+        var eventoUrl = String.format(EventoScraper.SITE_URL, module.getModuleId());
+        return eventoDataMapper.toDto(eventoDataRepository.save(EventoScraper.parseModuleByURL(eventoUrl, module)));
     }
 
     private Module fetchModuleById(String id) {
