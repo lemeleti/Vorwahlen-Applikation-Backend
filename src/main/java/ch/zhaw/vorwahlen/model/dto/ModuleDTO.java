@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ModuleDTO {
+
     private String moduleNo;
     private String shortModuleNo;
     private String moduleTitle;
@@ -25,6 +26,6 @@ public class ModuleDTO {
     private byte credits;
     private String language;
     private int semester;
-    // todo maybe link with another module
     private String consecutiveModuleNo;
+
 }

@@ -9,6 +9,7 @@ import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
+import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
@@ -167,7 +168,7 @@ public class ModuleService {
                     module.setModuleTitle(moduleDTO.getModuleTitle());
                     module.setCredits(moduleDTO.getCredits());
                     module.setLanguage(moduleDTO.getLanguage());
-                    // todo: module.executionSemester(toExecutionSemester(moduleDTO));
+                    module.setSemester(ExecutionSemester.parseFromInt(moduleDTO.getSemester()));
                     module.setConsecutiveModuleNo(moduleDTO.getConsecutiveModuleNo());
                     return moduleMapper.toDto(moduleRepository.save(module));
                 })

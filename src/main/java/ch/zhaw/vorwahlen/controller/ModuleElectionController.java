@@ -51,16 +51,17 @@ public class ModuleElectionController {
     @Transactional
     public ElectionTransferDTO saveElection(SimpMessageHeaderAccessor headerAccessor,
                                             String moduleNo) {
-        // todo improve
-        var token = (CustomAuthToken) headerAccessor.getUser();
-        var user = token != null ? token.getUser() : null;
         var sessionAttributes = headerAccessor.getSessionAttributes();
         if(sessionAttributes == null) {
             throw new SessionNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_SESSION_NOT_FOUND));
         }
+
+        var token = (CustomAuthToken) headerAccessor.getUser();
+        var user = token != null ? token.getUser() : null;
         if(user == null) {
             throw new UserNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_USER_NOT_FOUND));
         }
+
         var student = user.getStudent();
         return electionService.saveElection(student, moduleNo);
     }

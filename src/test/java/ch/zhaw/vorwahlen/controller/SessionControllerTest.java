@@ -110,7 +110,6 @@ class SessionControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").doesNotExist())
                     .andDo(print());
-            // todo: verify that session is gone. check also info, isuseradmin and is authenticated
         } catch (Exception e) {
             fail(e);
         }

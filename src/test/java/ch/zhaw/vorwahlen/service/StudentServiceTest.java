@@ -252,7 +252,6 @@ class StudentServiceTest {
     }
 
     private void areListsEqual(List<Student> students1, List<Student> students2) {
-        // todo: investigate why assertIterEquals does not wok anymore
         assertEquals(students1.size(), students2.size());
         for (int i = 0; i < students1.size() && i < students2.size(); i++) {
             var student1 = students1.get(i);

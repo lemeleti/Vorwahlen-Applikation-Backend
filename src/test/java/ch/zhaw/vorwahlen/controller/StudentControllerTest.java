@@ -103,8 +103,19 @@ class StudentControllerTest {
                     .andExpect(jsonPath("$.[*].paDispensation", anyOf(hasItem(PA_DISPENSATION))))
                     .andExpect(jsonPath("$.[*].wpmDispensation").isNotEmpty())
                     .andExpect(jsonPath("$.[*].wpmDispensation", anyOf(hasItem(PA_DISPENSATION))))
+                    .andExpect(jsonPath("$.[*].ip").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].ip", anyOf(hasItem(false))))
+                    .andExpect(jsonPath("$.[*].tz").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].tz", anyOf(hasItem(false))))
+                    .andExpect(jsonPath("$.[*].secondElection").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].secondElection", anyOf(hasItem(false))))
+                    .andExpect(jsonPath("$.[*].firstTimeSetup").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].firstTimeSetup", anyOf(hasItem(false))))
+                    .andExpect(jsonPath("$.[*].canElect").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].canElect", anyOf(hasItem(false))))
+                    .andExpect(jsonPath("$.[*].moduleElectionId").isNotEmpty())
+                    .andExpect(jsonPath("$.[*].moduleElectionId", anyOf(hasItem(0))))
                     .andDo(print());
-            // todo: test ip and tz flag
         } catch (Exception e) {
             fail(e);
         }
