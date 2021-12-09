@@ -223,7 +223,7 @@ public class StudentService {
 
     /**
      * Notify students per email.
-     * @param notificationDTO the notification to be send.
+     * @param notificationDTO the notification to be sent.
      */
     public void notifyStudents(NotificationDTO notificationDTO) {
         var message = new SimpleMailMessage();

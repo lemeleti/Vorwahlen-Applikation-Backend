@@ -23,7 +23,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -78,7 +77,7 @@ class ModuleServiceTest {
     }
 
     @Test
-    void testAddModule() throws URISyntaxException {
+    void testAddModule() {
         var moduleDto = ModuleDTO.builder()
                         .moduleNo("t.BA.WM.HELLO.19HS")
                         .shortModuleNo("WM.HELLO")

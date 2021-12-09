@@ -3,21 +3,21 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
+import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
-import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
-import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,11 +25,8 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -46,6 +43,8 @@ class StudentServiceTest {
     private final StudentRepository studentRepository;
     private final StudentClassRepository studentClassRepository;
     private final Mapper<StudentDTO, Student> mapper;
+    @Mock
+    private JavaMailSenderImpl emailSender;
     private StudentService studentService;
 
     @Autowired
@@ -59,14 +58,28 @@ class StudentServiceTest {
 
     @BeforeEach
     void setUp() {
-        var mailSenderImpl = new JavaMailSenderImpl();
-        studentService = new StudentService(studentRepository, studentClassRepository, mailSenderImpl, mapper);
+        MockitoAnnotations.openMocks(this);
+        studentService = new StudentService(studentRepository, studentClassRepository, emailSender, mapper);
     }
 
     @AfterEach
     void tearDown() {
         studentRepository.deleteAll();
         studentClassRepository.deleteAll();
+    }
+
+    @Test
+    void testNotifyStudent() {
+        var notification = new NotificationDTO(
+                "test@mail.ch",
+                "password",
+                "subject",
+                "message",
+                new String[] { "student@mail.ch" }
+        );
+        doNothing().when(emailSender).send(any(SimpleMailMessage.class));
+        studentService.notifyStudents(notification);
+        verify(emailSender, times(1)).send(any(SimpleMailMessage.class));
     }
 
     @Test

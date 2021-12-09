@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.controller;
 
+import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static ch.zhaw.vorwahlen.service.StudentService.*;
 import static ch.zhaw.vorwahlen.util.ObjectMapperUtil.*;
@@ -251,6 +251,46 @@ class StudentControllerTest {
 
         // verify
         verify(studentService, times(1)).importDispensationExcel(mockMultipartFile, WORKSHEET);
+    }
+
+    @Test
+    void testPatchField(){
+        doNothing().when(studentService).updateStudentEditableFields(anyString(), any());
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .patch(REQUEST_MAPPING_PREFIX + "/test@mail.ch")
+                                    .with(csrf())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(new HashMap<>())))
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        } catch (Exception e) {
+            fail(e);
+        }
+        verify(studentService, times(1)).updateStudentEditableFields(anyString(), any());
+    }
+
+    @Test
+    void testNotifyStudents(){
+        doNothing().when(studentService).notifyStudents(any());
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .post(REQUEST_MAPPING_PREFIX + "/notify")
+                                    .with(csrf())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(new NotificationDTO(
+                                            "test@mail.ch",
+                                            "password",
+                                            "subject",
+                                            "message",
+                                            new String[] { "student@mail.ch" }
+                                    ))))
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        } catch (Exception e) {
+            fail(e);
+        }
+        verify(studentService, times(1)).notifyStudents(any());
     }
 
     /* **************************************************************************************************************

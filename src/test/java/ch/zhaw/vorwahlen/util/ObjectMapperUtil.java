@@ -12,10 +12,6 @@ public class ObjectMapperUtil {
         return mapper.writeValueAsString(object).getBytes();
     }
 
-    public static String toJsonString(Object object) throws Exception {
-        return mapper.writeValueAsString(object);
-    }
-
     public static <T> T fromJsonResult(MvcResult result, Class<T> clazz) throws Exception {
         return mapper.readValue(result.getResponse().getContentAsString(), clazz);
     }
