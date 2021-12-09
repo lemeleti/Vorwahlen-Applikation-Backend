@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
+import ch.zhaw.vorwahlen.exception.EventoDataNotFoundException;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
@@ -30,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
+
+import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_EVENTO_MODULE_NOT_FOUND;
 
 /**
  * Business logic for the modules.
@@ -201,7 +204,10 @@ public class ModuleService {
      * @return additional data as {@link EventoDataDTO}
      */
     public EventoDataDTO getEventoDataById(String id) {
-        var eventoData = eventoDataRepository.getById(id);
+        var eventoData = eventoDataRepository.findById(id).orElseThrow(() -> {
+            var errorMessage = String.format(ResourceBundleMessageLoader.getMessage(ERROR_EVENTO_MODULE_NOT_FOUND), id);
+            return new EventoDataNotFoundException(errorMessage);
+        });
         return eventoDataMapper.toDto(eventoData);
     }
 

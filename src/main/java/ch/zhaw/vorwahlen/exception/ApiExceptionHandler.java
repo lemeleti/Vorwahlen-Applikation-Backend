@@ -60,7 +60,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler({ UserNotFoundException.class, StudentNotFoundException.class,
                         MailTemplateNotFoundException.class,
-                        ModuleNotFoundException.class, ModuleElectionNotFoundException.class })
+                        ModuleNotFoundException.class, ModuleElectionNotFoundException.class,
+                        EventoDataNotFoundException.class })
     public ResponseEntity<Object> handleNotFoundExceptions(Exception ex, WebRequest request) {
         log.severe(ex.getLocalizedMessage());
         var error = new ErrorResponse(ex.getLocalizedMessage());

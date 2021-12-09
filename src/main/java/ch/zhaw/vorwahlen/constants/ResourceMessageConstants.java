@@ -19,4 +19,5 @@ public class ResourceMessageConstants {
     public static final String ERROR_IMPORT_EXCEPTION = "error.import_exception";
     public static final String ERROR_MAIL_TEMPLATE_NOT_FOUND = "error.mail_template_not_found";
     public static final String ERROR_MODULE_ELECTION_NOT_FOUND = "error.module_election_not_found";
+    public static final String ERROR_EVENTO_MODULE_NOT_FOUND = "error.evento_data_not_found";
 }
