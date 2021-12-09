@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.mapper;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
+import ch.zhaw.vorwahlen.exception.ValidationSettingNotFoundException;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.Module;
@@ -50,8 +51,8 @@ public class ElectionMapper implements Mapper<ModuleElectionDTO, ModuleElection>
         var student = fetchStudentById(moduleElectionDTO.getStudentEmail());
         var validationSettingDto = moduleElectionDTO.getValidationSettingDTO();
         var validationSetting = validationSettingDto == null
-                                                                        ? new ValidationSetting()
-                                                                        : fetchValidationSetting(student.getEmail());
+                ? new ValidationSetting()
+                : fetchValidationSetting(student.getEmail());
 
         moduleElection.setElectedModules(new HashSet<>(modules));
         moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
@@ -69,8 +70,11 @@ public class ElectionMapper implements Mapper<ModuleElectionDTO, ModuleElection>
     }
 
     private ValidationSetting fetchValidationSetting(String id) {
-        // todo: replace with exception instead of or else
-        return validationSettingRepository.findValidationSettingByStudentMail(id).orElse(new ValidationSetting());
+        return validationSettingRepository.findValidationSettingByStudentMail(id).orElseThrow(() -> {
+            var formatString =
+                    ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_VALIDATION_SETTING_NOT_FOUND);
+            return new ValidationSettingNotFoundException(String.format(formatString, id));
+        });
     }
 
     private Student fetchStudentById(String id) {

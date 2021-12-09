@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +26,7 @@ public class SessionController {
      * Get the user information of the current session.
      * @return {@link ResponseEntity} containing the {@link UserDTO}.
      */
-    // todo base path would be better than info
-    @GetMapping(path = "info")
+    @GetMapping(path = {"", "/"})
     public ResponseEntity<UserDTO> getSessionInfo(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(mapper.toDto(user));
     }
@@ -35,8 +35,7 @@ public class SessionController {
      * Destroy the current session.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    //todo delete mapping would be better
-    @GetMapping(path = "destroy")
+    @DeleteMapping(path = {"", "/"})
     public ResponseEntity<Void> destroySession() {
         SecurityContextHolder.getContext().setAuthentication(null);
         return ResponseEntity.ok().build();

@@ -6,7 +6,6 @@ import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
@@ -110,6 +109,13 @@ class ElectionServiceTest {
 
     @AfterEach
     void tearDown() {
+        for (var student: studentRepository.findAll()){
+            if(student.getElection() != null) {
+                student.setElection(null);
+                studentRepository.save(student);
+            }
+        }
+
         electionRepository.deleteAll();
         studentRepository.deleteAll();
         moduleRepository.deleteAll();
@@ -178,7 +184,6 @@ class ElectionServiceTest {
         var moduleElectionDto = ModuleElectionDTO.builder()
                 .studentEmail(student.getEmail())
                 .electedModules(validElectionSetForElection())
-                .validationSettingDTO(new ValidationSettingDTO(false, false, false))
                 .build();
 
         // execute
@@ -216,28 +221,33 @@ class ElectionServiceTest {
     }
 
     @Test
-    @Sql("classpath:sql/election_service_test_user.sql")
     @Sql("classpath:sql/modules_test_election.sql")
     void testUpdateModuleElection() {
         // prepare
-        var validElection = validElectionSetForElection();
-        var moduleElection = new ModuleElection();
-        var validationSetting = new ValidationSetting();
-
-        var electedModules = validElection
+        var electedModules = validElectionSetForElection()
                 .stream()
                 .map(s -> Module.builder().moduleNo(s).build())
                 .collect(Collectors.toSet());
 
+        var moduleElection = new ModuleElection();
         moduleElection.setElectedModules(electedModules);
-        moduleElection.setValidationSetting(validationSetting);
+        moduleElection.setValidationSetting(new ValidationSetting());
         moduleElection.setStudent(student);
-        moduleElection = electionRepository.save(moduleElection);
+
+        student.setElection(moduleElection);
+        studentRepository.save(student);
+
+        var optionalModuleElection = electionRepository.findModuleElectionByStudent(student.getEmail());
+        assertTrue(optionalModuleElection.isPresent());
+        assertTrue(validationSettingRepository.findValidationSettingByStudentMail(student.getEmail()).isPresent());
+
+        moduleElection = optionalModuleElection.get();
 
         assertFalse(moduleElection.isElectionValid());
 
         var dto = moduleElectionMapper.toDto(moduleElection);
         dto.setElectionValid(true);
+
         // execute
         electionService.updateModuleElection(moduleElection.getId(), dto);
 
@@ -245,22 +255,20 @@ class ElectionServiceTest {
         var election = electionService.getModuleElectionById(moduleElection.getId());
         assertTrue(election.isElectionValid());
     }
+
     @Test
     @Sql("classpath:sql/election_service_test_user.sql")
     @Sql("classpath:sql/modules_test_election.sql")
     void testExportModuleElection() {
         // prepare
-        var validElection = validElectionSetForElection();
-        var moduleElection = new ModuleElection();
-        var validationSetting = new ValidationSetting();
-
-        var electedModules = validElection
+        var electedModules = validElectionSetForElection()
                 .stream()
                 .map(s -> Module.builder().moduleNo(s).build())
                 .collect(Collectors.toSet());
 
+        var moduleElection = new ModuleElection();
         moduleElection.setElectedModules(electedModules);
-        moduleElection.setValidationSetting(validationSetting);
+        moduleElection.setValidationSetting(new ValidationSetting());
         moduleElection.setStudent(student);
         electionRepository.save(moduleElection);
 
@@ -321,16 +329,14 @@ class ElectionServiceTest {
     private void testGetElection(Student student, Set<String> validElection, int expectedElectedModulesSize) {
         // prepare
         setAuthentication(student);
-        var moduleElection = new ModuleElection();
-        var validationSetting = new ValidationSetting();
-
         var electedModules = validElection
                 .stream()
                 .map(s -> Module.builder().moduleNo(s).build())
                 .collect(Collectors.toSet());
 
+        var moduleElection = new ModuleElection();
         moduleElection.setElectedModules(electedModules);
-        moduleElection.setValidationSetting(validationSetting);
+        moduleElection.setValidationSetting(new ValidationSetting());
         moduleElection.setStudent(student);
         electionRepository.save(moduleElection);
 
@@ -391,16 +397,14 @@ class ElectionServiceTest {
     void testGetModuleElectionByStudent() {
         // prepare
         var validElection = validElectionSetForElection();
-        var moduleElection = new ModuleElection();
-        var validationSetting = new ValidationSetting();
-
         var electedModules = validElection
                 .stream()
                 .map(s -> Module.builder().moduleNo(s).build())
                 .collect(Collectors.toSet());
 
+        var moduleElection = new ModuleElection();
         moduleElection.setElectedModules(electedModules);
-        moduleElection.setValidationSetting(validationSetting);
+        moduleElection.setValidationSetting(new ValidationSetting());
         moduleElection.setStudent(student);
         electionRepository.save(moduleElection);
 
