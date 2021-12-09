@@ -21,12 +21,12 @@ import java.util.Set;
 public class ModuleElectionDTO {
 
     private long id;
-    @Email
+    @Email(message = "{validation.email.invalid}")
     private String studentEmail;
     @Getter(onMethod_=@JsonProperty)
     @Setter(onMethod_=@JsonIgnore)
     private boolean electionValid;
-    @NotNull
+    @NotNull(message = "{validation.elected.modules.null}")
     private Set<String> electedModules;
     private ValidationSettingDTO validationSettingDTO;
 
