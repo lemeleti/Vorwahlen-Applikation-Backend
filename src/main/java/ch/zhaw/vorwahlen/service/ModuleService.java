@@ -9,7 +9,6 @@ import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
-import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
@@ -24,9 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -123,34 +119,15 @@ public class ModuleService {
         return moduleRepository.findAll().stream().map(moduleMapper::toDto).toList();
     }
 
-    private Module addModule(ModuleDTO moduleDTO) {
-        var module = Module.builder()
-                .moduleNo(moduleDTO.getModuleNo())
-                .shortModuleNo(moduleDTO.getShortModuleNo())
-                .moduleTitle(moduleDTO.getModuleTitle())
-                .moduleId(moduleDTO.getModuleId())
-                .moduleGroup(moduleDTO.getModuleGroup())
-                .institute(moduleDTO.getInstitute())
-                .credits(moduleDTO.getCredits())
-                .language(moduleDTO.getLanguage())
-                .semester(ExecutionSemester.parseFromInt(moduleDTO.getSemester()))
-                .consecutiveModuleNo(moduleDTO.getConsecutiveModuleNo())
-                .build();
-        return moduleRepository.save(module);
-    }
-
     /**
      * Add a new module.
      * @param moduleDTO to be added module.
      * @return path where the module can be fetched.
      */
-    public URI addAndReturnLocation(ModuleDTO moduleDTO) {
-        var addedModule = addModule(moduleDTO);
-        try {
-            return new URI("/module/".concat(addedModule.getModuleNo()));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException();
-        }
+    public ModuleDTO addModule(ModuleDTO moduleDTO) {
+        var module = moduleMapper.toInstance(moduleDTO);
+        module = moduleRepository.save(module);
+        return moduleMapper.toDto(module);
     }
 
     /**
@@ -183,7 +160,7 @@ public class ModuleService {
      * @return saved module
      */
     public ModuleDTO replaceModule(String id, ModuleDTO moduleDTO) {
-        var updatedModule = moduleRepository.findById(id)
+       return moduleRepository.findById(id)
                 .map(module -> {
                     module.setModuleNo(moduleDTO.getModuleNo());
                     module.setModuleTitle(moduleDTO.getModuleTitle());
@@ -191,11 +168,9 @@ public class ModuleService {
                     module.setLanguage(moduleDTO.getLanguage());
                     // todo: module.executionSemester(toExecutionSemester(moduleDTO));
                     module.setConsecutiveModuleNo(moduleDTO.getConsecutiveModuleNo());
-                    return moduleRepository.save(module);
+                    return moduleMapper.toDto(moduleRepository.save(module));
                 })
                 .orElse(addModule(moduleDTO));
-
-        return moduleMapper.toDto(updatedModule);
     }
 
     /**

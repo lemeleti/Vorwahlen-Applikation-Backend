@@ -25,8 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -68,8 +66,12 @@ public class StudentService {
             throw new ImportException(message, e);
         }
     }
-
-    private Student addStudent(StudentDTO studentDTO) {
+    /**
+     * Add student.
+     * @param studentDTO to be added student.
+     * @return the added student
+     */
+    public StudentDTO addStudent(StudentDTO studentDTO) {
         var student = mapper.toInstance(studentDTO);
         var moduleElection = new ModuleElection();
         var validationSetting = new ValidationSetting();
@@ -81,7 +83,7 @@ public class StudentService {
         student.setElection(moduleElection);
         student.setStudentClass(studentClass);
 
-        return studentRepository.save(student);
+        return mapper.toDto(studentRepository.save(student));
     }
 
     private StudentClass getOrCreateStudentClass(String className) {
@@ -92,20 +94,6 @@ public class StudentService {
                     sc.setName(className);
                     return sc;
                 });
-    }
-
-    /**
-     * Add student.
-     * @param studentDTO to be added student.
-     * @return path where the student can be fetched.
-     */
-    public URI addAndReturnLocation(StudentDTO studentDTO) {
-        var addedStudent = addStudent(studentDTO);
-        try {
-            return new URI("/students/".concat(addedStudent.getEmail()));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException();
-        }
     }
 
     private void setSecondElection(List<Student> students) {
@@ -180,18 +168,16 @@ public class StudentService {
      */
     public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
-        var updatedStudent = studentRepository.findById(id)
+        return studentRepository.findById(id)
                 .map(student -> {
                     student.setName(studentDTO.getName());
                     student.setStudentClass(studentClass);
                     student.setPaDispensation(studentDTO.getPaDispensation());
                     student.setWpmDispensation(studentDTO.getWpmDispensation());
                     student.setSecondElection(studentDTO.isSecondElection());
-                    return studentRepository.save(student);
+                    return mapper.toDto(studentRepository.save(student));
                 })
                 .orElse(addStudent(studentDTO));
-
-        return mapper.toDto(updatedStudent);
     }
 
     /**

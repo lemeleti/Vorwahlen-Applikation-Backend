@@ -67,8 +67,10 @@ public class ElectionService {
      * Add new module election
      * @param moduleElectionDTO to be added module election
      */
-    public void createModuleElection(ModuleElectionDTO moduleElectionDTO) {
-        electionRepository.save(moduleElectionMapper.toInstance(moduleElectionDTO));
+    public ModuleElectionDTO createModuleElection(ModuleElectionDTO moduleElectionDTO) {
+        var election = moduleElectionMapper.toInstance(moduleElectionDTO);
+        election = electionRepository.save(election);
+        return moduleElectionMapper.toDto(election);
     }
 
     /**

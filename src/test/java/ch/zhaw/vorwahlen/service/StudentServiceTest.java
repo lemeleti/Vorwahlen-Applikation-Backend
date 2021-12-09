@@ -77,7 +77,7 @@ class StudentServiceTest {
                 .clazz("IT19a_WIN")
                 .build();
         assertEquals(0, studentRepository.count());
-        studentService.addAndReturnLocation(dto);
+        studentService.addStudent(dto);
         assertEquals(1, studentRepository.count());
     }
 
@@ -90,7 +90,7 @@ class StudentServiceTest {
                 .clazz("IT19a_WIN")
                 .build();
         assertEquals(0, studentRepository.count());
-        studentService.addAndReturnLocation(dto);
+        studentService.addStudent(dto);
         assertEquals(1, studentRepository.count());
 
         // execute
@@ -107,7 +107,7 @@ class StudentServiceTest {
                 .clazz("IT19a_WIN")
                 .build();
         assertEquals(0, studentRepository.count());
-        studentService.addAndReturnLocation(dto);
+        studentService.addStudent(dto);
         assertEquals(1, studentRepository.count());
 
         dto.setName("Hello Server");
@@ -127,7 +127,7 @@ class StudentServiceTest {
                 .isIP(false)
                 .build();
         assertEquals(0, studentRepository.count());
-        studentService.addAndReturnLocation(dto);
+        studentService.addStudent(dto);
         assertEquals(1, studentRepository.count());
 
         var map = Map.of("ip", true);

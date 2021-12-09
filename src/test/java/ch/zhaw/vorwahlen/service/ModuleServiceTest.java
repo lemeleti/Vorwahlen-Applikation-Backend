@@ -78,7 +78,7 @@ class ModuleServiceTest {
     }
 
     @Test
-    void testAddAndReturnLocation() throws URISyntaxException {
+    void testAddModule() throws URISyntaxException {
         var moduleDto = ModuleDTO.builder()
                         .moduleNo("t.BA.WM.HELLO.19HS")
                         .shortModuleNo("WM.HELLO")
@@ -90,13 +90,14 @@ class ModuleServiceTest {
                         .language("English")
                         .semester(ExecutionSemester.AUTUMN.getSemester())
                         .consecutiveModuleNo("")
+                        .category(ModuleCategory.INTERDISCIPLINARY_MODULE)
                         .build();
 
         var moduleNo = moduleDto.getModuleNo();
         assertThrows(ModuleNotFoundException.class, () -> moduleService.getModuleById(moduleNo));
-        var result = moduleService.addAndReturnLocation(moduleDto);
+        var result = moduleService.addModule(moduleDto);
         assertNotNull(moduleService.getModuleById(moduleDto.getModuleNo()));
-        assertEquals(new URI("/module/".concat(moduleDto.getModuleNo())), result);
+        assertEquals(moduleDto, result);
     }
 
     @Test

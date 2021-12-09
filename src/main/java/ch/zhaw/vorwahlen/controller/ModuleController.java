@@ -41,11 +41,11 @@ public class ModuleController {
     /**
      * Add a module.
      * @param moduleDTO to be added module.
-     * @return {@link ResponseEntity} containing {@link Void}.
+     * @return {@link ResponseEntity} containing {@link ModuleDTO}.
      */
     @PostMapping(path = {"/", ""}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> addModule(@Valid @RequestBody ModuleDTO moduleDTO) {
-        return ResponseEntity.created(moduleService.addAndReturnLocation(moduleDTO)).build();
+    public ResponseEntity<ModuleDTO> addModule(@Valid @RequestBody ModuleDTO moduleDTO) {
+        return ResponseEntity.ok(moduleService.addModule(moduleDTO));
     }
 
     /**
@@ -66,19 +66,20 @@ public class ModuleController {
     @DeleteMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<Void> deleteModuleById(@PathVariable String id) {
         moduleService.deleteModuleById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     /**
      * Replace a module by his id.
      * @param id of module.
      * @param moduleDTO the new module.
-     * @return {@link ResponseEntity} containing the new stored module.
+     * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PutMapping(path = {"/{id}", "/{id}/"})
-    public ResponseEntity<ModuleDTO> replaceModuleById(@PathVariable String id,
+    public ResponseEntity<Void> replaceModuleById(@PathVariable String id,
                                                        @Valid @RequestBody ModuleDTO moduleDTO) {
-        return ResponseEntity.ok(moduleService.replaceModule(id, moduleDTO));
+        moduleService.replaceModule(id, moduleDTO);
+        return ResponseEntity.ok().build();
     }
 
     /**

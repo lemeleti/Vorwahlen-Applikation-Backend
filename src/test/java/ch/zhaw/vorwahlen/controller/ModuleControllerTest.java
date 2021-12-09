@@ -141,25 +141,28 @@ class ModuleControllerTest {
     }
 
     @Test
-    void testAddModule() throws URISyntaxException {
+    void testAddModule() {
         // prepare
-        when(moduleService.addAndReturnLocation(any())).thenReturn(new URI("/module/".concat(nonExistentModuleDto.getModuleNo())));
+        when(moduleService.addModule(any())).thenReturn(nonExistentModuleDto);
 
         // execute
         try {
-            mockMvc.perform(MockMvcRequestBuilders
+            var result = mockMvc.perform(MockMvcRequestBuilders
                                     .post(REQUEST_MAPPING_PREFIX)
                                     .with(csrf())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(toJson(nonExistentModuleDto)))
-                                    .andExpect(status().isCreated())
-                                    .andDo(print());
+                                    .andExpect(status().isOk())
+                                    .andExpect(jsonPath("$").exists())
+                                    .andDo(print())
+                                    .andReturn();
+            assertEquals(nonExistentModuleDto, fromJsonResult(result, ModuleDTO.class));
         } catch (Exception e) {
             fail(e);
         }
 
         // verify
-        verify(moduleService, times(1)).addAndReturnLocation(any());
+        verify(moduleService, times(1)).addModule(any());
     }
 
     @Test
@@ -195,7 +198,7 @@ class ModuleControllerTest {
             mockMvc.perform(MockMvcRequestBuilders
                                     .delete(REQUEST_MAPPING_PREFIX + "/" + nonExistentModuleDto.getModuleNo())
                                     .with(csrf()))
-                                    .andExpect(status().isNoContent())
+                                    .andExpect(status().isOk())
                                     .andDo(print());
         } catch (Exception e) {
             fail(e);
@@ -212,17 +215,14 @@ class ModuleControllerTest {
 
         // execute
         try {
-            var results = mockMvc.perform(MockMvcRequestBuilders
+            mockMvc.perform(MockMvcRequestBuilders
                                     .put(REQUEST_MAPPING_PREFIX + "/" + nonExistentModuleDto.getModuleNo())
                                     .with(csrf())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(toJson(nonExistentModuleDto)))
                                     .andExpect(status().isOk())
-                                    .andExpect(jsonPath("$").exists())
                                     .andDo(print())
                                     .andReturn();
-            var moduleDto = fromJsonResult(results, ModuleDTO.class);
-            assertEquals(nonExistentModuleDto, moduleDto);
         } catch (Exception e) {
             fail(e);
         }

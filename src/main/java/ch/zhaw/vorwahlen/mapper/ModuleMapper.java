@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.mapper;
 
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
+import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Component;
 public class ModuleMapper implements Mapper<ModuleDTO, Module> {
     @Override
     public ModuleDTO toDto(Module module) {
-        //todo getConsecutiveModuleNo should not be nullable
         return ModuleDTO.builder()
                 .moduleNo(module.getModuleNo())
                 .shortModuleNo(module.getShortModuleNo())
@@ -28,4 +28,21 @@ public class ModuleMapper implements Mapper<ModuleDTO, Module> {
                 .build();
 
     }
+
+    @Override
+    public Module toInstance(ModuleDTO moduleDTO) {
+        return Module.builder()
+            .moduleNo(moduleDTO.getModuleNo())
+            .shortModuleNo(moduleDTO.getShortModuleNo())
+            .moduleTitle(moduleDTO.getModuleTitle())
+            .moduleId(moduleDTO.getModuleId())
+            .moduleGroup(moduleDTO.getModuleGroup())
+            .institute(moduleDTO.getInstitute())
+            .credits(moduleDTO.getCredits())
+            .language(moduleDTO.getLanguage())
+            .semester(ExecutionSemester.parseFromInt(moduleDTO.getSemester()))
+            .consecutiveModuleNo(moduleDTO.getConsecutiveModuleNo())
+            .build();
+    }
+
 }

@@ -179,18 +179,20 @@ class ModuleElectionControllerTest {
                 .electedModules(new HashSet<>())
                 .validationSettingDTO(new ValidationSettingDTO(false, false, false))
                 .build();
-        doNothing().when(electionService).createModuleElection(any());
+        when(electionService.createModuleElection(any())).thenReturn(moduleElectionDTO);
 
         // execute
         try {
-            mockMvc.perform(MockMvcRequestBuilders
+            var result = mockMvc.perform(MockMvcRequestBuilders
                                                   .post(REQUEST_MAPPING_PREFIX)
                                                   .contentType(MediaType.APPLICATION_JSON)
                                                   .content(toJson(moduleElectionDTO))
                                                   .with(csrf()))
-                    .andExpect(status().isNoContent())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").exists())
                     .andDo(print())
                     .andReturn();
+            assertEquals(moduleElectionDTO, fromJsonResult(result, ModuleElectionDTO.class));
         } catch (Exception e) {
             fail(e);
         }
@@ -209,7 +211,7 @@ class ModuleElectionControllerTest {
             mockMvc.perform(MockMvcRequestBuilders
                                                   .delete(REQUEST_MAPPING_PREFIX + "/" + moduleElectionDTO.getId())
                                                   .with(csrf()))
-                    .andExpect(status().isNoContent())
+                    .andExpect(status().isOk())
                     .andDo(print())
                     .andReturn();
         } catch (Exception e) {
@@ -238,7 +240,7 @@ class ModuleElectionControllerTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(toJson(moduleElectionDTO))
                                     .with(csrf()))
-                    .andExpect(status().isNoContent())
+                    .andExpect(status().isOk())
                     .andDo(print())
                     .andReturn();
         } catch (Exception e) {

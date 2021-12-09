@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Controller for the Student entity.
@@ -36,11 +35,11 @@ public class StudentController {
     /**
      * Add a student.
      * @param studentDTO to be added student.
-     * @return {@link ResponseEntity} containing {@link Void}.
+     * @return {@link ResponseEntity} containing {@link StudentDTO}.
      */
     @PostMapping(path = {"/", ""}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> addStudent(@Valid @RequestBody StudentDTO studentDTO) {
-        return ResponseEntity.created(studentService.addAndReturnLocation(studentDTO)).build();
+    public ResponseEntity<StudentDTO> addStudent(@Valid @RequestBody StudentDTO studentDTO) {
+        return ResponseEntity.ok(studentService.addStudent(studentDTO));
     }
 
     /**
@@ -61,19 +60,20 @@ public class StudentController {
     @DeleteMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<Void> deleteStudentById(@PathVariable String id) {
         studentService.deleteStudentById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     /**
      * Replace a student by his id.
      * @param id of student.
      * @param studentDTO the new student.
-     * @return {@link ResponseEntity} containing the {@link StudentDTO}.
+     * @return {@link ResponseEntity} containing the {@link Void}.
      */
     @PutMapping(path = {"/{id}", "/{id}/"})
-    public ResponseEntity<StudentDTO> replaceStudentById(@PathVariable String id,
+    public ResponseEntity<Void> replaceStudentById(@PathVariable String id,
                                                          @Valid @RequestBody StudentDTO studentDTO) {
-        return ResponseEntity.ok(studentService.replaceStudent(id, studentDTO));
+        studentService.replaceStudent(id, studentDTO);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -86,7 +86,7 @@ public class StudentController {
     public ResponseEntity<Void> patchFields(@PathVariable String id,
                                             @RequestBody Map<String, Boolean> patchedFields) {
         studentService.updateStudentEditableFields(id, patchedFields);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     /**

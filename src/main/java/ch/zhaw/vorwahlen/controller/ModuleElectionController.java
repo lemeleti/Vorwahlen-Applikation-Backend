@@ -87,12 +87,11 @@ public class ModuleElectionController {
     /**
      * Add a new module election.
      * @param moduleElectionDTO to be created module election.
-     * @return {@link ResponseEntity} containing {@link Void}.
+     * @return {@link ResponseEntity} containing {@link ModuleElectionDTO}.
      */
     @PostMapping(path = {"", "/"})
-    public ResponseEntity<Void> addModuleElection(@RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
-        electionService.createModuleElection(moduleElectionDTO);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ModuleElectionDTO> addModuleElection(@RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
+        return ResponseEntity.ok(electionService.createModuleElection(moduleElectionDTO));
     }
 
     /**
@@ -103,7 +102,7 @@ public class ModuleElectionController {
     @DeleteMapping(path = {"/{id}", "/{id}/"})
     public ResponseEntity<Void> deleteModuleElectionById(@PathVariable Long id) {
         electionService.deleteModuleElectionById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -116,7 +115,7 @@ public class ModuleElectionController {
     public ResponseEntity<Void> replaceModuleElectionById(@PathVariable Long id,
                                                           @RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
         electionService.updateModuleElection(id, moduleElectionDTO);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     /**

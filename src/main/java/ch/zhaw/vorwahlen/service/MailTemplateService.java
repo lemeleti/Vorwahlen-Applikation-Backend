@@ -45,9 +45,12 @@ public class MailTemplateService {
     /**
      * Map mail template to entity and persist in database
      * @param mailTemplateDTO containing mail template data
+     * @return MailTemplateDTO
      */
-    public void createMailTemplate(MailTemplateDTO mailTemplateDTO) {
-        mailTemplateRepository.save(mapper.toInstance(mailTemplateDTO));
+    public MailTemplateDTO createMailTemplate(MailTemplateDTO mailTemplateDTO) {
+        var template = mapper.toInstance(mailTemplateDTO);
+        template = mailTemplateRepository.save(template);
+        return mapper.toDto(template);
     }
 
     /**

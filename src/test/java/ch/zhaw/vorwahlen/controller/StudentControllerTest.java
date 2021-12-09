@@ -114,25 +114,29 @@ class StudentControllerTest {
     }
 
     @Test
-    void testAddStudent() throws URISyntaxException {
+    void testAddStudent() {
         // prepare
-        when(studentService.addAndReturnLocation(any())).thenReturn(new URI("/students/".concat(nonExistentStudentDto.getEmail())));
+        var studentDto = StudentDTO.builder().email("test@mail.ch").build();
+        when(studentService.addStudent(any())).thenReturn(studentDto);
 
         // execute
         try {
-            mockMvc.perform(MockMvcRequestBuilders
+            var result = mockMvc.perform(MockMvcRequestBuilders
                                     .post(REQUEST_MAPPING_PREFIX)
                                     .with(csrf())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(toJson(nonExistentStudentDto)))
-                    .andExpect(status().isCreated())
-                    .andDo(print());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").exists())
+                    .andDo(print())
+                    .andReturn();
+            assertEquals(studentDto, fromJsonResult(result, StudentDTO.class));
         } catch (Exception e) {
             fail(e);
         }
 
         // verify
-        verify(studentService, times(1)).addAndReturnLocation(any());
+        verify(studentService, times(1)).addStudent(any());
     }
 
     @Test
@@ -168,7 +172,7 @@ class StudentControllerTest {
             mockMvc.perform(MockMvcRequestBuilders
                                     .delete(REQUEST_MAPPING_PREFIX + "/" + nonExistentStudentDto.getEmail())
                                     .with(csrf()))
-                    .andExpect(status().isNoContent())
+                    .andExpect(status().isOk())
                     .andDo(print());
         } catch (Exception e) {
             fail(e);
@@ -185,17 +189,14 @@ class StudentControllerTest {
 
         // execute
         try {
-            var results = mockMvc.perform(MockMvcRequestBuilders
+            mockMvc.perform(MockMvcRequestBuilders
                                                   .put(REQUEST_MAPPING_PREFIX + "/" + nonExistentStudentDto.getEmail())
                                                   .with(csrf())
                                                   .contentType(MediaType.APPLICATION_JSON)
                                                   .content(toJson(nonExistentStudentDto)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").exists())
                     .andDo(print())
                     .andReturn();
-            var studentDTO = fromJsonResult(results, StudentDTO.class);
-            assertEquals(nonExistentStudentDto, studentDTO);
         } catch (Exception e) {
             fail(e);
         }

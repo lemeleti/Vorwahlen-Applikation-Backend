@@ -47,12 +47,11 @@ public class MailTemplateController {
     /**
      * Create and save mail template.
      * @param mailTemplateDTO to be saved.
-     * @return {@link ResponseEntity} containing {@link Void}.
+     * @return {@link ResponseEntity} containing {@link MailTemplateDTO}.
      */
     @PostMapping(path = {"", "/"})
-    public ResponseEntity<Void> createMailTemplate(@Valid @RequestBody MailTemplateDTO mailTemplateDTO) {
-        mailTemplateService.createMailTemplate(mailTemplateDTO);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<MailTemplateDTO> createMailTemplate(@Valid @RequestBody MailTemplateDTO mailTemplateDTO) {
+        return ResponseEntity.ok(mailTemplateService.createMailTemplate(mailTemplateDTO));
     }
 
     /**
