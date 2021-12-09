@@ -179,13 +179,6 @@ class ModuleServiceTest {
         assertThrows(ModuleNotFoundException.class, () -> moduleService.getModuleById("invalid"));
     }
 
-    @Disabled
-    @Test
-    @Sql("classpath:sql/")
-    void testGetEventoDataById() {
-        // todo: create sql data
-    }
-
     @Test
     void testImportModuleExcel_IOException() throws IOException {
         // prepare
