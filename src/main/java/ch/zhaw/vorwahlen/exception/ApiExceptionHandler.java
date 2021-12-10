@@ -47,7 +47,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(SessionNotFoundException.class)
     public ResponseEntity<Object> handleSessionAuthenticationException(Exception ex, WebRequest request) {
-        log.severe(ex.getLocalizedMessage());
+        log.fine(ex.getLocalizedMessage());
         var error = new ErrorResponse(ex.getLocalizedMessage());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -63,7 +63,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                         ModuleNotFoundException.class, ModuleElectionNotFoundException.class,
                         EventoDataNotFoundException.class })
     public ResponseEntity<Object> handleNotFoundExceptions(Exception ex, WebRequest request) {
-        log.severe(ex.getLocalizedMessage());
+        log.fine(ex.getLocalizedMessage());
         var error = new ErrorResponse(ex.getLocalizedMessage());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -89,7 +89,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .getBindingResult()
                 .getFieldErrors()
                 .stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
-        log.log(Level.SEVERE, message, ex);
+        log.log(Level.FINE, message, ex);
         var error = new ErrorResponse(message, causes);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
