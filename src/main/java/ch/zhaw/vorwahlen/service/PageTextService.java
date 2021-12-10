@@ -3,7 +3,6 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.PageTextNotFoundException;
-import ch.zhaw.vorwahlen.exception.UserTypeInvalidException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.PageTextDTO;
 import ch.zhaw.vorwahlen.model.pagetext.PageText;

@@ -49,8 +49,8 @@ class PageTextControllerTest {
                 new PageTextDTO(1L, PAGE_1, UserType.ANONYMOUS, false, 1, "text 1"),
                 new PageTextDTO(2L, PAGE_2, UserType.FULL_TIME, false, 1, "text 1"),
                 new PageTextDTO(3L, PAGE_2, UserType.FULL_TIME, true, 2, "text 2"),
-                new PageTextDTO(3L, PAGE_2, UserType.PART_TIME_FIRST_ELECTION, false, 1, "text 1"),
-                new PageTextDTO(4L, PAGE_3, UserType.PART_TIME_SECOND_ELECTION, false, 1, "text 1")
+                new PageTextDTO(4L, PAGE_2, UserType.PART_TIME_FIRST_ELECTION, false, 1, "text 1"),
+                new PageTextDTO(5L, PAGE_3, UserType.PART_TIME_SECOND_ELECTION, false, 1, "text 1")
         );
     }
 
