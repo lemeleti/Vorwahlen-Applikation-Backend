@@ -49,7 +49,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleSessionAuthenticationException(Exception ex, WebRequest request) {
         log.fine(ex.getLocalizedMessage());
         var error = new ErrorResponse(ex.getLocalizedMessage());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     /**
