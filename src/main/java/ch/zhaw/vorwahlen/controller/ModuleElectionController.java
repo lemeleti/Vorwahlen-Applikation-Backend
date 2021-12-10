@@ -35,7 +35,7 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("election")
+@RequestMapping("elections")
 public class ModuleElectionController {
     public static final String EXCEL_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private final ElectionService electionService;

@@ -36,7 +36,7 @@ class ModuleControllerTest {
 
     private static final String LANGUAGE_DE = "de";
     private static final String LANGUAGE_EN = "en";
-    private static final String REQUEST_MAPPING_PREFIX = "/module";
+    private static final String REQUEST_MAPPING_PREFIX = "/modules";
     private static final String MULTIPART_FILE_REQUEST_PARAMETER = "file";
     private static final String MODULE_LIST_FILE_NAME = "Liste_alle_Module_SM2025_SGL_Def_1.7-2021-03-29.xlsx";
     private static final String WORKSHEET = "Module 2025";

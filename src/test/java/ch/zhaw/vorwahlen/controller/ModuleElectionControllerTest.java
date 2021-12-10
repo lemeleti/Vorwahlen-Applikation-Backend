@@ -56,7 +56,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = "classpath:settings.properties", webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 class ModuleElectionControllerTest {
     public static final String CONNECT_URL = "http://localhost:8080/stomp-ws-endpoint";
-    private static final String REQUEST_MAPPING_PREFIX = "/election";
+    private static final String REQUEST_MAPPING_PREFIX = "/elections";
 
     @Autowired
     MockMvc mockMvc;
