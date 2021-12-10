@@ -3,12 +3,14 @@ package ch.zhaw.vorwahlen.model.pagetext;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.UserTypeInvalidException;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
  * Enumerate types of user.
  */
 @RequiredArgsConstructor
+@Getter
 public enum UserType {
     ANONYMOUS("anonym"),
     FULL_TIME("vz"),
