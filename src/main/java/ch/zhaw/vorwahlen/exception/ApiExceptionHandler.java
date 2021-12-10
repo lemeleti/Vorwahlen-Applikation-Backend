@@ -59,7 +59,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      * @return ResponseEntity<Object>
      */
     @ExceptionHandler({ UserNotFoundException.class, StudentNotFoundException.class,
-                        MailTemplateNotFoundException.class,
+                        MailTemplateNotFoundException.class, PageTextNotFoundException.class,
                         ModuleNotFoundException.class, ModuleElectionNotFoundException.class,
                         EventoDataNotFoundException.class })
     public ResponseEntity<Object> handleNotFoundExceptions(Exception ex, WebRequest request) {
@@ -79,6 +79,19 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         log.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         var error = new ErrorResponse(ex.getLocalizedMessage());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Catch user type invalid exception and returns it with the information what went wrong.
+     * @param ex the caught exception
+     * @param request {@link WebRequest}
+     * @return ResponseEntity<Object>
+     */
+    @ExceptionHandler(UserTypeInvalidException.class)
+    public ResponseEntity<Object> handleUserTypeInvalidException(Exception ex, WebRequest request) {
+        log.log(Level.FINE, ex.getLocalizedMessage(), ex);
+        var error = new ErrorResponse(ex.getLocalizedMessage());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @Override
