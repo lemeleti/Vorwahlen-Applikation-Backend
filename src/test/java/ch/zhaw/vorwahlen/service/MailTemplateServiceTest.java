@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.MailTemplateNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.MailTemplateDTO;
 import ch.zhaw.vorwahlen.model.modules.MailTemplate;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MailTemplateServiceTest {
 
     public static final long DTO_ID_1 = 1L;
+    public static final long NON_EXISTING_ID = 9999L;
     private final MailTemplateRepository mailTemplateRepository;
     private final Mapper<MailTemplateDTO, MailTemplate> mapper;
 
@@ -92,6 +94,11 @@ class MailTemplateServiceTest {
         assertEquals(1, mailTemplateRepository.count());
         mailTemplateService.deleteMailTemplateById(created2.id());
         assertEquals(0, mailTemplateRepository.count());
+    }
+
+    @Test
+    void testDeleteMailTemplateById_NonExistentId() {
+        assertThrows(MailTemplateNotFoundException.class, () -> mailTemplateService.deleteMailTemplateById(NON_EXISTING_ID));
     }
 
 
