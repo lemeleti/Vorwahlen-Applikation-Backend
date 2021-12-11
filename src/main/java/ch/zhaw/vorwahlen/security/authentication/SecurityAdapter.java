@@ -32,6 +32,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.GET, allowedPaths).permitAll()
                 .antMatchers(protectedPaths).hasAuthority("ADMIN")
+                .antMatchers(protectedPaths).hasAuthority(CustomAuthProvider.ADMIN_ROLE)
                 .anyRequest().authenticated()
                 .and().httpBasic().disable()
                 .addFilterBefore(authFilter, BasicAuthenticationFilter.class)

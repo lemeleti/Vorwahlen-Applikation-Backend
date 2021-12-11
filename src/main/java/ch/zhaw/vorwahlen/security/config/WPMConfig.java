@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.security.config;
 import ch.zhaw.vorwahlen.security.authentication.AuthFilter;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
+import ch.zhaw.vorwahlen.security.authentication.CustomAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +35,7 @@ public class WPMConfig {
                 "affiliation", "student;member",
                 "homeOrg", "zhaw.ch",
                 "mail", "dev@zhaw.ch",
-                "role", "ADMIN"
+                "role", CustomAuthProvider.ADMIN_ROLE
         );
 
         var filter = new AuthFilter(false, studentRepository);
