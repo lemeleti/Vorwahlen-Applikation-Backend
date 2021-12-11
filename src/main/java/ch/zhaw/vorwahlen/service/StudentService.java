@@ -226,17 +226,25 @@ public class StudentService {
      * @param notificationDTO the notification to be sent.
      */
     public void notifyStudents(NotificationDTO notificationDTO) {
-        var message = new SimpleMailMessage();
+        var studentMailAddresses = notificationDTO.studentMailAddresses();
+        var messages = new SimpleMailMessage[notificationDTO.studentMailAddresses().length];
         var emailSenderImpl = (JavaMailSenderImpl) emailSender;
         emailSenderImpl.setUsername(notificationDTO.email());
         emailSenderImpl.setPassword(notificationDTO.password());
 
+        for (var i = 0; i < studentMailAddresses.length; i++) {
+             messages[i] = createSimpleMailMessage(studentMailAddresses[i], notificationDTO);
+        }
+        emailSenderImpl.send(messages);
+    }
+
+    private SimpleMailMessage createSimpleMailMessage(String recipient, NotificationDTO notificationDTO) {
+        var message = new SimpleMailMessage();
         message.setFrom(notificationDTO.email());
-        message.setTo(notificationDTO.studentMailAddresses());
+        message.setTo(recipient);
         message.setSubject(notificationDTO.subject());
         message.setText(notificationDTO.message());
-
-        emailSenderImpl.send(message);
+        return message;
     }
 
     private Student fetchStudentById(String id) {
