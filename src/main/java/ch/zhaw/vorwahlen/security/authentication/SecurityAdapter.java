@@ -21,6 +21,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final CustomAuthProvider customAuthProvider;
     private final String[] allowedPaths = {"texts**", "/modules**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
     private final String[] protectedPaths = {"texts**", "/modules**", "/students**", "/elections/export"};
+    private final String[] userProtectedPaths = { "/students/{student}**" };
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
@@ -31,7 +32,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.GET, allowedPaths).permitAll()
-                .antMatchers(protectedPaths).hasAuthority("ADMIN")
+                .antMatchers(userProtectedPaths).access("@userSecurity.hasUserId(authentication, #student)")
                 .antMatchers(protectedPaths).hasAuthority(CustomAuthProvider.ADMIN_ROLE)
                 .anyRequest().authenticated()
                 .and().httpBasic().disable()
