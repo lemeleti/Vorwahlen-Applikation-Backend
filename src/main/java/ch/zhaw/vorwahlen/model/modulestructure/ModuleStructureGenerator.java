@@ -2,7 +2,6 @@ package ch.zhaw.vorwahlen.model.modulestructure;
 
 import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
 import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
-import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
@@ -14,11 +13,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class generates the structure to be displayed in the frontend.
@@ -89,7 +88,7 @@ public class ModuleStructureGenerator {
 
         var semesterEntryList = new ArrayList<>(moduleDefinitions.entrySet());
         if(semesterEntryList.size() == 1) {
-            electedModuleStructure.add(createStructureElement(null, category, semesterEntryList.get(0).getKey()));
+            electedModuleStructure.add(createPlaceholder(category, semesterEntryList.get(0).getKey()));
         }
         generatePlaceholderForMultipleModulesOfCategory(semesterEntryList, moduleDefinitions, category, totalNumOfAllowedModules);
     }
@@ -138,12 +137,16 @@ public class ModuleStructureGenerator {
 
     private void generatePlaceholder(int initialValue, int key, int max, ModuleCategory category) {
         for (var i = initialValue; i < max; i++) {
-            electedModuleStructure.add(createStructureElement(null, category, key));
+            electedModuleStructure.add(createPlaceholder(category, key));
         }
     }
 
+    private Stream<ModuleStructureElement> filterModuleStructureList(List<ModuleStructureElement> structureList, Predicate<ModuleStructureElement> filter) {
+        return structureList.stream().filter(filter);
+    }
+
     private int filterAndCountModuleStructureList(List<ModuleStructureElement> structureList, Predicate<ModuleStructureElement> filter) {
-        return (int) structureList.stream().filter(filter).count();
+        return (int) filterModuleStructureList(structureList, filter).count();
     }
 
     private final Function<Module, ModuleStructureElement> moduleToModuleStructureElement = module -> {
@@ -166,36 +169,43 @@ public class ModuleStructureGenerator {
         if(student.isTZ() && !student.isSecondElection()) return;
 
         while (dispensedCredits > 0) {
-            var elementOptional = electedModuleStructure
-                    .stream()
-                    .filter(element -> structureCategory.equals(element.category()))
-                    .findFirst();
+            var optionalPlaceholderElement = filterModuleStructureList(electedModuleStructure,
+                    mse -> structureCategory.equals(mse.category()) && mse.isPlaceholder()).findFirst();
 
-            if (elementOptional.isPresent()) {
-                var moduleStructureElement = elementOptional.get();
-                var index = electedModuleStructure.indexOf(moduleStructureElement);
-                if(ModuleCategory.SUBJECT_MODULE.equals(structureCategory)) {
-                    overflowedModuleStructure.add(moduleStructureElement);
+            if(optionalPlaceholderElement.isPresent()) {
+                replaceModuleStructureElementWithDispensation(optionalPlaceholderElement.get(), replacementCategory);
+            } else {
+                var elementOptional = filterModuleStructureList(electedModuleStructure,
+                        mse -> structureCategory.equals(mse.category())).findFirst();
+
+                if (elementOptional.isPresent()) {
+                    var moduleStructureElement = replaceModuleStructureElementWithDispensation(elementOptional.get(), replacementCategory);
+                    if (ModuleCategory.SUBJECT_MODULE.equals(structureCategory) && !moduleStructureElement.isPlaceholder()) {
+                        overflowedModuleStructure.add(moduleStructureElement);
+                    }
                 }
-                electedModuleStructure.remove(moduleStructureElement);
-                electedModuleStructure.add(index, createStructureElement(null, replacementCategory, moduleStructureElement.semester()));
             }
-
             dispensedCredits -= replacementCategory.getCredits();
         }
     }
 
-    private ModuleStructureElement createStructureElement(Module module, ModuleCategory category, int semester) {
-        var notAvailableModuleId = "N/A";
-        var moduleData = Optional.ofNullable(module)
-                .orElse(Module.builder().moduleNo(notAvailableModuleId).moduleTitle(category.getDescription()).build());
-
-        if (module != null && !ExecutionSemester.AUTUMN_AND_SPRING.equals(module.getSemester())) {
-            semester = module.getSemester().getSemester();
-        }
-
-        return new ModuleStructureElement(
-                moduleData.getModuleTitle(), moduleData.getModuleNo(),
-                module == null, semester, category, category.getCredits());
+    private ModuleStructureElement replaceModuleStructureElementWithDispensation(ModuleStructureElement moduleStructureElement, ModuleCategory replacementCategory) {
+        var index = electedModuleStructure.indexOf(moduleStructureElement);
+        electedModuleStructure.remove(moduleStructureElement);
+        electedModuleStructure.add(index, createPlaceholder(replacementCategory, moduleStructureElement.semester()));
+        return moduleStructureElement;
     }
+
+    private ModuleStructureElement createPlaceholder(ModuleCategory category, int semester) {
+        var notAvailableModuleId = "N/A";
+        var moduleData = Module.builder().moduleNo(notAvailableModuleId).moduleTitle(category.getDescription()).build();
+
+        return new ModuleStructureElement(moduleData.getModuleTitle(),
+                moduleData.getModuleNo(),
+                true,
+                semester,
+                category,
+                category.getCredits());
+    }
+
  }
