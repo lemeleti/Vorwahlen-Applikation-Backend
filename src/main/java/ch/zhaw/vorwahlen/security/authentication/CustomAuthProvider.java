@@ -22,7 +22,7 @@ import java.util.ArrayList;
 @PropertySource("classpath:settings.properties")
 @Log
 public class CustomAuthProvider implements AuthenticationProvider {
-    private static final String ADMIN_ROLE = "ADMIN";
+    public static final String ADMIN_ROLE = "ADMIN";
 
     private final String[] admins;
 
