@@ -283,7 +283,7 @@ class ElectionServiceTest {
     @Sql("classpath:sql/election_service_test_user.sql")
     @Sql("classpath:sql/modules_test_election.sql")
     void testGetElection_Fulltime() {
-        testGetElection(student, validElectionSetForElection(), 12);
+        testGetElection(student, validElectionSetForElection(), 12, new ValidationSetting());
     }
 
     @Test
@@ -301,7 +301,7 @@ class ElectionServiceTest {
                                    contextModules.get(0),
                                    contextModules.get(1));
 
-        testGetElection(student, validElection, 4);
+        testGetElection(student, validElection, 4, new ValidationSetting());
     }
 
     @Test
@@ -323,10 +323,12 @@ class ElectionServiceTest {
                                    contextModules.get(0),
                                    interdisciplinaryModules.get(0));
 
-        testGetElection(student, validElection, 8);
+        var validationSetting = new ValidationSetting();
+        validationSetting.setElectedContextModulesInFirstElection(2);
+        testGetElection(student, validElection, 8, validationSetting);
     }
 
-    private void testGetElection(Student student, Set<String> validElection, int expectedElectedModulesSize) {
+    private void testGetElection(Student student, Set<String> validElection, int expectedElectedModulesSize, ValidationSetting validationSetting) {
         // prepare
         setAuthentication(student);
         var electedModules = validElection
@@ -336,7 +338,7 @@ class ElectionServiceTest {
 
         var moduleElection = new ModuleElection();
         moduleElection.setElectedModules(electedModules);
-        moduleElection.setValidationSetting(new ValidationSetting());
+        moduleElection.setValidationSetting(validationSetting);
         moduleElection.setStudent(student);
         electionRepository.save(moduleElection);
 

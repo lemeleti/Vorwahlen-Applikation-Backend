@@ -113,7 +113,10 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
         // NOTE: Context not checked because we don't store the elected modules from the previous year.
         var totalNumContextModules = NUM_CONTEXT_MODULES_FIRST_ELECTION + NUM_CONTEXT_MODULES_SECOND_ELECTION;
         var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
-        var isValid = count >= 0 && count <= totalNumContextModules;
+
+        var isValid = getStudent().isTZ() && getStudent().isSecondElection()
+                ? count + moduleElection.getValidationSetting().getElectedContextModulesInFirstElection() == totalNumContextModules
+                : count >= 0 && count <= totalNumContextModules;
         if(!isValid) {
             addReasonWhenCountByCategoryNotValid(ModuleCategory.CONTEXT_MODULE, getModuleElectionStatus().getContextValidation(), count, totalNumContextModules);
         }

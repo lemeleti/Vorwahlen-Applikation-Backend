@@ -55,6 +55,8 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         when(validationSettingMock.hadAlreadyElectedTwoConsecutiveModules()).thenReturn(false);
         when(validationSettingMock.isSkipConsecutiveModuleCheck()).thenReturn(false);
         when(validationSettingMock.isRepetent()).thenReturn(true);
+        when(validationSettingMock.getElectedContextModulesInFirstElection()).thenReturn(PartTimeElectionValidator.NUM_CONTEXT_MODULES_FIRST_ELECTION);
+
         when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingMock);
 
         assertTrue(validator.validate(moduleElectionMock).isValid());
@@ -251,18 +253,23 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     @Test
     void testValidContextModuleElection() {
         // first election
+        when(studentMock.isTZ()).thenReturn(true);
         when(studentMock.isSecondElection()).thenReturn(false);
         var m1 = mock(Module.class);
         var m2 = mock(Module.class);
         var m3 = mock(Module.class);
+        var m4 = mock(Module.class);
 
-        var allMocksList = List.of(m1, m2, m3);
+        var allMocksList = List.of(m1, m2, m3, m4);
         for (Module mock : allMocksList) {
             when(mock.getModuleGroup()).thenReturn(ModuleParser.MODULE_GROUP_IT_5);
             when(mock.getModuleNo()).thenReturn(contextModules.get(0));
             when(mock.getShortModuleNo()).thenReturn(contextModules.get(0));
         }
 
+        var validationSetting = mock(ValidationSetting.class);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSetting);
+
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of());
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
 
@@ -274,20 +281,37 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3));
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
+        assertFalse(validator.validContextModuleElection(moduleElectionMock));
 
         // second election
         when(studentMock.isSecondElection()).thenReturn(true);
+
+        when(validationSetting.getElectedContextModulesInFirstElection()).thenReturn(3);
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of());
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
+
+        when(validationSetting.getElectedContextModulesInFirstElection()).thenReturn(2);
+        assertFalse(validator.validContextModuleElection(moduleElectionMock));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1));
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
 
+        when(validationSetting.getElectedContextModulesInFirstElection()).thenReturn(1);
+        assertFalse(validator.validContextModuleElection(moduleElectionMock));
+
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
 
+        when(validationSetting.getElectedContextModulesInFirstElection()).thenReturn(0);
+        assertFalse(validator.validContextModuleElection(moduleElectionMock));
+
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3));
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
+        assertFalse(validator.validContextModuleElection(moduleElectionMock));
     }
 
     @Test

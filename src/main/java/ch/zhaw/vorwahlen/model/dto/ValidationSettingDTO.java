@@ -10,4 +10,5 @@ public record ValidationSettingDTO (@NotNull(message = "{validation.repetent.nul
                                     @NotNull(message = "{validation.previous.consecutive.modules.null}")
                                     boolean hadAlreadyElectedTwoConsecutiveModules,
                                     @NotNull(message = "{validation.skip.consecutive.modules.check.null}")
-                                    boolean isSkipConsecutiveModuleCheck) {}
+                                    boolean isSkipConsecutiveModuleCheck,
+                                    int electedContextModulesInFirstElection) {}

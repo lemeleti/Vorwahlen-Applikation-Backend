@@ -175,7 +175,7 @@ class ModuleElectionControllerTest {
                 .id(1L)
                 .studentEmail("hello@mail.ch")
                 .electedModules(new HashSet<>())
-                .validationSettingDTO(new ValidationSettingDTO(false, false, false))
+                .validationSettingDTO(new ValidationSettingDTO(false, false, false, 0))
                 .build();
         when(electionService.createModuleElection(any())).thenReturn(moduleElectionDTO);
 
@@ -227,7 +227,7 @@ class ModuleElectionControllerTest {
                 .id(1L)
                 .studentEmail("hello@mail.ch")
                 .electedModules(new HashSet<>())
-                .validationSettingDTO(new ValidationSettingDTO(false, false, false))
+                .validationSettingDTO(new ValidationSettingDTO(false, false, false, 0))
                 .build();
         doNothing().when(electionService).updateModuleElection(anyLong(), any());
 

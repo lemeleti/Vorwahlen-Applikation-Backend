@@ -13,6 +13,7 @@ public class ValidationSettingMapper implements Mapper<ValidationSettingDTO, Val
     public ValidationSettingDTO toDto(ValidationSetting validationSetting) {
         return new ValidationSettingDTO(validationSetting.isRepetent(),
                 validationSetting.hadAlreadyElectedTwoConsecutiveModules(),
-                validationSetting.isSkipConsecutiveModuleCheck());
+                validationSetting.isSkipConsecutiveModuleCheck(),
+                validationSetting.getElectedContextModulesInFirstElection());
     }
 }

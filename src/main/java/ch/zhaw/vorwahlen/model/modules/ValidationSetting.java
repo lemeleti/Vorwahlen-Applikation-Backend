@@ -33,6 +33,9 @@ public class ValidationSetting {
     @Column(columnDefinition = "tinyint(1) default 0")
     private boolean isSkipConsecutiveModuleCheck;
 
+    @Column(columnDefinition = "tinyint default 0")
+    private int electedContextModulesInFirstElection;
+
     public boolean hadAlreadyElectedTwoConsecutiveModules() {
         return alreadyElectedTwoConsecutiveModules;
     }
