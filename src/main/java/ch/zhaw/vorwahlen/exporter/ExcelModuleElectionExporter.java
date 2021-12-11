@@ -98,13 +98,11 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
 
     private final Function<Module, String> mapConsecutiveModule = module -> {
         var moduleTitle = module.getModuleTitle();
-        var shortModuleNoSplit = module.getShortModuleNo().split("\\.");
         if ("Englisch".equals(module.getLanguage())) {
             moduleTitle = moduleTitle.concat(" (E)");
         }
-        var shortModuleNo = shortModuleNoSplit.length > 1 ? shortModuleNoSplit[1] : shortModuleNoSplit[0];
 
-        return moduleTitle.concat(" ".concat(shortModuleNo));
+        return moduleTitle.concat(" ".concat(module.getShortModuleNo()));
     };
 
     private final Function<Module, String> mapModule = module ->
