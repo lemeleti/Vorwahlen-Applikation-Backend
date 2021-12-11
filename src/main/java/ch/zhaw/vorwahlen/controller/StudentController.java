@@ -77,7 +77,7 @@ public class StudentController {
     }
 
     /**
-     * Patch student informations.
+     * Patch student information.
      * @param id the student id.
      * @param patchedFields fields to be patched.
      * @return {@link ResponseEntity} containing {@link Void}.
