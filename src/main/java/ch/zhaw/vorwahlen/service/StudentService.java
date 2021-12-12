@@ -56,7 +56,7 @@ public class StudentService {
     public void importClassListExcel(MultipartFile file, String worksheet) {
         try {
             var classListParser = new ClassListParser(file.getInputStream(), worksheet);
-            var students = classListParser.parseModulesFromXLSX();
+            var students = classListParser.parseFromXLSX();
             setSecondElection(students);
             createAndSetModuleElection(students);
             studentRepository.saveAll(students);
@@ -208,7 +208,7 @@ public class StudentService {
     public void importDispensationExcel(MultipartFile file, String worksheet) {
         try (InputStream is = file.getInputStream()) {
             var dispensationParser = new DispensationParser(is, worksheet);
-            var parsedList = dispensationParser.parseModulesFromXLSX();
+            var parsedList = dispensationParser.parseFromXLSX();
             parsedList.forEach(student -> studentRepository.findById(student.getEmail()).ifPresent(dbStudent -> {
                 dbStudent.setPaDispensation(student.getPaDispensation());
                 dbStudent.setWpmDispensation(student.getWpmDispensation());

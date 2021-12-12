@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -36,13 +35,13 @@ public class StudentClass {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        var that = (StudentClass) o;
-        return name != null && Objects.equals(name, that.name);
+        if (!(o instanceof StudentClass that)) return false;
+        return Objects.equals(getName(), that.getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(getName());
     }
+
 }

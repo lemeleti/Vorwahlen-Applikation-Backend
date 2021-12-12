@@ -62,7 +62,7 @@ class DispensationParserTest {
         var expected = sortByEmail(studentRepository.findAll());
 
         // execute
-        var result = sortByEmail(dispensationParser.parseModulesFromXLSX());
+        var result = sortByEmail(dispensationParser.parseFromXLSX());
 
         // verify
         assertNotNull(result);

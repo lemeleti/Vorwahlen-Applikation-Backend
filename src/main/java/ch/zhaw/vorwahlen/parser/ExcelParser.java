@@ -31,11 +31,11 @@ public abstract class ExcelParser<T, S extends LookupTable<?>> {
     private final Class<S> lookupTableClass;
 
     /**
-     * Parse all modules from the provided Excel sheet.
+     * Parse the provided Excel sheet.
      * @return list of {@code} <T>}.
      * @throws IOException if file not found or file not an Excel sheet.
      */
-    public List<T> parseModulesFromXLSX() throws IOException {
+    public List<T> parseFromXLSX() throws IOException {
         var moduleList = new ArrayList<T>();
         T object;
 

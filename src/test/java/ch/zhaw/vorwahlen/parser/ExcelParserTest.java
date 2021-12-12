@@ -39,7 +39,7 @@ class ExcelParserTest {
     void testParseModulesFromXLSX() {
         when(parser.createObjectFromRow(any())).thenReturn(null);
 
-        var result = assertDoesNotThrow(() -> parser.parseModulesFromXLSX());
+        var result = assertDoesNotThrow(() -> parser.parseFromXLSX());
 
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -59,7 +59,7 @@ class ExcelParserTest {
                 .defaultAnswer(CALLS_REAL_METHODS));
         when(parser.createObjectFromRow(any())).thenReturn(null);
 
-        var result = assertDoesNotThrow(() -> parser.parseModulesFromXLSX());
+        var result = assertDoesNotThrow(() -> parser.parseFromXLSX());
 
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -77,7 +77,7 @@ class ExcelParserTest {
         parser = mock(ExcelParser.class, Mockito.withSettings()
                 .useConstructor(null, WORK_SHEET_NAME, DummyLookupTable.class)
                 .defaultAnswer(CALLS_REAL_METHODS));
-        assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
+        assertThrows(NullPointerException.class, () -> parser.parseFromXLSX());
     }
 
     @Test
@@ -86,7 +86,7 @@ class ExcelParserTest {
         parser = mock(ExcelParser.class, Mockito.withSettings()
                 .useConstructor(fis, null, DummyLookupTable.class)
                 .defaultAnswer(CALLS_REAL_METHODS));
-        assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
+        assertThrows(NullPointerException.class, () -> parser.parseFromXLSX());
     }
 
     @Test
@@ -95,7 +95,7 @@ class ExcelParserTest {
         parser = mock(ExcelParser.class, Mockito.withSettings()
                 .useConstructor(fis, WORK_SHEET_NAME, null)
                 .defaultAnswer(CALLS_REAL_METHODS));
-        assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
+        assertThrows(NullPointerException.class, () -> parser.parseFromXLSX());
     }
 
     @Test
@@ -104,7 +104,7 @@ class ExcelParserTest {
         parser = mock(ExcelParser.class, Mockito.withSettings()
                 .useConstructor(fis, WORK_SHEET_NAME, DummyLookupTable.class)
                 .defaultAnswer(CALLS_REAL_METHODS));
-        assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
+        assertThrows(NullPointerException.class, () -> parser.parseFromXLSX());
     }
 
     @Test
@@ -113,7 +113,7 @@ class ExcelParserTest {
         parser = mock(ExcelParser.class, Mockito.withSettings()
                 .useConstructor(fis, "Inkognito", DummyLookupTable.class)
                 .defaultAnswer(CALLS_REAL_METHODS));
-        assertThrows(NullPointerException.class, () -> parser.parseModulesFromXLSX());
+        assertThrows(NullPointerException.class, () -> parser.parseFromXLSX());
     }
 
 }

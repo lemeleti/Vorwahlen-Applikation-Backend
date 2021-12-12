@@ -51,7 +51,7 @@ public class ModuleService {
     public void importModuleExcel(MultipartFile file, String worksheet) {
         try {
             var moduleParser = new ModuleParser(file.getInputStream(), worksheet);
-            var modules = moduleParser.parseModulesFromXLSX();
+            var modules = moduleParser.parseFromXLSX();
             moduleRepository.saveAll(modules);
             var updatedModules = setConsecutiveModules(modules);
             moduleRepository.saveAll(updatedModules);

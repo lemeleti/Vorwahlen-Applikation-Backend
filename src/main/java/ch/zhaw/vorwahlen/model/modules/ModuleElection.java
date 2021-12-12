@@ -3,7 +3,6 @@ package ch.zhaw.vorwahlen.model.modules;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -40,13 +39,17 @@ public class ModuleElection {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        ModuleElection that = (ModuleElection) o;
-        return id != null && Objects.equals(id, that.id);
+        if (!(o instanceof ModuleElection that)) return false;
+        return isElectionValid() == that.isElectionValid()
+                && Objects.equals(getId(), that.getId())
+                && Objects.equals(getStudent(), that.getStudent())
+                && Objects.equals(getValidationSetting(), that.getValidationSetting())
+                && Objects.equals(getElectedModules(), that.getElectedModules());
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(getId(), getStudent(), getValidationSetting(), isElectionValid(), getElectedModules());
     }
+
 }

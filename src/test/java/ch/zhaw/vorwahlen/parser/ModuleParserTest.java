@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.parser;
 
+import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.parser.ModuleLookupTable;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
@@ -66,7 +67,7 @@ class ModuleParserTest {
         var expected = sortByModuleNo(moduleRepository.findAll());
 
         // execute
-        var result = sortByModuleNo(moduleParser.parseModulesFromXLSX());
+        var result = sortByModuleNo(moduleParser.parseFromXLSX());
 
         // verify
         assertNotNull(result);
@@ -94,6 +95,7 @@ class ModuleParserTest {
                 .credits(Byte.parseByte(DEFAULT_CELL_VALUE))
                 .institute(DEFAULT_CELL_VALUE)
                 .language(DEFAULT_CELL_VALUE)
+                .semester(ExecutionSemester.SPRING)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
@@ -126,6 +128,7 @@ class ModuleParserTest {
                 .credits(Byte.parseByte(DEFAULT_CELL_VALUE))
                 .institute(DEFAULT_CELL_VALUE)
                 .language(DEFAULT_CELL_VALUE)
+                .semester(ExecutionSemester.SPRING)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);

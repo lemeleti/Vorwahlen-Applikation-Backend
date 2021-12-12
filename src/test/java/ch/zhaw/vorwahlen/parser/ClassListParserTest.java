@@ -61,7 +61,7 @@ class ClassListParserTest {
         var expected = sortByEmail(studentRepository.findAll());
 
         // execute
-        var result = sortByEmail(classListParser.parseModulesFromXLSX());
+        var result = sortByEmail(classListParser.parseFromXLSX());
 
         // verify
         assertNotNull(result);
@@ -84,6 +84,8 @@ class ClassListParserTest {
                 .email(DEFAULT_CELL_VALUE)
                 .name(DEFAULT_CELL_VALUE)
                 .studentClass(new StudentClass(DEFAULT_CELL_VALUE))
+                .canElect(true)
+                .firstTimeSetup(true)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
