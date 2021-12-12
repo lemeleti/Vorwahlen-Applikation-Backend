@@ -36,6 +36,10 @@ public class ModuleElection {
             inverseJoinColumns = @JoinColumn(name = "module_no", referencedColumnName = "moduleNo"))
     private Set<Module> electedModules;
 
+    public void removeModuleFromElection(Module module) {
+        electedModules.remove(module);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
