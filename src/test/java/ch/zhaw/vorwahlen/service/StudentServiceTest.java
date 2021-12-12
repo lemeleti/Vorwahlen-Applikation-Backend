@@ -11,7 +11,6 @@ import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -70,18 +69,35 @@ class StudentServiceTest {
     }
 
     @Test
-    @Disabled // todo fix
-    void testNotifyStudent() {
+    void testNotifyStudents() {
         var notification = new NotificationDTO(
                 "test@mail.ch",
                 "password",
                 "subject",
                 "message",
-                new String[] { "student@mail.ch" }
+                new String[] { "student@mail.ch", "student2@mail.ch" }
         );
-        doNothing().when(emailSender).send(any(SimpleMailMessage.class));
+
+        var addresses = notification.studentMailAddresses();
+        var messages = new SimpleMailMessage[addresses.length];
+
+        for (int i = 0; i < addresses.length; i++) {
+            var message = new SimpleMailMessage();
+            message.setFrom(notification.email());
+            message.setTo(addresses[i]);
+            message.setSubject(notification.subject());
+            message.setText(notification.message());
+            messages[i] = message;
+        }
+
+        doNothing().when(emailSender).setUsername(anyString());
+        doNothing().when(emailSender).setPassword(anyString());
+        doNothing().when(emailSender).send(messages);
         studentService.notifyStudents(notification);
-        verify(emailSender, times(1)).send(any(SimpleMailMessage.class));
+
+        verify(emailSender, times(1)).setUsername(anyString());
+        verify(emailSender, times(1)).setPassword(anyString());
+        verify(emailSender, times(1)).send(messages);
     }
 
     @Test
