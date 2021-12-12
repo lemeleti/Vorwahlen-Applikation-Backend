@@ -157,6 +157,10 @@ public class StudentService {
      * @param id identifier of the student.
      */
     public void deleteStudentById(String id) {
+        if(!studentRepository.existsById(id)) {
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
+            throw new StudentNotFoundException(String.format(formatString, id));
+        }
         studentRepository.deleteById(id);
     }
 
