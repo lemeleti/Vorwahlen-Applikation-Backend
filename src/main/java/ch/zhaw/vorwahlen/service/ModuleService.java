@@ -171,17 +171,15 @@ public class ModuleService {
      * @return saved module
      */
     public ModuleDTO replaceModule(String id, ModuleDTO moduleDTO) {
-       return moduleRepository.findById(id)
-                .map(module -> {
-                    module.setModuleNo(moduleDTO.getModuleNo());
-                    module.setModuleTitle(moduleDTO.getModuleTitle());
-                    module.setCredits(moduleDTO.getCredits());
-                    module.setLanguage(moduleDTO.getLanguage());
-                    module.setSemester(ExecutionSemester.parseFromInt(moduleDTO.getSemester()));
-                    module.setConsecutiveModuleNo(moduleDTO.getConsecutiveModuleNo());
-                    return moduleMapper.toDto(moduleRepository.save(module));
-                })
-                .orElse(addModule(moduleDTO));
+        moduleDTO.setModuleNo(id);
+
+        var storedModule = moduleRepository.findById(id);
+        if(storedModule.isPresent()) {
+            var newModule = moduleMapper.toInstance(moduleDTO);
+            return moduleMapper.toDto(moduleRepository.save(newModule));
+        } else {
+            return addModule(moduleDTO);
+        }
     }
 
     /**

@@ -167,11 +167,12 @@ public class StudentService {
      * @return the saved student
      */
     public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
+        studentDTO.setEmail(id);
+
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
         var storedStudent = studentRepository.findById(id);
         if(storedStudent.isPresent()) {
             var newStudent = mapper.toInstance(studentDTO);
-            newStudent.setEmail(id);
             newStudent.setStudentClass(studentClass);
             return mapper.toDto(studentRepository.save(newStudent));
         } else {

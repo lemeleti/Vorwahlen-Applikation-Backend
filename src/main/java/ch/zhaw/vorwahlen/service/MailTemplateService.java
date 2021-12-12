@@ -68,8 +68,9 @@ public class MailTemplateService {
      * @param mailTemplateDTO with updated fields
      */
     public void updateMailTemplate(Long id, MailTemplateDTO mailTemplateDTO) {
+        var storedMailTemplate = fetchMailTemplate(id);
         var mailTemplate = mapper.toInstance(mailTemplateDTO);
-        mailTemplate.setId(id);
+        mailTemplate.setId(storedMailTemplate.getId());
         mailTemplateRepository.save(mailTemplate);
     }
 
