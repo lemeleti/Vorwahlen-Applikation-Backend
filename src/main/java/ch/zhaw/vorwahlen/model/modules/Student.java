@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -26,7 +25,6 @@ import java.util.Objects;
 @Getter @Setter @Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
 public class Student {
 
     @Id
@@ -67,14 +65,13 @@ public class Student {
                 && isCanElect() == that.isCanElect()
                 && Objects.equals(getEmail(), that.getEmail())
                 && Objects.equals(getName(), that.getName())
-                && Objects.equals(getStudentClass(), that.getStudentClass())
-                && Objects.equals(getElection(), that.getElection());
+                && Objects.equals(getStudentClass(), that.getStudentClass());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getEmail(), getName(), getStudentClass(), getPaDispensation(), getWpmDispensation(), isIP(),
-                            isTZ(), isSecondElection(), isFirstTimeSetup(), isCanElect(), getElection());
+                            isTZ(), isSecondElection(), isFirstTimeSetup(), isCanElect());
     }
 
 }
