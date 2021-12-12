@@ -12,6 +12,7 @@ import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
+import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.scraper.EventoScraper;
@@ -41,6 +42,7 @@ import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_EVENTO_
 public class ModuleService {
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
+    private final ElectionRepository electionRepository;
     private final Mapper<ModuleDTO, Module> moduleMapper;
     private final Mapper<EventoDataDTO, EventoData> eventoDataMapper;
 
@@ -152,6 +154,13 @@ public class ModuleService {
      * @param id to be deleted module.
      */
     public void deleteModuleById(String id) {
+        var module = fetchModuleById(id);
+        var elections = electionRepository.findAllByElectedModulesContaining(module);
+
+        elections.forEach(moduleElection -> {
+            moduleElection.removeModuleFromElection(module);
+            moduleElection.setElectionValid(false);
+        });
         moduleRepository.deleteById(id);
     }
 

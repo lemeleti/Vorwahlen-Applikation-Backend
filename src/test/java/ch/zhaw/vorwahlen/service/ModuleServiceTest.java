@@ -9,11 +9,11 @@ import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
+import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +23,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -41,6 +40,7 @@ class ModuleServiceTest {
 
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
+    private final ElectionRepository electionRepository;
     private final Mapper<ModuleDTO, Module> moduleMapper;
     private final Mapper<EventoDataDTO, EventoData> eventoDataMapper;
     private ModuleService moduleService;
@@ -48,17 +48,18 @@ class ModuleServiceTest {
     @Autowired
     public ModuleServiceTest(ModuleRepository moduleRepository,
                              EventoDataRepository eventoDataRepository,
-                             Mapper<ModuleDTO, Module> moduleMapper,
+                             ElectionRepository electionRepository, Mapper<ModuleDTO, Module> moduleMapper,
                              Mapper<EventoDataDTO, EventoData> eventoDataMapper) {
         this.moduleRepository = moduleRepository;
         this.eventoDataRepository = eventoDataRepository;
+        this.electionRepository = electionRepository;
         this.moduleMapper = moduleMapper;
         this.eventoDataMapper = eventoDataMapper;
     }
 
     @BeforeEach
     void setUp() {
-        moduleService = new ModuleService(moduleRepository, eventoDataRepository, moduleMapper, eventoDataMapper);
+        moduleService = new ModuleService(moduleRepository, eventoDataRepository, electionRepository, moduleMapper, eventoDataMapper);
     }
 
     @AfterEach
