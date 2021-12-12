@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.mapper.Mapper;
@@ -481,6 +482,18 @@ class ElectionServiceTest {
         assertEquals(2, validationSettingRepository.count());
     }
 
+    @Test
+    @Sql("classpath:sql/election_service_test_user.sql")
+    void testCreateModuleElection_AlreadyExists() {
+        // prepare
+        var moduleElectionDto = ModuleElectionDTO.builder()
+                .studentEmail(student.getEmail())
+                .electedModules(validElectionSetForElection())
+                .build();
+
+        var created = assertDoesNotThrow(() -> electionService.createModuleElection(moduleElectionDto));
+        assertThrows(ModuleElectionConflictException.class, () -> electionService.createModuleElection(created));
+    }
 
     @Test
     void testGetModuleElectionById_NonExistentId() {

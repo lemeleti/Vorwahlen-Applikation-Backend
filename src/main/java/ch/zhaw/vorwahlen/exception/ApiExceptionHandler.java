@@ -53,6 +53,21 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Catch conflict exceptions and returns it with the information what went wrong.
+     * @param ex the caught exception
+     * @param request {@link WebRequest}
+     * @return ResponseEntity<Object>
+     */
+    @ExceptionHandler({ MailTemplateConflictException.class, ModuleConflictException.class,
+                        ModuleElectionConflictException.class, PageTextConflictException.class,
+                        StudentConflictException.class })
+    public ResponseEntity<Object> handleConflictException(Exception ex, WebRequest request) {
+        log.fine(ex.getLocalizedMessage());
+        var error = new ErrorResponse(ex.getLocalizedMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    /**
      * Catch not found exceptions and returns it with the information what went wrong.
      * @param ex the caught exception
      * @param request {@link WebRequest}

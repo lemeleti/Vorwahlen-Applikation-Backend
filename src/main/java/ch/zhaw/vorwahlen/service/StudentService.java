@@ -3,7 +3,9 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
+import ch.zhaw.vorwahlen.exception.StudentConflictException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
@@ -77,6 +79,11 @@ public class StudentService {
      * @return the added student
      */
     public StudentDTO addStudent(StudentDTO studentDTO) {
+        if(studentRepository.existsById(studentDTO.getEmail())) {
+            var formatString = ResourceBundleMessageLoader.getMessage(ERROR_STUDENT_CONFLICT);
+            var message = String.format(formatString, studentDTO.getEmail());
+            throw new StudentConflictException(message);
+        }
         var student = mapper.toInstance(studentDTO);
         var moduleElection = new ModuleElection();
         var validationSetting = new ValidationSetting();
@@ -162,11 +169,8 @@ public class StudentService {
      * @param id identifier of the student.
      */
     public void deleteStudentById(String id) {
-        if(!studentRepository.existsById(id)) {
-            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
-            throw new StudentNotFoundException(String.format(formatString, id));
-        }
-        studentRepository.deleteById(id);
+        var student = fetchStudentById(id);
+        studentRepository.deleteById(student.getEmail());
     }
 
     /**
@@ -176,8 +180,6 @@ public class StudentService {
      * @return the saved student
      */
     public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
-        studentDTO.setEmail(id);
-
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
         var election = electionRepository.findModuleElectionById(studentDTO.getModuleElectionId())
                 .orElseThrow(() -> {
@@ -186,15 +188,12 @@ public class StudentService {
                     return new ModuleElectionNotFoundException(errorMessage);
                 });
 
-        var storedStudent = studentRepository.findById(id);
-        if(storedStudent.isPresent()) {
-            var newStudent = mapper.toInstance(studentDTO);
-            newStudent.setStudentClass(studentClass);
-            newStudent.setElection(election);
-            return mapper.toDto(studentRepository.save(newStudent));
-        } else {
-            return addStudent(studentDTO);
-        }
+        var storedStudent = fetchStudentById(id);
+        var newStudent = mapper.toInstance(studentDTO);
+        newStudent.setEmail(storedStudent.getEmail());
+        newStudent.setStudentClass(studentClass);
+        newStudent.setElection(election);
+        return mapper.toDto(studentRepository.save(newStudent));
     }
 
     /**

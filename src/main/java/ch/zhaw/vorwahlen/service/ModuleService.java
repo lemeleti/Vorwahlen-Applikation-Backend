@@ -4,6 +4,8 @@ import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.EventoDataNotFoundException;
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.ModuleConflictException;
+import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
@@ -129,6 +131,11 @@ public class ModuleService {
      * @return path where the module can be fetched.
      */
     public ModuleDTO addModule(ModuleDTO moduleDTO) {
+        if(moduleRepository.existsById(moduleDTO.getModuleNo())) {
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_CONFLICT);
+            var message = String.format(formatString, moduleDTO.getModuleNo());
+            throw new ModuleConflictException(message);
+        }
         var module = moduleMapper.toInstance(moduleDTO);
         module = moduleRepository.save(module);
         return moduleMapper.toDto(module);
@@ -171,15 +178,10 @@ public class ModuleService {
      * @return saved module
      */
     public ModuleDTO replaceModule(String id, ModuleDTO moduleDTO) {
-        moduleDTO.setModuleNo(id);
-
-        var storedModule = moduleRepository.findById(id);
-        if(storedModule.isPresent()) {
-            var newModule = moduleMapper.toInstance(moduleDTO);
-            return moduleMapper.toDto(moduleRepository.save(newModule));
-        } else {
-            return addModule(moduleDTO);
-        }
+        var storedModule = fetchModuleById(id);
+        var newModule = moduleMapper.toInstance(moduleDTO);
+        newModule.setModuleNo(storedModule.getModuleNo());
+        return moduleMapper.toDto(moduleRepository.save(newModule));
     }
 
     /**

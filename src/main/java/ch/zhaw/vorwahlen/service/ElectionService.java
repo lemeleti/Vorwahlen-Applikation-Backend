@@ -1,6 +1,8 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
+import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.mapper.Mapper;
@@ -68,6 +70,11 @@ public class ElectionService {
      * @param moduleElectionDTO to be added module election
      */
     public ModuleElectionDTO createModuleElection(ModuleElectionDTO moduleElectionDTO) {
+        if(electionRepository.existsById(moduleElectionDTO.getId())) {
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_ELECTION_CONFLICT);
+            var message = String.format(formatString, moduleElectionDTO.getId());
+            throw new ModuleElectionConflictException(message);
+        }
         var election = moduleElectionMapper.toInstance(moduleElectionDTO);
         election = electionRepository.save(election);
         return moduleElectionMapper.toDto(election);

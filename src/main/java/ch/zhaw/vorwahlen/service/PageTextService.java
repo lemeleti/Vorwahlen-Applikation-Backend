@@ -2,6 +2,8 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
+import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
+import ch.zhaw.vorwahlen.exception.PageTextConflictException;
 import ch.zhaw.vorwahlen.exception.PageTextNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.PageTextDTO;
@@ -62,6 +64,11 @@ public class PageTextService {
      * @return newly added page text.
      */
     public PageTextDTO addPageText(PageTextDTO pageTextDTO) {
+        if(pageTextRepository.existsById(pageTextDTO.id())) {
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_PAGE_TEXT_CONFLICT);
+            var message = String.format(formatString, pageTextDTO.id());
+            throw new PageTextConflictException(message);
+        }
         var entity = mapper.toInstance(pageTextDTO);
         entity = pageTextRepository.save(entity);
         return mapper.toDto(entity);

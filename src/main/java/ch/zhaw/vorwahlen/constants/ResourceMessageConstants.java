@@ -23,4 +23,9 @@ public class ResourceMessageConstants {
     public static final String ERROR_MAIL_TEMPLATE_NOT_FOUND = "error.mail_template_not_found";
     public static final String ERROR_MODULE_ELECTION_NOT_FOUND = "error.module_election_not_found";
     public static final String ERROR_EVENTO_MODULE_NOT_FOUND = "error.evento_data_not_found";
+    public static final String ERROR_PAGE_TEXT_CONFLICT = "error.pagetext_conflict";
+    public static final String ERROR_STUDENT_CONFLICT = "error.student_conflict";
+    public static final String ERROR_MODULE_CONFLICT = "error.module_conflict";
+    public static final String ERROR_MODULE_ELECTION_CONFLICT = "error.module_election_conflict";
+    public static final String ERROR_MAIL_TEMPLATE_CONFLICT = "error.mail_template_conflict";
 }

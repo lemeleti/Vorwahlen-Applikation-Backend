@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.PageTextConflictException;
 import ch.zhaw.vorwahlen.exception.PageTextNotFoundException;
 import ch.zhaw.vorwahlen.exception.UserTypeInvalidException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
@@ -143,6 +144,13 @@ class PageTextServiceTest {
 
         // verify
         assertFalse(pageTextRepository.existsById(existingPageText.getId()));
+    }
+
+    @Test
+    void testAddPageText_AlreadyExisting() {
+        var nonExistentPageText = new PageTextDTO(0L, "PAGE 4", UserType.ANONYMOUS, false, 1, "text 1");
+        var storedPageText = assertDoesNotThrow(() -> pageTextService.addPageText(nonExistentPageText));
+        assertThrows(PageTextConflictException.class, () -> pageTextService.addPageText(storedPageText));
     }
 
     @Test

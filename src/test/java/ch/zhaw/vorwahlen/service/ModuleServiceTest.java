@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.ModuleConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
@@ -168,6 +169,26 @@ class ModuleServiceTest {
         var result = moduleService.getModuleById(expected.getModuleNo());
         assertNotNull(result);
         assertEquals(expected, result);
+    }
+
+    @Test
+    void testAddModule_AlreadyExisting() {
+        var moduleDto = ModuleDTO.builder()
+                .moduleNo("t.BA.WM.HELLO.19HS")
+                .shortModuleNo("WM.HELLO")
+                .moduleTitle("Hello")
+                .moduleId(1)
+                .moduleGroup("AV6,DS6,ET5,EU6,IT6,MT7,ST5,VS6,WI6")
+                .institute("INIT")
+                .credits((byte) 4)
+                .language("English")
+                .semester(ExecutionSemester.AUTUMN.getSemester())
+                .consecutiveModuleNo("")
+                .category(ModuleCategory.INTERDISCIPLINARY_MODULE)
+                .build();
+
+        var result = assertDoesNotThrow(() -> moduleService.addModule(moduleDto));
+        assertThrows(ModuleConflictException.class, () -> moduleService.addModule(result));
     }
 
     @Test

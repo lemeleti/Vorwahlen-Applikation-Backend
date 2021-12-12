@@ -1,6 +1,8 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
+import ch.zhaw.vorwahlen.exception.StudentConflictException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
@@ -141,13 +143,18 @@ class StudentServiceTest {
                 .clazz("IT19a_WIN")
                 .build();
         assertEquals(0, studentRepository.count());
-        dto = studentService.addStudent(dto);
+        var created = studentService.addStudent(dto);
         assertEquals(1, studentRepository.count());
 
-        dto.setName("Hello Server");
+        created.setName("Hello Server");
         // execute
-        studentService.replaceStudent(dto.getEmail(), dto);
-        assertEquals(dto.getName(), studentService.getStudentById(dto.getEmail()).getName());
+        var id = created.getEmail();
+        var moduleElectionId = created.getModuleElectionId();
+        created.setModuleElectionId(0);
+        assertThrows(ModuleElectionNotFoundException.class, () -> studentService.replaceStudent(id, created));
+        created.setModuleElectionId(moduleElectionId);
+        studentService.replaceStudent(created.getEmail(), created);
+        assertEquals(created.getName(), studentService.getStudentById(id).getName());
     }
 
     @Test
@@ -246,6 +253,19 @@ class StudentServiceTest {
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
         areListsEqual(sortByEmail(expected), sortByEmail(result));
+    }
+
+    @Test
+    void testAddStudent_AlreadyExisting() {
+        var dto = StudentDTO.builder()
+                .email("hello@mail.ch")
+                .name("Hello World")
+                .clazz("IT19a_WIN")
+                .firstTimeSetup(false)
+                .isIP(false)
+                .build();
+        var savedDto = assertDoesNotThrow(() -> studentService.addStudent(dto));
+        assertThrows(StudentConflictException.class, () -> studentService.addStudent(savedDto));
     }
 
     @Test

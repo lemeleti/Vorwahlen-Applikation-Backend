@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.exception.MailTemplateConflictException;
 import ch.zhaw.vorwahlen.exception.MailTemplateNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.MailTemplateDTO;
@@ -64,8 +65,8 @@ class MailTemplateServiceTest {
 
     @Test
     void testGetAllMailTemplates() {
-        var dto2 = new MailTemplateDTO(2L, "descrption 2", "subject 2", "message 2");
         var created = mailTemplateService.createMailTemplate(dto);
+        var dto2 = new MailTemplateDTO(created.id() + 1, "descrption 2", "subject 2", "message 2");
         var created2 = mailTemplateService.createMailTemplate(dto2);
 
         var result = mailTemplateService.getAllMailTemplates();
@@ -101,5 +102,10 @@ class MailTemplateServiceTest {
         assertThrows(MailTemplateNotFoundException.class, () -> mailTemplateService.deleteMailTemplateById(NON_EXISTING_ID));
     }
 
+    @Test
+    void testCreateMailTemplate_AlreadyExisting() {
+        var created = assertDoesNotThrow(() -> mailTemplateService.createMailTemplate(dto));
+        assertThrows(MailTemplateConflictException.class, () -> mailTemplateService.createMailTemplate(created));
+    }
 
 }

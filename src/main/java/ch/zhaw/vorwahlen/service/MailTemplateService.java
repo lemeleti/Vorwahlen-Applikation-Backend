@@ -1,7 +1,10 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
+import ch.zhaw.vorwahlen.exception.MailTemplateConflictException;
 import ch.zhaw.vorwahlen.exception.MailTemplateNotFoundException;
+import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.MailTemplateDTO;
 import ch.zhaw.vorwahlen.model.modules.MailTemplate;
@@ -48,6 +51,11 @@ public class MailTemplateService {
      * @return MailTemplateDTO
      */
     public MailTemplateDTO createMailTemplate(MailTemplateDTO mailTemplateDTO) {
+        if(mailTemplateRepository.existsById(mailTemplateDTO.id())) {
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MAIL_TEMPLATE_CONFLICT);
+            var message = String.format(formatString, mailTemplateDTO.id());
+            throw new MailTemplateConflictException(message);
+        }
         var template = mapper.toInstance(mailTemplateDTO);
         template = mailTemplateRepository.save(template);
         return mapper.toDto(template);
