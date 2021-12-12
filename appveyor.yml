@@ -37,11 +37,5 @@ artifacts:
 deploy_script:
   - sh: ./deploy.sh
 
-deploy:
-  - provider: Environment
-    name: production
-    on:
-      APPVEYOR_REPO_TAG: true
-
 # Use integers as build versions (1, 2, 3, …) instead of 1.0.X.
 version: "{build}"
