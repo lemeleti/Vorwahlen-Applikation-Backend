@@ -34,8 +34,12 @@ artifacts:
   - path: "build/libs/*.jar"
     name: "WPM-Backend"
 
-deploy:
+deploy_script:
   - sh: ./deploy.sh
+
+deploy:
+  - provider: Environment
+    name: production
     on:
       APPVEYOR_REPO_TAG: true
 
