@@ -34,12 +34,10 @@ artifacts:
   - path: "build/libs/*.jar"
     name: "WPM-Backend"
 
-deploy_script:
+deploy:
   - sh: ./deploy.sh
-
-
-# We do not want to build git tags.
-skip_tags: true
+    on:
+      APPVEYOR_REPO_TAG: true
 
 # Use integers as build versions (1, 2, 3, …) instead of 1.0.X.
 version: "{build}"
