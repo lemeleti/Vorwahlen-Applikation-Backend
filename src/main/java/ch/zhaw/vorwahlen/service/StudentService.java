@@ -168,16 +168,15 @@ public class StudentService {
      */
     public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
-        return studentRepository.findById(id)
-                .map(student -> {
-                    student.setName(studentDTO.getName());
-                    student.setStudentClass(studentClass);
-                    student.setPaDispensation(studentDTO.getPaDispensation());
-                    student.setWpmDispensation(studentDTO.getWpmDispensation());
-                    student.setSecondElection(studentDTO.isSecondElection());
-                    return mapper.toDto(studentRepository.save(student));
-                })
-                .orElse(addStudent(studentDTO));
+        var storedStudent = studentRepository.findById(id);
+        if(storedStudent.isPresent()) {
+            var newStudent = mapper.toInstance(studentDTO);
+            newStudent.setEmail(id);
+            newStudent.setStudentClass(studentClass);
+            return mapper.toDto(studentRepository.save(newStudent));
+        } else {
+            return addStudent(studentDTO);
+        }
     }
 
     /**
