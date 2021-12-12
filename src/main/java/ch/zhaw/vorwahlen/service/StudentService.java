@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
@@ -13,6 +14,7 @@ import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.parser.ClassListParser;
 import ch.zhaw.vorwahlen.parser.DispensationParser;
+import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.*;
+
 /**
  * Business logic for the modules.
  */
@@ -45,6 +49,7 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
     private final StudentClassRepository studentClassRepository;
+    private final ElectionRepository electionRepository;
     private final JavaMailSender emailSender;
 
     private final Mapper<StudentDTO, Student> mapper;
@@ -174,10 +179,18 @@ public class StudentService {
         studentDTO.setEmail(id);
 
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
+        var election = electionRepository.findModuleElectionById(studentDTO.getModuleElectionId())
+                .orElseThrow(() -> {
+                    var resourceMessage = ResourceBundleMessageLoader.getMessage(ERROR_MODULE_ELECTION_NOT_FOUND);
+                    var errorMessage = String.format(resourceMessage, studentDTO.getModuleElectionId());
+                    return new ModuleElectionNotFoundException(errorMessage);
+                });
+
         var storedStudent = studentRepository.findById(id);
         if(storedStudent.isPresent()) {
             var newStudent = mapper.toInstance(studentDTO);
             newStudent.setStudentClass(studentClass);
+            newStudent.setElection(election);
             return mapper.toDto(studentRepository.save(newStudent));
         } else {
             return addStudent(studentDTO);

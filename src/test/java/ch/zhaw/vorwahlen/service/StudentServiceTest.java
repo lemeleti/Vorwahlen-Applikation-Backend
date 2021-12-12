@@ -7,6 +7,7 @@ import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
+import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -42,6 +43,7 @@ class StudentServiceTest {
 
     private final StudentRepository studentRepository;
     private final StudentClassRepository studentClassRepository;
+    private final ElectionRepository electionRepository;
     private final Mapper<StudentDTO, Student> mapper;
     @Mock
     private JavaMailSenderImpl emailSender;
@@ -50,16 +52,17 @@ class StudentServiceTest {
     @Autowired
     public StudentServiceTest(StudentRepository studentRepository,
                               StudentClassRepository studentClassRepository,
-                              Mapper<StudentDTO, Student> mapper) {
+                              ElectionRepository electionRepository, Mapper<StudentDTO, Student> mapper) {
         this.studentRepository = studentRepository;
         this.studentClassRepository = studentClassRepository;
+        this.electionRepository = electionRepository;
         this.mapper = mapper;
     }
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        studentService = new StudentService(studentRepository, studentClassRepository, emailSender, mapper);
+        studentService = new StudentService(studentRepository, studentClassRepository, electionRepository, emailSender, mapper);
     }
 
     @AfterEach
@@ -138,7 +141,7 @@ class StudentServiceTest {
                 .clazz("IT19a_WIN")
                 .build();
         assertEquals(0, studentRepository.count());
-        studentService.addStudent(dto);
+        dto = studentService.addStudent(dto);
         assertEquals(1, studentRepository.count());
 
         dto.setName("Hello Server");
