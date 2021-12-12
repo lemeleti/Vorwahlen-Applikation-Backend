@@ -51,7 +51,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
             }
         }
 
-        if (user.getStudent() == null && !ADMIN_ROLE.equals(user.getRole())) {
+        if (!ADMIN_ROLE.equals(user.getRole()) && user.getStudent() == null) {
             return authentication;
         }
 
