@@ -1,8 +1,8 @@
 package ch.zhaw.vorwahlen.security.authentication;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
+import ch.zhaw.vorwahlen.security.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -74,6 +74,7 @@ public class AuthFilter extends OncePerRequestFilter {
                 .homeOrg(userData.get("homeOrg"))
                 .mail(userData.get("mail"))
                 .role(userData.get("role"))
+                .isExistent(student != null)
                 .student(student)
                 .build();
     }

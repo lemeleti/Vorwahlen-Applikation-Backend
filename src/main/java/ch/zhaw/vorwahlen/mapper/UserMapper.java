@@ -17,7 +17,8 @@ public class UserMapper implements Mapper<UserDTO, User> {
                 user.getAffiliation(),
                 user.getHomeOrg(),
                 user.getMail(),
-                user.getRole()
+                user.getRole(),
+                user.isExistent()
         );
     }
 }

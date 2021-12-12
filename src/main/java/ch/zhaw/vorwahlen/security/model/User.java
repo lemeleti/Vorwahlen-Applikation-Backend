@@ -23,5 +23,6 @@ public class User implements Serializable {
     private String homeOrg;
     private String mail;
     private String role;
+    private boolean isExistent;
     private Student student;
 }
