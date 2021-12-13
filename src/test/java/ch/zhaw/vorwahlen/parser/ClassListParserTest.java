@@ -3,7 +3,7 @@ package ch.zhaw.vorwahlen.parser;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
 import ch.zhaw.vorwahlen.model.modules.parser.StudentLookupTable;
-import ch.zhaw.vorwahlen.repository.ClassListRepository;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.jupiter.api.AfterEach;
@@ -32,7 +32,7 @@ class ClassListParserTest {
     ClassListParser classListParser;
 
     @Autowired
-    ClassListRepository classListRepository;
+    StudentRepository studentRepository;
 
     @Mock Row rowMock;
     @Mock Cell defaultCellMock;
@@ -58,10 +58,10 @@ class ClassListParserTest {
     @Sql("classpath:sql/class_list_test_parse.sql")
     void parseModulesFromXLSX() throws IOException {
         // prepare
-        var expected = sortByEmail(classListRepository.findAll());
+        var expected = sortByEmail(studentRepository.findAll());
 
         // execute
-        var result = sortByEmail(classListParser.parseModulesFromXLSX());
+        var result = sortByEmail(classListParser.parseFromXLSX());
 
         // verify
         assertNotNull(result);
@@ -84,6 +84,8 @@ class ClassListParserTest {
                 .email(DEFAULT_CELL_VALUE)
                 .name(DEFAULT_CELL_VALUE)
                 .studentClass(new StudentClass(DEFAULT_CELL_VALUE))
+                .canElect(true)
+                .firstTimeSetup(true)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);

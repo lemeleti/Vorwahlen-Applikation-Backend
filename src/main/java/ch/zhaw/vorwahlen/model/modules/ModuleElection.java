@@ -3,7 +3,6 @@ package ch.zhaw.vorwahlen.model.modules;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -25,7 +24,7 @@ public class ModuleElection {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
     private ValidationSetting validationSetting;
 
     @Column(columnDefinition = "tinyint(1) default 0")
@@ -37,16 +36,24 @@ public class ModuleElection {
             inverseJoinColumns = @JoinColumn(name = "module_no", referencedColumnName = "moduleNo"))
     private Set<Module> electedModules;
 
+    public void removeModuleFromElection(Module module) {
+        electedModules.remove(module);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        ModuleElection that = (ModuleElection) o;
-        return id != null && Objects.equals(id, that.id);
+        if (!(o instanceof ModuleElection that)) return false;
+        return isElectionValid() == that.isElectionValid()
+                && Objects.equals(getId(), that.getId())
+                && Objects.equals(getStudent(), that.getStudent())
+                && Objects.equals(getValidationSetting(), that.getValidationSetting())
+                && Objects.equals(getElectedModules(), that.getElectedModules());
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(getId(), getStudent(), getValidationSetting(), isElectionValid(), getElectedModules());
     }
+
 }

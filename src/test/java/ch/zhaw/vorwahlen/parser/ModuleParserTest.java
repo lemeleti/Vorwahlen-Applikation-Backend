@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.parser;
 
+import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
 import ch.zhaw.vorwahlen.model.modules.parser.ModuleLookupTable;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
@@ -66,7 +67,7 @@ class ModuleParserTest {
         var expected = sortByModuleNo(moduleRepository.findAll());
 
         // execute
-        var result = sortByModuleNo(moduleParser.parseModulesFromXLSX());
+        var result = sortByModuleNo(moduleParser.parseFromXLSX());
 
         // verify
         assertNotNull(result);
@@ -87,7 +88,6 @@ class ModuleParserTest {
 
         var expectedModule = Module.builder()
                 .moduleId(Integer.parseInt(DEFAULT_CELL_VALUE))
-                .isIPModule(false)
                 .moduleGroup(MODULE_GROUPS_CONTAINS_IT5)
                 .moduleNo(DEFAULT_CELL_VALUE)
                 .moduleTitle(DEFAULT_CELL_VALUE)
@@ -95,8 +95,7 @@ class ModuleParserTest {
                 .credits(Byte.parseByte(DEFAULT_CELL_VALUE))
                 .institute(DEFAULT_CELL_VALUE)
                 .language(DEFAULT_CELL_VALUE)
-                .fullTimeSemester(DEFAULT_CELL_VALUE)
-                .partTimeSemester(DEFAULT_CELL_VALUE)
+                .semester(ExecutionSemester.SPRING)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
@@ -111,7 +110,7 @@ class ModuleParserTest {
         // verify
         assertNotNull(resultModule);
         assertEquals(expectedModule, resultModule);
-        verify(rowMock, times(12)).getCell(anyInt());
+        verify(rowMock, times(10)).getCell(anyInt());
         verify(rowMock, times(2)).getCell(GROUP_CELL_NUMBER);
     }
 
@@ -122,7 +121,6 @@ class ModuleParserTest {
 
         var expectedModule = Module.builder()
                 .moduleId(Integer.parseInt(DEFAULT_CELL_VALUE))
-                .isIPModule(false)
                 .moduleGroup(MODULE_GROUPS_CONTAINS_IT6)
                 .moduleNo(DEFAULT_CELL_VALUE)
                 .moduleTitle(DEFAULT_CELL_VALUE)
@@ -130,8 +128,7 @@ class ModuleParserTest {
                 .credits(Byte.parseByte(DEFAULT_CELL_VALUE))
                 .institute(DEFAULT_CELL_VALUE)
                 .language(DEFAULT_CELL_VALUE)
-                .fullTimeSemester(DEFAULT_CELL_VALUE)
-                .partTimeSemester(DEFAULT_CELL_VALUE)
+                .semester(ExecutionSemester.SPRING)
                 .build();
 
         when(rowMock.getCell(anyInt())).thenReturn(defaultCellMock);
@@ -146,7 +143,7 @@ class ModuleParserTest {
         // verify
         assertNotNull(resultModule);
         assertEquals(expectedModule, resultModule);
-        verify(rowMock, times(12)).getCell(anyInt());
+        verify(rowMock, times(10)).getCell(anyInt());
         verify(rowMock, times(2)).getCell(GROUP_CELL_NUMBER);
     }
 

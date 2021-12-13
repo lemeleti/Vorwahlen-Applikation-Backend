@@ -19,8 +19,9 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final AuthFilter authFilter;
     private final CustomAuthProvider customAuthProvider;
-    private final String[] allowedPaths = {"/module**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
-    private final String[] protectedPaths = {"/module**", "/dispensation**", "/class**", "/election/export"};
+    private final String[] allowedPaths = {"texts**", "/modules**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
+    private final String[] protectedPaths = {"texts**", "/modules**", "/students**", "/elections**"};
+    private final String[] userProtectedPaths = { "/students/{student}**", "/elections/{student}/structure**" };
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
@@ -31,7 +32,8 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.GET, allowedPaths).permitAll()
-                .antMatchers(protectedPaths).hasAuthority("ADMIN")
+                .antMatchers(userProtectedPaths).access("@userSecurity.hasUserId(authentication, #student)")
+                .antMatchers(protectedPaths).hasAuthority(CustomAuthProvider.ADMIN_ROLE)
                 .anyRequest().authenticated()
                 .and().httpBasic().disable()
                 .addFilterBefore(authFilter, BasicAuthenticationFilter.class)

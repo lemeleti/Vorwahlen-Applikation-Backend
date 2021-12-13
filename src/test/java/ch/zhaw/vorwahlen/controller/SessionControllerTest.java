@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,7 +45,7 @@ class SessionControllerTest {
                     .build();
 
             mockMvc.perform(MockMvcRequestBuilders
-                    .get(REQUEST_MAPPING_PREFIX + "/info")
+                    .get(REQUEST_MAPPING_PREFIX)
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").exists())
@@ -105,12 +106,12 @@ class SessionControllerTest {
     void testDestroy() {
         try {
             mockMvc.perform(MockMvcRequestBuilders
-                    .get(REQUEST_MAPPING_PREFIX + "/destroy")
+                    .delete(REQUEST_MAPPING_PREFIX)
+                    .with(csrf())
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").doesNotExist())
                     .andDo(print());
-            // todo: verify that session is gone. check also info, isuseradmin and is authenticated
         } catch (Exception e) {
             fail(e);
         }

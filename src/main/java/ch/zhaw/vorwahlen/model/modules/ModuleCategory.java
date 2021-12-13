@@ -6,16 +6,16 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Categorize modules by module id.
+ * Categorize modules.
  */
 @RequiredArgsConstructor
 @Getter
 public enum ModuleCategory {
-    SUBJECT_MODULE(4),
-    INTERDISCIPLINARY_MODULE(4),
     CONTEXT_MODULE(2),
     PROJECT_MODULE(6),
     BACHELOR_MODULE(12),
+    SUBJECT_MODULE(4),
+    INTERDISCIPLINARY_MODULE(4),
     DISPENSED_PA_MODULE(6),
     DISPENSED_WPM_MODULE(4);
 
@@ -33,7 +33,7 @@ public enum ModuleCategory {
     }
 
     /**
-     * Categorize modules by module id.
+     * Categorize modules by module id and module group.
      * @param moduleNo the module id (t.BA.WM.RASOP-EN.19HS)
      * @param moduleGroup the module group (example: IT5 or IT6)
      * @return ModuleCategory or null

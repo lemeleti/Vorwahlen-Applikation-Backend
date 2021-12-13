@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -18,13 +20,14 @@ import java.util.Set;
 @Builder
 public class ModuleElectionDTO {
 
+    private long id;
+    @Email(message = "{validation.email.invalid}")
+    private String studentEmail;
     @Getter(onMethod_=@JsonProperty)
     @Setter(onMethod_=@JsonIgnore)
-    private boolean isElectionValid;
-
+    private boolean electionValid;
+    @NotNull(message = "{validation.elected.modules.null}")
     private Set<String> electedModules;
-    private Set<String> overflowedElectedModules;
-
     private ValidationSettingDTO validationSettingDTO;
 
 }

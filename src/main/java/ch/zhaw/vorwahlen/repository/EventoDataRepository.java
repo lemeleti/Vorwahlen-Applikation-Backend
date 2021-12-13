@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * Repository for the evento data.
+ * Repository for {@link EventoData}.
  */
 @Repository
 public interface EventoDataRepository extends JpaRepository<EventoData, String> {

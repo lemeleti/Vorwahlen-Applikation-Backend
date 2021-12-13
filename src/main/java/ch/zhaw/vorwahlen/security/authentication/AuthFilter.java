@@ -1,8 +1,8 @@
 package ch.zhaw.vorwahlen.security.authentication;
 
 import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.security.model.User;
-import ch.zhaw.vorwahlen.repository.ClassListRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +24,7 @@ import java.util.Map;
 @Setter
 public class AuthFilter extends OncePerRequestFilter {
     private final boolean isProd;
-    private final ClassListRepository classListRepository;
+    private final StudentRepository studentRepository;
     private Map<String, String> userData = new HashMap<>();
     private Student student;
 
@@ -74,13 +74,13 @@ public class AuthFilter extends OncePerRequestFilter {
                 .homeOrg(userData.get("homeOrg"))
                 .mail(userData.get("mail"))
                 .role(userData.get("role"))
-                .student(student)
+                .isExistent(student != null)
                 .build();
     }
 
     private void findAndSetStudent(String email) {
         if (email != null && !email.isBlank()) {
-            var studentOptional = classListRepository.findById(userData.get("mail"));
+            var studentOptional = studentRepository.findById(userData.get("mail"));
             studentOptional.ifPresent(value -> student = value);
         }
     }

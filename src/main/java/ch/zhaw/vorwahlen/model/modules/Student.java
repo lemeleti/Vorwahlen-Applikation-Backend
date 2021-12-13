@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.Hibernate;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,21 +18,19 @@ import javax.persistence.Table;
 import java.util.Objects;
 
 /**
- * Model / Entity class for a class list entry
+ * Model / Entity class for a student.
  */
 @Entity
 @Table(name = "students")
-@Getter @Setter
+@Getter @Setter @Builder
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
 public class Student {
 
     @Id
     private String email;
     private String name;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "class_name")
     private StudentClass studentClass;
 
@@ -48,21 +44,34 @@ public class Student {
     private boolean isTZ;
     @Column(columnDefinition = "tinyint(1) default 0")
     private boolean isSecondElection;
+    @Column(columnDefinition = "tinyint(1) default 1")
+    private boolean firstTimeSetup;
+    @Column(columnDefinition = "tinyint(1) default 1")
+    private boolean canElect;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)
     @JoinColumn(name = "election_id")
     private ModuleElection election;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        var student = (Student) o;
-        return email != null && Objects.equals(email, student.email);
+        if (!(o instanceof Student that)) return false;
+        return getPaDispensation() == that.getPaDispensation()
+                && getWpmDispensation() == that.getWpmDispensation()
+                && isIP() == that.isIP() && isTZ() == that.isTZ()
+                && isSecondElection() == that.isSecondElection()
+                && isFirstTimeSetup() == that.isFirstTimeSetup()
+                && isCanElect() == that.isCanElect()
+                && Objects.equals(getEmail(), that.getEmail())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getStudentClass(), that.getStudentClass());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(email);
+        return Objects.hash(getEmail(), getName(), getStudentClass(), getPaDispensation(), getWpmDispensation(), isIP(),
+                            isTZ(), isSecondElection(), isFirstTimeSetup(), isCanElect());
     }
+
 }

@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.parser.DispensationLookupTable;
 import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.repository.ClassListRepository;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.jupiter.api.AfterEach;
@@ -32,7 +32,7 @@ class DispensationParserTest {
     DispensationParser dispensationParser;
 
     @Autowired
-    ClassListRepository classListRepository;
+    StudentRepository studentRepository;
 
     @Mock Row rowMock;
     @Mock Cell defaultCellMock;
@@ -59,10 +59,10 @@ class DispensationParserTest {
     @Sql("classpath:sql/dispensation_list_test_parse.sql")
     void parseDispensationFromXLSX() throws IOException {
         // prepare
-        var expected = sortByEmail(classListRepository.findAll());
+        var expected = sortByEmail(studentRepository.findAll());
 
         // execute
-        var result = sortByEmail(dispensationParser.parseModulesFromXLSX());
+        var result = sortByEmail(dispensationParser.parseFromXLSX());
 
         // verify
         assertNotNull(result);

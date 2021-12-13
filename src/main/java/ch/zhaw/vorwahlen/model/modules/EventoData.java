@@ -3,7 +3,6 @@ package ch.zhaw.vorwahlen.model.modules;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +10,7 @@ import javax.persistence.Id;
 import java.util.Objects;
 
 /**
- * Model / Entity class for the additional module data
+ * Model / Entity class for the additional module data.
  */
 @Entity
 @Getter @Setter
@@ -44,13 +43,25 @@ public class EventoData {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        var that = (EventoData) o;
-        return moduleNo != null && Objects.equals(moduleNo, that.moduleNo);
+        if (!(o instanceof EventoData that)) return false;
+        return Objects.equals(getModuleNo(), that.getModuleNo())
+                && Objects.equals(getShortDescription(), that.getShortDescription())
+                && Objects.equals(getCoordinator(), that.getCoordinator())
+                && Objects.equals(getLearningObjectives(), that.getLearningObjectives())
+                && Objects.equals(getModuleContents(), that.getModuleContents())
+                && Objects.equals(getLiterature(), that.getLiterature())
+                && Objects.equals(getSuppLiterature(), that.getSuppLiterature())
+                && Objects.equals(getPrerequisites(), that.getPrerequisites())
+                && Objects.equals(getModuleStructure(), that.getModuleStructure())
+                && Objects.equals(getExams(), that.getExams())
+                && Objects.equals(getRemarks(), that.getRemarks());
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(getModuleNo(), getShortDescription(), getCoordinator(), getLearningObjectives(),
+                            getModuleContents(), getLiterature(), getSuppLiterature(), getPrerequisites(),
+                            getModuleStructure(), getExams(), getRemarks());
     }
+
 }

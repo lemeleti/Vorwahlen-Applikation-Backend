@@ -1,13 +1,18 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
+import ch.zhaw.vorwahlen.exception.EventoDataNotFoundException;
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.ModuleConflictException;
+import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
+import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
 import ch.zhaw.vorwahlen.model.modules.EventoData;
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
+import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.scraper.EventoScraper;
@@ -20,15 +25,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.Function;
+import java.util.logging.Level;
+
+import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_EVENTO_MODULE_NOT_FOUND;
 
 /**
  * Business logic for the modules.
@@ -37,11 +40,11 @@ import java.util.function.Function;
 @Service
 @Log
 public class ModuleService {
-
-    private static final int MAX_THREAD_NUMBER = 10;
-
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
+    private final ElectionRepository electionRepository;
+    private final Mapper<ModuleDTO, Module> moduleMapper;
+    private final Mapper<EventoDataDTO, EventoData> eventoDataMapper;
 
     /**
      * Importing the Excel file and storing the needed content into the database.
@@ -50,12 +53,13 @@ public class ModuleService {
     public void importModuleExcel(MultipartFile file, String worksheet) {
         try {
             var moduleParser = new ModuleParser(file.getInputStream(), worksheet);
-            var modules = moduleParser.parseModulesFromXLSX();
+            var modules = moduleParser.parseFromXLSX();
             moduleRepository.saveAll(modules);
             var updatedModules = setConsecutiveModules(modules);
             moduleRepository.saveAll(updatedModules);
         } catch (IOException e) {
-            var message = String.format(ResourceBundleMessageLoader.getMessage("error.import_exception"), file.getOriginalFilename());
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
+            var message = String.format(formatString, file.getOriginalFilename());
             throw new ImportException(message, e);
         }
     }
@@ -78,6 +82,12 @@ public class ModuleService {
         return consecutiveSet;
     }
 
+    /**
+     * Check if the module short numbers differ by only one numeric value.
+     * @param m1 the first {@link Module} to be compared
+     * @param m2 the other {@link Module} to be compared
+     * @return true or false
+     */
     public static boolean doTheModulesDifferOnlyInTheNumber(Module m1, Module m2) {
         var levenshteinDistance = LevenshteinDistance.getDefaultInstance()
                 .apply(m1.getShortModuleNo(), m2.getShortModuleNo());
@@ -109,30 +119,67 @@ public class ModuleService {
      * Get all modules from the database.
      * @return a list of {@link ModuleDTO}.
      */
-    public List<ModuleDTO> getAllModules(Student student) {
-        List<Module> modules;
+    public List<ModuleDTO> getAllModules() {
+        return moduleRepository.findAll().stream().map(moduleMapper::toDto).toList();
+    }
 
-        if (student != null && student.isTZ() && student.isSecondElection()) {
-            modules = moduleRepository.findAllModulesTZSecondHalf();
-        } else if (student != null && student.isTZ()) {
-            modules = moduleRepository.findAllModulesTZFirstHalf();
-        } else {
-            modules = moduleRepository.findAll();
+    /**
+     * Add a new module.
+     * @param moduleDTO to be added module.
+     * @return path where the module can be fetched.
+     */
+    public ModuleDTO addModule(ModuleDTO moduleDTO) {
+        if(moduleRepository.existsById(moduleDTO.getModuleNo())) {
+            var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_CONFLICT);
+            var message = String.format(formatString, moduleDTO.getModuleNo());
+            throw new ModuleConflictException(message);
         }
-
-        return modules.stream().map(DTOMapper.mapModuleToDto).toList();
+        var module = moduleMapper.toInstance(moduleDTO);
+        module = moduleRepository.save(module);
+        return moduleMapper.toDto(module);
     }
 
     /**
      * Get module from the database by id.
      * @return {@link ModuleDTO}.
      */
-    public Optional<ModuleDTO> getModuleById(String id) {
+    public ModuleDTO getModuleById(String id) {
         return moduleRepository
                 .findById(id)
-                .stream()
-                .map(DTOMapper.mapModuleToDto)
-                .findFirst();
+                .map(moduleMapper::toDto)
+                .orElseThrow(() -> {
+                    var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_NOT_FOUND);
+                    var errorMessage = String.format(formatString, id);
+                    return new ModuleNotFoundException(errorMessage);
+                });
+    }
+
+    /**
+     * Delete module by id.
+     * @param id to be deleted module.
+     */
+    public void deleteModuleById(String id) {
+        var module = fetchModuleById(id);
+        var elections = electionRepository.findAllByElectedModulesContaining(module);
+
+        elections.forEach(moduleElection -> {
+            moduleElection.removeModuleFromElection(module);
+            moduleElection.setElectionValid(false);
+        });
+        moduleRepository.deleteById(id);
+    }
+
+    /**
+     * Replace module by id.
+     * @param id to be replaced module
+     * @param moduleDTO new module
+     * @return saved module
+     */
+    public ModuleDTO replaceModule(String id, ModuleDTO moduleDTO) {
+        var storedModule = fetchModuleById(id);
+        var newModule = moduleMapper.toInstance(moduleDTO);
+        newModule.setModuleNo(storedModule.getModuleNo());
+        return moduleMapper.toDto(moduleRepository.save(newModule));
     }
 
     /**
@@ -141,42 +188,47 @@ public class ModuleService {
      * @return additional data as {@link EventoDataDTO}
      */
     public EventoDataDTO getEventoDataById(String id) {
-        var eventoData = eventoDataRepository.getById(id);
-        return DTOMapper.mapEventoDataToDto.apply(eventoData);
+        var eventoData = eventoDataRepository.findById(id).orElseThrow(() -> {
+            var errorMessage = String.format(ResourceBundleMessageLoader.getMessage(ERROR_EVENTO_MODULE_NOT_FOUND), id);
+            return new EventoDataNotFoundException(errorMessage);
+        });
+        return eventoDataMapper.toDto(eventoData);
     }
 
     /**
      * Runs the scraper for all modules to retrieve additional data.
      */
     @Async
-    public void fetchAdditionalModuleData() {
-        var executorService = Executors.newFixedThreadPool(MAX_THREAD_NUMBER);
-        var startedThreads = startThreads(executorService);
-        saveFetchedModuleData(startedThreads);
-        executorService.shutdown();
-    }
-
-    private void saveFetchedModuleData(List<Future<EventoData>> futures) {
-        for (var future : futures) {
+    public void scrapeEventoDataForAllModules() {
+        var eventoDataList = new ArrayList<EventoData>();
+        var modules = moduleRepository.findAll();
+        for (var module : modules) {
+            var eventoUrl = String.format(EventoScraper.SITE_URL, module.getModuleId());
+            var data = EventoScraper.parseModuleByURL(eventoUrl, module);
+            eventoDataList.add(data);
+            log.info(data.toString());
             try {
-                eventoDataRepository.save(future.get());
-            } catch (InterruptedException | ExecutionException e) {
-                // not re-interrupting because this is not critical and is logged
-                log.severe(e.getMessage());
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                log.log(Level.WARNING, e.getLocalizedMessage(), e);
             }
         }
+        eventoDataRepository.saveAll(eventoDataList);
     }
 
-    private List<Future<EventoData>> startThreads(ExecutorService executorService) {
-        Function<Module, Future<EventoData>> startThread = module -> executorService.submit(() -> {
-            var eventoUrl = String.format(EventoScraper.SITE_URL, module.getModuleId());
-            return EventoScraper.parseModuleByURL(eventoUrl, module);
-        });
-
-        return moduleRepository.findAll()
-                .stream()
-                .map(startThread)
-                .toList();
+    public EventoDataDTO scrapeEventoDataForId(String id) {
+        var module = fetchModuleById(id);
+        var eventoUrl = String.format(EventoScraper.SITE_URL, module.getModuleId());
+        return eventoDataMapper.toDto(eventoDataRepository.save(EventoScraper.parseModuleByURL(eventoUrl, module)));
     }
 
+    private Module fetchModuleById(String id) {
+        return moduleRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_NOT_FOUND);
+                    var errorMessage = String.format(formatString, id);
+                    return new ModuleNotFoundException(errorMessage);
+                });
+    }
 }

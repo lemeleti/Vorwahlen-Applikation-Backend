@@ -7,27 +7,36 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
- * DTO for a module
+ * Dto for the {@link ch.zhaw.vorwahlen.model.modules.Module}.
  */
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
 @Builder
 public class ModuleDTO {
-    public static record ExecutionSemester(List<Integer> fullTimeSemesterList,
-                                    List<Integer> partTimeSemesterList) {}
 
+    @NotEmpty(message = "{validation.module.moduleNo}")
     private String moduleNo;
+    @NotEmpty(message = "{validation.module.shortModuleNo}")
+    private String shortModuleNo;
+    @NotEmpty(message = "{validation.module.moduleTitle}")
     private String moduleTitle;
+    @NotNull(message = "{validation.module.moduleId}")
+    private int moduleId;
+    @NotEmpty(message = "{validation.module.moduleGroup}")
+    private String moduleGroup;
+    private String institute;
     private ModuleCategory category;
+    @NotNull(message = "{validation.module.credits}")
     private byte credits;
+    @NotEmpty(message = "{validation.module.language}")
     private String language;
-    private ExecutionSemester executionSemester;
-    // todo maybe link with another module
+    @NotNull(message = "{validation.module.semester}")
+    private int semester;
     private String consecutiveModuleNo;
+
 }

@@ -7,6 +7,9 @@ import org.apache.poi.ss.usermodel.Row;
 
 import java.io.InputStream;
 
+/**
+ * Parser for class list excel.
+ */
 public class ClassListParser extends ExcelParser<Student, StudentLookupTable> {
 
     public static final String TZ_CLASS_REGEX = "[A-Za-z]+(?<year>\\d{2})t[a-z]+_[A-Za-z]+";
@@ -22,7 +25,7 @@ public class ClassListParser extends ExcelParser<Student, StudentLookupTable> {
 
     @Override
     Student createObjectFromRow(Row row) {
-        var studentBuilder = Student.builder();
+        var studentBuilder = Student.builder().canElect(true).firstTimeSetup(true);
         for(var field: StudentLookupTable.values()) {
             var cellValue = row.getCell(field.getCellNumber()).toString();
             switch (field) {

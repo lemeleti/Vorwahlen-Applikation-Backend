@@ -80,7 +80,7 @@ public class EventoScraper {
             case "Modulausprägung", "Modulstruktur" -> eventoData.setModuleStructure(dataText);
             case "Leistungsnachweise" -> eventoData.setExams(dataText);
             case "Bemerkungen" -> eventoData.setRemarks(dataText);
-            default -> log.info(String.format("Not scraping field %s", value));
+            default -> log.finer(String.format("Not scraping field %s", value));
         }
     }
 }
