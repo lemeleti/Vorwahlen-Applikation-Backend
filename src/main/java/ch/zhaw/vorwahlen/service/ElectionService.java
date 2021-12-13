@@ -149,8 +149,10 @@ public class ElectionService {
             var message = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_ELECTION_CANNOT_ELECT);
             var headerAccessor = StompHeaderAccessor.create(StompCommand.ERROR);
             headerAccessor.setMessage(message);
+            headerAccessor.setSessionId(sessionAttributes.get("sessionId").toString());
             headerAccessor.setSessionAttributes(sessionAttributes);
             clientOutboundChannel.send(MessageBuilder.createMessage(new byte[0], headerAccessor.getMessageHeaders()));
+            return null;
         }
 
         var moduleElection = loadModuleElectionForStudent(student);
