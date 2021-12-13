@@ -75,7 +75,6 @@ public class AuthFilter extends OncePerRequestFilter {
                 .mail(userData.get("mail"))
                 .role(userData.get("role"))
                 .isExistent(student != null)
-                .student(student)
                 .build();
     }
 

@@ -4,6 +4,7 @@ import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
+import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
@@ -18,6 +19,7 @@ import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -38,6 +40,7 @@ import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_MODULE_
 public class ElectionService {
     private final ElectionRepository electionRepository;
     private final ModuleRepository moduleRepository;
+    private final StudentRepository studentRepository;
     private final ElectionValidator electionValidator;
     private final ModuleDefinition moduleDefinition;
     private final ModuleElectionExporter exporter;
@@ -106,10 +109,11 @@ public class ElectionService {
 
     /**
      * Get election data for the specified user.
-     * @param student get election for student
+     * @param studentId get election for student
      * @return election data
      */
-    public ElectionTransferDTO getElection(Student student) {
+    public ElectionTransferDTO getElection(String studentId) {
+        var student = fetchStudentById(studentId);
         var moduleElection = loadModuleElectionForStudent(student);
         var moduleElectionStatus = electionValidator.validate(moduleElection);
         return createElectionTransferDTO(student, moduleElectionStatus, moduleElection, false);
@@ -126,11 +130,12 @@ public class ElectionService {
 
     /**
      * Saves the election to the database.
-     * @param student student in session
+     * @param studentId student in session
      * @param moduleNo module that should be saved
      * @return ElectionTransferDTO containing the election data
      */
-    public ElectionTransferDTO saveElection(Student student, String moduleNo) {
+    public ElectionTransferDTO saveElection(String studentId, String moduleNo) {
+        var student = fetchStudentById(studentId);
         var moduleElection = loadModuleElectionForStudent(student);
         migrateElectionChanges(moduleElection, moduleNo);
         var moduleElectionStatus = electionValidator.validate(moduleElection);
@@ -141,6 +146,15 @@ public class ElectionService {
         moduleElection.setElectionValid(moduleElectionStatus.isValid());
         electionRepository.save(moduleElection);
         return createElectionTransferDTO(student, moduleElectionStatus, moduleElection, true);
+    }
+
+    private Student fetchStudentById(String studentId) {
+        return studentRepository.findById(studentId)
+                .orElseThrow(() -> {
+                    var formatString =
+                            ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
+                    return new StudentNotFoundException(String.format(formatString, studentId));
+                });
     }
 
     /**

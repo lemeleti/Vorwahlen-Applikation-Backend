@@ -104,7 +104,7 @@ class ElectionServiceTest {
 
     @BeforeEach
     void setUp() {
-        electionService = new ElectionService(electionRepository, moduleRepository,
+        electionService = new ElectionService(electionRepository, moduleRepository,studentRepository,
                 validator, moduleDefinition, exporter, electionSemesters, moduleElectionMapper, electionStatusMapper);
     }
 
@@ -341,10 +341,13 @@ class ElectionServiceTest {
         moduleElection.setElectedModules(electedModules);
         moduleElection.setValidationSetting(validationSetting);
         moduleElection.setStudent(student);
-        electionRepository.save(moduleElection);
+        moduleElection = electionRepository.save(moduleElection);
+
+        student.setElection(moduleElection);
+        student = studentRepository.save(student);
 
         // execute
-        var resultDTO = electionService.getElection(student);
+        var resultDTO = electionService.getElection(student.getEmail());
 
         // verify
         assertNotNull(resultDTO);
@@ -438,7 +441,7 @@ class ElectionServiceTest {
         assertFalse(electionRepository.findModuleElectionByStudent(student.getEmail()).isPresent());
 
         for (String moduleNo : validElection) {
-            electionTransferDTO = electionService.saveElection(student, moduleNo);
+            electionTransferDTO = electionService.saveElection(student.getEmail(), moduleNo);
         }
 
         assertNotNull(electionTransferDTO);
@@ -464,7 +467,7 @@ class ElectionServiceTest {
         setAuthentication(student);
 
         for (String moduleNo : validElection) {
-            electionService.saveElection(student, moduleNo);
+            electionService.saveElection(student.getEmail(), moduleNo);
         }
 
         assertEquals(12, electionService.getModuleElectionForStudent(student).getElectedModules().size());
@@ -475,7 +478,7 @@ class ElectionServiceTest {
         setAuthentication(student2);
 
         for (String moduleNo : validElection) {
-            electionService.saveElection(student2, moduleNo);
+            electionService.saveElection(student2.getEmail(), moduleNo);
         }
 
         assertEquals(12, electionService.getModuleElectionForStudent(student2).getElectedModules().size());
@@ -511,7 +514,7 @@ class ElectionServiceTest {
     }
 
     private void setAuthentication(Student student) {
-        var user = User.builder().student(student).build();
+        var user = User.builder().mail(student.getEmail()).isExistent(true).build();
         SecurityContextHolder.getContext().setAuthentication(new PreAuthenticatedAuthenticationToken(user, null));
     }
 }

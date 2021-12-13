@@ -62,8 +62,7 @@ public class ModuleElectionController {
             throw new UserNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_USER_NOT_FOUND));
         }
 
-        var student = user.getStudent();
-        return electionService.saveElection(student, moduleNo);
+        return electionService.saveElection(user.getMail(), moduleNo);
     }
 
     /**
@@ -125,7 +124,7 @@ public class ModuleElectionController {
      */
     @GetMapping(path = {"/structure", "/structure/" })
     public ElectionTransferDTO getElection(@AuthenticationPrincipal User user) {
-        return electionService.getElection(user.getStudent());
+        return electionService.getElection(user.getMail());
     }
 
     /**

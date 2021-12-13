@@ -1,10 +1,13 @@
 package ch.zhaw.vorwahlen.config;
 
+import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
+import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.exporter.ExcelModuleElectionExporter;
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
 import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
+import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import ch.zhaw.vorwahlen.validation.FullTimeElectionValidator;
@@ -25,6 +28,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Configuration
 @RequiredArgsConstructor
 public class ElectionConfig {
+
+    private final StudentRepository studentRepository;
 
     /**
      * Returns the validator based on the current student.
@@ -94,6 +99,12 @@ public class ElectionConfig {
 
     private Student getStudentFromSecurityContext() {
         var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return user.getStudent();
+        var id = user.getMail();
+        return studentRepository.findById(id)
+                .orElseThrow(() -> {
+                    var formatString =
+                            ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_STUDENT_NOT_FOUND);
+                    return new StudentNotFoundException(String.format(formatString, id));
+                });
     }
 }

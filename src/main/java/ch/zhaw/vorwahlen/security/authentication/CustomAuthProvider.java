@@ -51,7 +51,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
             }
         }
 
-        if (ADMIN_ROLE.equals(user.getRole()) || user.getStudent() != null) {
+        if (ADMIN_ROLE.equals(user.getRole()) || user.isExistent()) {
             return new CustomAuthToken(authorities, authToken.getShibbolethSession(), user);
         }
 
