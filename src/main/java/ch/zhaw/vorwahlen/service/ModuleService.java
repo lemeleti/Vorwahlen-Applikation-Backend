@@ -167,6 +167,9 @@ public class ModuleService {
             moduleElection.setElectionValid(false);
         });
         moduleRepository.deleteById(id);
+        if(eventoDataRepository.existsById(id)) {
+            eventoDataRepository.deleteById(id);
+        }
     }
 
     /**
