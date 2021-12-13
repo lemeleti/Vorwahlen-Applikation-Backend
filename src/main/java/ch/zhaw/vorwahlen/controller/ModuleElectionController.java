@@ -120,11 +120,12 @@ public class ModuleElectionController {
 
     /**
      * Returns the stored election from student in session.
+     * @param studentId email of the student.
      * @return {@link ElectionTransferDTO}
      */
-    @GetMapping(path = {"/structure", "/structure/" })
-    public ElectionTransferDTO getElection(@AuthenticationPrincipal User user) {
-        return electionService.getElection(user.getMail());
+    @GetMapping(path = "/{studentId}/structure")
+    public ElectionTransferDTO getElection(@PathVariable String studentId) {
+        return electionService.getElection(studentId);
     }
 
     /**
