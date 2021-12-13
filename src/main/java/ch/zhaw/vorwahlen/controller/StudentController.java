@@ -26,7 +26,7 @@ public class StudentController {
      * Return all students.
      * @return {@link ResponseEntity} containing list of {@link StudentDTO}.
      */
-    @GetMapping(path = {"/", ""})
+    @GetMapping(path = "")
     public ResponseEntity<List<StudentDTO>> getAllStudents() {
 
         return ResponseEntity.ok().body(studentService.getAllStudents());
@@ -37,7 +37,7 @@ public class StudentController {
      * @param studentDTO to be added student.
      * @return {@link ResponseEntity} containing {@link StudentDTO}.
      */
-    @PostMapping(path = {"/", ""}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StudentDTO> addStudent(@Valid @RequestBody StudentDTO studentDTO) {
         return ResponseEntity.ok(studentService.addStudent(studentDTO));
     }
@@ -47,7 +47,7 @@ public class StudentController {
      * @param id of student.
      * @return {@link ResponseEntity} containing the {@link StudentDTO}.
      */
-    @GetMapping(path = {"/{id}", "/{id}/"})
+    @GetMapping(path = "/{id}")
     public ResponseEntity<StudentDTO> getStudentById(@PathVariable String id) {
         return ResponseEntity.ok(studentService.getStudentById(id));
     }
@@ -57,7 +57,7 @@ public class StudentController {
      * @param id of student.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @DeleteMapping(path = {"/{id}", "/{id}/"})
+    @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deleteStudentById(@PathVariable String id) {
         studentService.deleteStudentById(id);
         return ResponseEntity.ok().build();
@@ -69,7 +69,7 @@ public class StudentController {
      * @param studentDTO the new student.
      * @return {@link ResponseEntity} containing the {@link Void}.
      */
-    @PutMapping(path = {"/{id}", "/{id}/"})
+    @PutMapping(path = "/{id}")
     public ResponseEntity<Void> replaceStudentById(@PathVariable String id,
                                                          @Valid @RequestBody StudentDTO studentDTO) {
         studentService.replaceStudent(id, studentDTO);
@@ -82,7 +82,7 @@ public class StudentController {
      * @param patchedFields fields to be patched.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PatchMapping(path = {"/{id}", "/{id}/"})
+    @PatchMapping(path = "/{id}")
     public ResponseEntity<Void> patchFields(@PathVariable String id,
                                             @RequestBody Map<String, Boolean> patchedFields) {
         studentService.updateStudentEditableFields(id, patchedFields);
@@ -94,7 +94,7 @@ public class StudentController {
      * @param file the Excel file.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PostMapping(path = {"/", ""}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> saveClassListsFromExcel(@RequestParam("file") MultipartFile file,
                                                         @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
@@ -107,7 +107,7 @@ public class StudentController {
      * @param file the Excel file.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PostMapping(path = {"/dispensations", "/dispensations"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/dispensations", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> saveDispensationListFromExcel(@RequestParam("file") MultipartFile file,
                                                               @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
@@ -120,7 +120,7 @@ public class StudentController {
      * @param notificationDTO the notification to be send.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PostMapping(path = {"/notify", "/notify/"})
+    @PostMapping(path = "/notify")
     public ResponseEntity<Void> notifyStudents(@Valid @RequestBody NotificationDTO notificationDTO) {
         studentService.notifyStudents(notificationDTO);
         return ResponseEntity.ok().build();

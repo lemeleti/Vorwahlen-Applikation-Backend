@@ -33,7 +33,7 @@ public class ModuleController {
      * Return all modules.
      * @return {@link ResponseEntity} containing list of {@link ModuleDTO}.
      */
-    @GetMapping(path = {"/", ""})
+    @GetMapping(path = "")
     public ResponseEntity<List<ModuleDTO>> getAllModules() {
         return ResponseEntity.ok().body(moduleService.getAllModules());
     }
@@ -43,7 +43,7 @@ public class ModuleController {
      * @param moduleDTO to be added module.
      * @return {@link ResponseEntity} containing {@link ModuleDTO}.
      */
-    @PostMapping(path = {"/", ""}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ModuleDTO> addModule(@Valid @RequestBody ModuleDTO moduleDTO) {
         return ResponseEntity.ok(moduleService.addModule(moduleDTO));
     }
@@ -53,7 +53,7 @@ public class ModuleController {
      * @param id of module.
      * @return {@link ResponseEntity} containing the {@link ModuleDTO}.
      */
-    @GetMapping(path = {"/{id}", "/{id}/"})
+    @GetMapping(path = "/{id}")
     public ResponseEntity<ModuleDTO> getModuleById(@PathVariable String id) {
         return ResponseEntity.ok(moduleService.getModuleById(id));
     }
@@ -63,7 +63,7 @@ public class ModuleController {
      * @param id of module.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @DeleteMapping(path = {"/{id}", "/{id}/"})
+    @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deleteModuleById(@PathVariable String id) {
         moduleService.deleteModuleById(id);
         return ResponseEntity.ok().build();
@@ -75,7 +75,7 @@ public class ModuleController {
      * @param moduleDTO the new module.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PutMapping(path = {"/{id}", "/{id}/"})
+    @PutMapping(path = "/{id}")
     public ResponseEntity<Void> replaceModuleById(@PathVariable String id,
                                                        @Valid @RequestBody ModuleDTO moduleDTO) {
         moduleService.replaceModule(id, moduleDTO);
@@ -87,7 +87,7 @@ public class ModuleController {
      * @param file the Excel file.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PostMapping(path = {"/", ""}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> saveModulesFromExcel(@RequestParam("file") MultipartFile file,
                                                        @RequestParam("worksheet") String worksheet) {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
@@ -99,7 +99,7 @@ public class ModuleController {
      * Returns the additional data of a module.
      * @return {@link ResponseEntity} containing the {@link EventoDataDTO}.
      */
-    @GetMapping(path = {"{id}/eventodata"})
+    @GetMapping(path = "{id}/eventodata")
     public ResponseEntity<EventoDataDTO> getAdditionalModuleDataByKuerzel(@PathVariable String id) {
         return ResponseEntity.ok().body(moduleService.getEventoDataById(id));
     }

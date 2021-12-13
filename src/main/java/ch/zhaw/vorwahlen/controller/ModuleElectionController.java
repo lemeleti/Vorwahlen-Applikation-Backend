@@ -69,7 +69,7 @@ public class ModuleElectionController {
      * Get all module elections.
      * @return {@link ResponseEntity} containing list of {@link ModuleElectionDTO}
      */
-    @GetMapping(path = {"", "/"})
+    @GetMapping(path = "")
     public ResponseEntity<List<ModuleElectionDTO>> getAllModuleElections() {
         return ResponseEntity.ok(electionService.getAllModuleElections());
     }
@@ -79,7 +79,7 @@ public class ModuleElectionController {
      * @param id of the module election.
      * @return {@link ResponseEntity} containing the {@link ModuleElectionDTO}
      */
-    @GetMapping(path = {"/{id}", "/{id}/"})
+    @GetMapping(path = "/{id}")
     public ResponseEntity<ModuleElectionDTO> getModuleElectionById(@PathVariable Long id) {
         return ResponseEntity.ok(electionService.getModuleElectionById(id));
     }
@@ -89,7 +89,7 @@ public class ModuleElectionController {
      * @param moduleElectionDTO to be created module election.
      * @return {@link ResponseEntity} containing {@link ModuleElectionDTO}.
      */
-    @PostMapping(path = {"", "/"})
+    @PostMapping(path = "")
     public ResponseEntity<ModuleElectionDTO> addModuleElection(@RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
         return ResponseEntity.ok(electionService.createModuleElection(moduleElectionDTO));
     }
@@ -99,7 +99,7 @@ public class ModuleElectionController {
      * @param id of the module election.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @DeleteMapping(path = {"/{id}", "/{id}/"})
+    @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deleteModuleElectionById(@PathVariable Long id) {
         electionService.deleteModuleElectionById(id);
         return ResponseEntity.ok().build();
@@ -111,7 +111,7 @@ public class ModuleElectionController {
      * @param moduleElectionDTO new module election.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PutMapping(path = {"/{id}", "/{id}/"})
+    @PutMapping(path = "/{id}")
     public ResponseEntity<Void> replaceModuleElectionById(@PathVariable Long id,
                                                           @RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
         electionService.updateModuleElection(id, moduleElectionDTO);
@@ -132,7 +132,7 @@ public class ModuleElectionController {
      * Returns all stored module elections as MS-Excel file.
      * @return {@link ResponseEntity} containing byte array with the file data.
      */
-    @GetMapping(path = {"/export", "/export/"})
+    @GetMapping(path = "/export")
     public ResponseEntity<byte[]> exportModuleElection() {
         var fileName = "attachment; filename=module_election.xlsx";
         return ResponseEntity.ok()

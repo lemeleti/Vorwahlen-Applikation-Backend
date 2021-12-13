@@ -26,7 +26,7 @@ public class SessionController {
      * Get the user information of the current session.
      * @return {@link ResponseEntity} containing the {@link UserDTO}.
      */
-    @GetMapping(path = {"", "/"})
+    @GetMapping(path = "")
     public ResponseEntity<UserDTO> getSessionInfo(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(mapper.toDto(user));
     }
@@ -35,7 +35,7 @@ public class SessionController {
      * Destroy the current session.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @DeleteMapping(path = {"", "/"})
+    @DeleteMapping(path = "")
     public ResponseEntity<Void> destroySession() {
         SecurityContextHolder.getContext().setAuthentication(null);
         return ResponseEntity.ok().build();

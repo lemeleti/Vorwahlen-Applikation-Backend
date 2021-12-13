@@ -30,7 +30,7 @@ public class PageTextController {
      * Return all page texts.
      * @return {@link ResponseEntity} containing list of {@link PageTextDTO}.
      */
-    @GetMapping(path = {"/", ""})
+    @GetMapping(path = "")
     public ResponseEntity<Set<PageTextDTO>> getAllPageTexts() {
         return ResponseEntity.ok(pageTextService.getAllPageTexts());
     }
@@ -59,7 +59,7 @@ public class PageTextController {
      * @param pageTextDto to be added page text.
      * @return {@link ResponseEntity} containing {@link PageTextDTO}.
      */
-    @PostMapping(path = { "/", "" })
+    @PostMapping(path = "" )
     public ResponseEntity<PageTextDTO> addPageText(@Valid @RequestBody PageTextDTO pageTextDto) {
         return ResponseEntity.ok(pageTextService.addPageText(pageTextDto));
     }

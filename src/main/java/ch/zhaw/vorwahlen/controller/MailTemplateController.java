@@ -29,7 +29,7 @@ public class MailTemplateController {
      * Get all mail templates.
      * @return {@link ResponseEntity} containing a list of {@link MailTemplateDTO}
      */
-    @GetMapping(path = {"", "/"})
+    @GetMapping(path = "")
     public ResponseEntity<List<MailTemplateDTO>> getAllMailTemplates() {
         return ResponseEntity.ok(mailTemplateService.getAllMailTemplates());
     }
@@ -39,7 +39,7 @@ public class MailTemplateController {
      * @param id of the template.
      * @return {@link MailTemplateDTO}
      */
-    @GetMapping(path = {"/{id}", "/{id}/"})
+    @GetMapping(path = "/{id}")
     public ResponseEntity<MailTemplateDTO> getMailTemplateById(@PathVariable Long id) {
         return ResponseEntity.ok(mailTemplateService.getMailTemplateById(id));
     }
@@ -49,7 +49,7 @@ public class MailTemplateController {
      * @param mailTemplateDTO to be saved.
      * @return {@link ResponseEntity} containing {@link MailTemplateDTO}.
      */
-    @PostMapping(path = {"", "/"})
+    @PostMapping(path = "")
     public ResponseEntity<MailTemplateDTO> createMailTemplate(@Valid @RequestBody MailTemplateDTO mailTemplateDTO) {
         return ResponseEntity.ok(mailTemplateService.createMailTemplate(mailTemplateDTO));
     }
@@ -59,7 +59,7 @@ public class MailTemplateController {
      * @param id of the mail template.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @DeleteMapping(path = {"/{id}", "/{id/}"})
+    @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deleteMailTemplate(@PathVariable Long id) {
         mailTemplateService.deleteMailTemplateById(id);
         return ResponseEntity.ok().build();
@@ -71,7 +71,7 @@ public class MailTemplateController {
      * @param mailTemplateDTO containing updates fields.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
-    @PutMapping(path = {"/{id}", "/{id}/"})
+    @PutMapping(path = "/{id}")
     public ResponseEntity<Void> updateMailTemplate(@PathVariable Long id,
                                                    @Valid @RequestBody MailTemplateDTO mailTemplateDTO) {
         mailTemplateService.updateMailTemplate(id, mailTemplateDTO);
