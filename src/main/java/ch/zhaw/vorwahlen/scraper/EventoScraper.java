@@ -31,28 +31,48 @@ public class EventoScraper {
      * @return {@link EventoData}
      */
     public static EventoData parseModuleByURL(String url, Module module) {
-        EventoData eventoData = null;
+        var eventoData = new EventoData();
+        eventoData.setModuleNo(module.getModuleNo());
         try {
             var modulePage = getWebsiteContent(url);
             var columns = modulePage.select(".DetailDialog_FormLabelCell, .DetailDialog_FormValueCell");
 
-            eventoData = new EventoData();
-            eventoData.setModuleNo(module.getModuleNo());
-            for (var i = 1; i < columns.size(); i += COLUMNS_PER_ROW) {
-                var rowTitleElement = columns.get(i - 1);
-                var rowValueElement = columns.get(i);
+            if(columns.size() % 2 == 0) {
+                for (var i = 1; i < columns.size(); i += COLUMNS_PER_ROW) {
+                    var rowTitleElement = columns.get(i - 1);
+                    var rowValueElement = columns.get(i);
 
-                var fieldName = rowTitleElement.text().trim();
-                var dataText = valueIsHtmlStructure(rowValueElement)
-                        ? rowValueElement.html()
-                        : rowValueElement.text();
+                    var fieldName = rowTitleElement.text().trim();
+                    var dataText = valueIsHtmlStructure(rowValueElement)
+                            ? rowValueElement.html()
+                            : rowValueElement.text();
 
-                setEventoDataField(fieldName, eventoData, dataText);
+                    setEventoDataField(fieldName, eventoData, dataText);
+                }
             }
         } catch (IOException | NullPointerException e) {
             log.severe(e.getMessage());
         }
+        if(doesEventoDataContainNull(eventoData)) {
+            eventoData = new EventoData();
+            eventoData.setModuleNo(module.getModuleNo());
+        }
         return eventoData;
+    }
+
+    private static boolean doesEventoDataContainNull(EventoData eventoData) {
+        if(eventoData == null) return true;
+        if(eventoData.getShortDescription() == null) return true;
+        if(eventoData.getCoordinator() == null) return true;
+        if(eventoData.getLearningObjectives() == null) return true;
+        if(eventoData.getModuleContents() == null) return true;
+        if(eventoData.getLiterature() == null) return true;
+        if(eventoData.getSuppLiterature() == null) return true;
+        if(eventoData.getPrerequisites() == null) return true;
+        if(eventoData.getModuleStructure() == null) return true;
+        if(eventoData.getExams() == null) return true;
+        if(eventoData.getRemarks() == null) return true;
+        return false;
     }
 
     private static boolean valueIsHtmlStructure(Element rowValueElement) {
