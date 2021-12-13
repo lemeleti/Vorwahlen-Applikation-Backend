@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
@@ -32,7 +33,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_MODULE_ELECTION_NOT_FOUND;
@@ -143,15 +143,17 @@ public class ElectionService {
      * @param moduleNo module that should be saved
      * @return ElectionTransferDTO containing the election data
      */
-    public ElectionTransferDTO saveElection(String studentId, String moduleNo, Map<String, Object> sessionAttributes) {
+    public ElectionTransferDTO saveElection(String studentId, String moduleNo, SimpMessageHeaderAccessor headerAccessor) {
         var student = fetchStudentById(studentId);
         if(!student.isCanElect()) {
             var message = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_ELECTION_CANNOT_ELECT);
-            var headerAccessor = StompHeaderAccessor.create(StompCommand.ERROR);
-            headerAccessor.setMessage(message);
-            headerAccessor.setSessionId(sessionAttributes.get("sessionId").toString());
-            headerAccessor.setSessionAttributes(sessionAttributes);
-            clientOutboundChannel.send(MessageBuilder.createMessage(new byte[0], headerAccessor.getMessageHeaders()));
+            var newHeaderAccessor = StompHeaderAccessor.create(StompCommand.ERROR);
+
+            newHeaderAccessor.setMessage(message);
+            newHeaderAccessor.setSessionId(headerAccessor.getSessionId());
+            newHeaderAccessor.setSessionAttributes(headerAccessor.getSessionAttributes());
+
+            clientOutboundChannel.send(MessageBuilder.createMessage(new byte[0], newHeaderAccessor.getMessageHeaders()));
             return null;
         }
 

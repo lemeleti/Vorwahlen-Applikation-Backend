@@ -60,7 +60,7 @@ public class ModuleElectionController {
             throw new UserNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_USER_NOT_FOUND));
         }
 
-        return electionService.saveElection(user.getMail(), moduleNo, sessionAttributes);
+        return electionService.saveElection(user.getMail(), moduleNo, headerAccessor);
     }
 
     /**
