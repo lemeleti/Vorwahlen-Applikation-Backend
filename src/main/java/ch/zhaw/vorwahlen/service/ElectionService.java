@@ -2,7 +2,6 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
-import ch.zhaw.vorwahlen.exception.ElectionBadRequestException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
@@ -24,10 +23,16 @@ import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_MODULE_ELECTION_NOT_FOUND;
@@ -48,6 +53,9 @@ public class ElectionService {
     private final ElectionSemesters electionSemesters;
     private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
     private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
+
+    @Qualifier("clientOutboundChannel")
+    private final MessageChannel clientOutboundChannel;
 
     /**
      * Return all module elections
@@ -135,11 +143,14 @@ public class ElectionService {
      * @param moduleNo module that should be saved
      * @return ElectionTransferDTO containing the election data
      */
-    public ElectionTransferDTO saveElection(String studentId, String moduleNo) {
+    public ElectionTransferDTO saveElection(String studentId, String moduleNo, Map<String, Object> sessionAttributes) {
         var student = fetchStudentById(studentId);
         if(!student.isCanElect()) {
             var message = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_ELECTION_CANNOT_ELECT);
-            throw new ElectionBadRequestException(message);
+            var headerAccessor = StompHeaderAccessor.create(StompCommand.ERROR);
+            headerAccessor.setMessage(message);
+            headerAccessor.setSessionAttributes(sessionAttributes);
+            clientOutboundChannel.send(MessageBuilder.createMessage(new byte[0], headerAccessor.getMessageHeaders()));
         }
 
         var moduleElection = loadModuleElectionForStudent(student);

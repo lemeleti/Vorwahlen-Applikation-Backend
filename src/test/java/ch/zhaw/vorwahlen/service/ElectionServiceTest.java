@@ -27,7 +27,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
@@ -60,6 +62,8 @@ class ElectionServiceTest {
     private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
     private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
 
+    private final MessageChannel messageChannel;
+
     private ElectionService electionService;
 
     private final Student student = Student.builder().email("test@mail.com").build();
@@ -88,7 +92,8 @@ class ElectionServiceTest {
                                ElectionSemesters electionSemesters,
                                StudentClassRepository studentClassRepository,
                                Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper,
-                               Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper) {
+                               Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper,
+                               @Qualifier("clientOutboundChannel") MessageChannel messageChannel) {
         this.electionRepository = electionRepository;
         this.validator = validator;
         this.moduleDefinition = moduleDefinition;
@@ -100,12 +105,14 @@ class ElectionServiceTest {
         this.studentClassRepository = studentClassRepository;
         this.moduleElectionMapper = moduleElectionMapper;
         this.electionStatusMapper = electionStatusMapper;
+        this.messageChannel = messageChannel;
     }
 
     @BeforeEach
     void setUp() {
         electionService = new ElectionService(electionRepository, moduleRepository,studentRepository,
-                validator, moduleDefinition, exporter, electionSemesters, moduleElectionMapper, electionStatusMapper);
+                                              validator, moduleDefinition, exporter, electionSemesters,
+                                              moduleElectionMapper, electionStatusMapper, messageChannel);
     }
 
     @AfterEach
@@ -441,7 +448,7 @@ class ElectionServiceTest {
         assertFalse(electionRepository.findModuleElectionByStudent(student.getEmail()).isPresent());
 
         for (String moduleNo : validElection) {
-            electionTransferDTO = electionService.saveElection(student.getEmail(), moduleNo);
+            electionTransferDTO = electionService.saveElection(student.getEmail(), moduleNo, null);
         }
 
         assertNotNull(electionTransferDTO);
@@ -467,7 +474,7 @@ class ElectionServiceTest {
         setAuthentication(student);
 
         for (String moduleNo : validElection) {
-            electionService.saveElection(student.getEmail(), moduleNo);
+            electionService.saveElection(student.getEmail(), moduleNo, null);
         }
 
         assertEquals(12, electionService.getModuleElectionForStudent(student).getElectedModules().size());
@@ -478,7 +485,7 @@ class ElectionServiceTest {
         setAuthentication(student2);
 
         for (String moduleNo : validElection) {
-            electionService.saveElection(student2.getEmail(), moduleNo);
+            electionService.saveElection(student2.getEmail(), moduleNo, null);
         }
 
         assertEquals(12, electionService.getModuleElectionForStudent(student2).getElectedModules().size());

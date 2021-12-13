@@ -303,7 +303,7 @@ class ModuleElectionControllerTest {
         var electionStructure = new ElectionStructureDTO(List.of(structureElement), new ArrayList<>());
         var electionTransfer = new ElectionTransferDTO(electionStructure, electionStatus,true, false);
 
-        when(electionService.saveElection(any(), any())).thenReturn(electionTransfer);
+        when(electionService.saveElection(any(), any(), any())).thenReturn(electionTransfer);
 
         var moduleToElect = "t.BA.WM.RASOP-EN.19HS"; // List.of(, "t.BA.WV.ESE.19HS", "t.BA.WM.SASEN-EN.19HS");
         session.send("/app/save", moduleToElect);

@@ -7,7 +7,6 @@ import ch.zhaw.vorwahlen.exception.UserNotFoundException;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.security.authentication.CustomAuthToken;
-import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,7 +60,7 @@ public class ModuleElectionController {
             throw new UserNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_USER_NOT_FOUND));
         }
 
-        return electionService.saveElection(user.getMail(), moduleNo);
+        return electionService.saveElection(user.getMail(), moduleNo, sessionAttributes);
     }
 
     /**
