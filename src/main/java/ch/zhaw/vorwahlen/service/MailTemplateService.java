@@ -4,7 +4,6 @@ import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.MailTemplateConflictException;
 import ch.zhaw.vorwahlen.exception.MailTemplateNotFoundException;
-import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.MailTemplateDTO;
 import ch.zhaw.vorwahlen.model.modules.MailTemplate;

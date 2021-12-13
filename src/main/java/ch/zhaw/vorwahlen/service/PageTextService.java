@@ -2,7 +2,6 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
-import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.PageTextConflictException;
 import ch.zhaw.vorwahlen.exception.PageTextNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
