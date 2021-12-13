@@ -5,11 +5,9 @@ import ch.zhaw.vorwahlen.model.dto.ElectionStatusElementDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
 import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureElement;
-import ch.zhaw.vorwahlen.service.StudentService;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,25 +62,17 @@ class ModuleElectionControllerTest {
     @MockBean
     ElectionService electionService;
 
-    @MockBean
-    StudentService studentService;
-
     private WebSocketStompClient webSocketStompClient;
 
+    public static final String DEV_USER_MAIL = "dev@zhaw.ch";
+
     static {
-        System.setProperty("ADMIN", "dev@zhaw.ch");
+        System.setProperty("ADMIN", DEV_USER_MAIL);
     }
 
     @BeforeEach
     void setUp() {
         this.webSocketStompClient = new WebSocketStompClient(new SockJsClient(List.of(new WebSocketTransport(new StandardWebSocketClient()))));
-
-        var studentDTO = StudentDTO.builder()
-                .name("dev")
-                .clazz("dev")
-                .email("dev@zhaw.ch")
-                .build();
-        when(studentService.getStudentById(anyString())).thenReturn(studentDTO);
     }
 
     @Test
@@ -99,7 +89,7 @@ class ModuleElectionControllerTest {
         // execute
         try {
             var results = mockMvc.perform(MockMvcRequestBuilders
-                                                  .get(REQUEST_MAPPING_PREFIX + "/structure")
+                                                  .get(REQUEST_MAPPING_PREFIX + "/" + DEV_USER_MAIL + "/structure")
                                                   .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").exists())
