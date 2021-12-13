@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
+import ch.zhaw.vorwahlen.exception.ElectionBadRequestException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
@@ -136,6 +137,11 @@ public class ElectionService {
      */
     public ElectionTransferDTO saveElection(String studentId, String moduleNo) {
         var student = fetchStudentById(studentId);
+        if(!student.isCanElect()) {
+            var message = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_ELECTION_CANNOT_ELECT);
+            throw new ElectionBadRequestException(message);
+        }
+
         var moduleElection = loadModuleElectionForStudent(student);
         migrateElectionChanges(moduleElection, moduleNo);
         var moduleElectionStatus = electionValidator.validate(moduleElection);

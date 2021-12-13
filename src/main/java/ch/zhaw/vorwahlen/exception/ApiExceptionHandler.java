@@ -97,13 +97,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Catch user type invalid exception and returns it with the information what went wrong.
+     * Catch bad requests exception and returns it with the information what went wrong.
      * @param ex the caught exception
      * @param request {@link WebRequest}
      * @return ResponseEntity<Object>
      */
-    @ExceptionHandler(UserTypeInvalidException.class)
-    public ResponseEntity<Object> handleUserTypeInvalidException(Exception ex, WebRequest request) {
+    @ExceptionHandler({ UserTypeInvalidException.class, ElectionBadRequestException.class })
+    public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.log(Level.FINE, ex.getLocalizedMessage(), ex);
         var error = new ErrorResponse(ex.getLocalizedMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
