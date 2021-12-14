@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -86,6 +87,19 @@ public class StudentController {
     public ResponseEntity<Void> patchFields(@PathVariable String id,
                                             @RequestBody Map<String, Boolean> patchedFields) {
         studentService.updateStudentEditableFields(id, patchedFields);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Replace the settings for a student
+     * @param id of student.
+     * @param validationSettingDTO the new settings.
+     * @return {@link ResponseEntity} containing the {@link Void}.
+     */
+    @PutMapping(path = "/{id}/settings")
+    public ResponseEntity<Void> replaceValidationSettings(@PathVariable String id,
+                                                          @RequestBody ValidationSettingDTO validationSettingDTO) {
+        studentService.replaceValidationSettings(id, validationSettingDTO);
         return ResponseEntity.ok().build();
     }
 

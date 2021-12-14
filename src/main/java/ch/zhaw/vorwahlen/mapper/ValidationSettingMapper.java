@@ -16,4 +16,15 @@ public class ValidationSettingMapper implements Mapper<ValidationSettingDTO, Val
                 validationSetting.isSkipConsecutiveModuleCheck(),
                 validationSetting.getElectedContextModulesInFirstElection());
     }
+
+    @Override
+    public ValidationSetting toInstance(ValidationSettingDTO param) {
+        var settings = new ValidationSetting();
+        settings.setRepetent(param.isRepetent());
+        settings.setAlreadyElectedTwoConsecutiveModules(param.hadAlreadyElectedTwoConsecutiveModules());
+        settings.setSkipConsecutiveModuleCheck(param.isSkipConsecutiveModuleCheck());
+        settings.setElectedContextModulesInFirstElection(param.electedContextModulesInFirstElection());
+        return settings;
+    }
+
 }

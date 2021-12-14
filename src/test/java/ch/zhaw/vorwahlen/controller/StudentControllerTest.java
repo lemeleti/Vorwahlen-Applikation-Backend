@@ -2,6 +2,7 @@ package ch.zhaw.vorwahlen.controller;
 
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -206,14 +207,35 @@ class StudentControllerTest {
                                                   .contentType(MediaType.APPLICATION_JSON)
                                                   .content(toJson(nonExistentStudentDto)))
                     .andExpect(status().isOk())
-                    .andDo(print())
-                    .andReturn();
+                    .andDo(print());
         } catch (Exception e) {
             fail(e);
         }
 
         // verify
         verify(studentService, times(1)).replaceStudent(anyString(), any());
+    }
+
+    @Test
+    void testReplaceValidationSettingsStudentById() {
+        // prepare
+        doNothing().when(studentService).replaceValidationSettings(anyString(), any());
+
+        // execute
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                                                  .put(REQUEST_MAPPING_PREFIX + "/" + nonExistentStudentDto.getEmail() + "/settings")
+                                                  .with(csrf())
+                                                  .contentType(MediaType.APPLICATION_JSON)
+                                                  .content(toJson(new ValidationSettingDTO(false, false, false, 0))))
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        // verify
+        verify(studentService, times(1)).replaceValidationSettings(anyString(), any());
     }
 
     @Test

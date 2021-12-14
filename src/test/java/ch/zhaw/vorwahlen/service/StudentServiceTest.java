@@ -7,11 +7,14 @@ import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
+import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
+import ch.zhaw.vorwahlen.repository.ValidationSettingRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +49,9 @@ class StudentServiceTest {
     private final StudentRepository studentRepository;
     private final StudentClassRepository studentClassRepository;
     private final ElectionRepository electionRepository;
-    private final Mapper<StudentDTO, Student> mapper;
+    private final ValidationSettingRepository validationSettingRepository;
+    private final Mapper<StudentDTO, Student> studentMapper;
+    private final Mapper<ValidationSettingDTO, ValidationSetting> validationSettingMapper;
     @Mock
     private JavaMailSenderImpl emailSender;
     private StudentService studentService;
@@ -54,17 +59,24 @@ class StudentServiceTest {
     @Autowired
     public StudentServiceTest(StudentRepository studentRepository,
                               StudentClassRepository studentClassRepository,
-                              ElectionRepository electionRepository, Mapper<StudentDTO, Student> mapper) {
+                              ElectionRepository electionRepository,
+                              ValidationSettingRepository validationSettingRepository,
+                              Mapper<StudentDTO, Student> studentMapper,
+                              Mapper<ValidationSettingDTO, ValidationSetting> validationSettingMapper) {
         this.studentRepository = studentRepository;
         this.studentClassRepository = studentClassRepository;
         this.electionRepository = electionRepository;
-        this.mapper = mapper;
+        this.validationSettingRepository = validationSettingRepository;
+        this.studentMapper = studentMapper;
+        this.validationSettingMapper = validationSettingMapper;
     }
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        studentService = new StudentService(studentRepository, studentClassRepository, electionRepository, emailSender, mapper);
+        studentService = new StudentService(studentRepository, studentClassRepository, electionRepository,
+                                            validationSettingRepository, emailSender, studentMapper,
+                                            validationSettingMapper);
     }
 
     @AfterEach
@@ -155,6 +167,46 @@ class StudentServiceTest {
         created.setModuleElectionId(moduleElectionId);
         studentService.replaceStudent(created.getEmail(), created);
         assertEquals(created.getName(), studentService.getStudentById(id).getName());
+    }
+
+    @Test
+    void testReplaceValidationSetting() {
+        // prepare
+        var dto = StudentDTO.builder()
+                .email("hello@mail.ch")
+                .name("Hello World")
+                .clazz("IT19a_WIN")
+                .build();
+        assertEquals(0, studentRepository.count());
+        var created = studentService.addStudent(dto);
+        assertEquals(1, studentRepository.count());
+
+        var createdElectionOptional = electionRepository.findModuleElectionByStudent(created.getEmail());
+        assertTrue(createdElectionOptional.isPresent());
+
+        var createdElection = createdElectionOptional.get();
+        var expectedSettings = createdElection.getValidationSetting();
+        assertNotNull(expectedSettings);
+
+        var actualSettings = new ValidationSetting();
+        actualSettings.setId(expectedSettings.getId());
+        assertEquals(expectedSettings, actualSettings);
+
+        var newSettings = new ValidationSettingDTO(true, true, true, 3);
+        // execute
+        studentService.replaceValidationSettings(created.getEmail(), newSettings);
+
+        // verify
+        createdElectionOptional = electionRepository.findModuleElectionByStudent(created.getEmail());
+        assertTrue(createdElectionOptional.isPresent());
+
+        createdElection = createdElectionOptional.get();
+        expectedSettings = createdElection.getValidationSetting();
+        assertNotNull(expectedSettings);
+
+        actualSettings = validationSettingMapper.toInstance(newSettings);
+        actualSettings.setId(expectedSettings.getId());
+        assertEquals(expectedSettings, actualSettings);
     }
 
     @Test

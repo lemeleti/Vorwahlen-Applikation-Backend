@@ -9,6 +9,7 @@ import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
+import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.modules.ModuleElection;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.model.modules.StudentClass;
@@ -18,6 +19,7 @@ import ch.zhaw.vorwahlen.parser.DispensationParser;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
+import ch.zhaw.vorwahlen.repository.ValidationSettingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.mail.SimpleMailMessage;
@@ -51,9 +53,11 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentClassRepository studentClassRepository;
     private final ElectionRepository electionRepository;
+    private final ValidationSettingRepository validationSettingRepository;
     private final JavaMailSender emailSender;
 
-    private final Mapper<StudentDTO, Student> mapper;
+    private final Mapper<StudentDTO, Student> studentMapper;
+    private final Mapper<ValidationSettingDTO, ValidationSetting> validationSettingMapper;
 
     /**
      * Importing the Excel file and storing the needed content into the database.
@@ -83,7 +87,7 @@ public class StudentService {
             var message = String.format(formatString, studentDTO.getEmail());
             throw new StudentConflictException(message);
         }
-        var student = mapper.toInstance(studentDTO);
+        var student = studentMapper.toInstance(studentDTO);
         var moduleElection = new ModuleElection();
         var validationSetting = new ValidationSetting();
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
@@ -94,7 +98,7 @@ public class StudentService {
         student.setElection(moduleElection);
         student.setStudentClass(studentClass);
 
-        return mapper.toDto(studentRepository.save(student));
+        return studentMapper.toDto(studentRepository.save(student));
     }
 
     private StudentClass getOrCreateStudentClass(String className) {
@@ -150,7 +154,7 @@ public class StudentService {
         return studentRepository
                 .findAll()
                 .stream()
-                .map(mapper::toDto)
+                .map(studentMapper::toDto)
                 .toList();
     }
 
@@ -160,7 +164,7 @@ public class StudentService {
      * @return Optional<StudentDTO>
      */
     public StudentDTO getStudentById(String id) {
-        return mapper.toDto(fetchStudentById(id));
+        return studentMapper.toDto(fetchStudentById(id));
     }
 
     /**
@@ -188,11 +192,27 @@ public class StudentService {
                 });
 
         var storedStudent = fetchStudentById(id);
-        var newStudent = mapper.toInstance(studentDTO);
+        var newStudent = studentMapper.toInstance(studentDTO);
         newStudent.setEmail(storedStudent.getEmail());
         newStudent.setStudentClass(studentClass);
         newStudent.setElection(election);
-        return mapper.toDto(studentRepository.save(newStudent));
+        return studentMapper.toDto(studentRepository.save(newStudent));
+    }
+
+    /**
+     * Replace the settings by student by id.
+     * @param studentId identifier of the student to be replaced.
+     * @param validationSettingDTO new validation settings.
+     */
+    public void replaceValidationSettings(String studentId, ValidationSettingDTO validationSettingDTO) {
+        var storedStudent = fetchStudentById(studentId);
+        var validationSettings = validationSettingMapper.toInstance(validationSettingDTO);
+
+        if(storedStudent.getElection() != null && storedStudent.getElection().getValidationSetting() != null) {
+            validationSettings.setId(storedStudent.getElection().getValidationSetting().getId());
+        }
+
+        validationSettingRepository.save(validationSettings);
     }
 
     /**
