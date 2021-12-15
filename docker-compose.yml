@@ -21,6 +21,8 @@ services:
     container_name: wpm-backend
     restart: always
     entrypoint: ["java", "-jar", "vorwahlen.jar", "--spring.jpa.hibernate.ddl-auto=none"]
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       - database
     environment:
