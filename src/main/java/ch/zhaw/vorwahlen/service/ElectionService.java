@@ -159,14 +159,30 @@ public class ElectionService {
 
         var moduleElection = loadModuleElectionForStudent(student);
         migrateElectionChanges(moduleElection, moduleNo);
-        var moduleElectionStatus = electionValidator.validate(moduleElection);
 
         var moduleSetting = Optional.ofNullable(moduleElection.getValidationSetting()).orElse(new ValidationSetting());
         moduleElection.setValidationSetting(moduleSetting);
 
+        var moduleElectionStatus = electionValidator.validate(moduleElection);
         moduleElection.setElectionValid(moduleElectionStatus.isValid());
         electionRepository.save(moduleElection);
         return createElectionTransferDTO(student, moduleElectionStatus, moduleElection, true);
+    }
+
+    /**
+     * Validate the election again.
+     * @param studentId email of the student.
+     */
+    public void updateValidation(String studentId) {
+        var student = fetchStudentById(studentId);
+        var moduleElection = loadModuleElectionForStudent(student);
+
+        var moduleSetting = Optional.ofNullable(moduleElection.getValidationSetting()).orElse(new ValidationSetting());
+        moduleElection.setValidationSetting(moduleSetting);
+
+        var moduleElectionStatus = electionValidator.validate(moduleElection);
+        moduleElection.setElectionValid(moduleElectionStatus.isValid());
+        electionRepository.save(moduleElection);
     }
 
     private Student fetchStudentById(String studentId) {

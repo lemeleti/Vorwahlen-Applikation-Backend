@@ -127,6 +127,17 @@ public class ModuleElectionController {
     }
 
     /**
+     * Triggers to validate the election again.
+     * @param studentId email of the student.
+     * @return {@link ResponseEntity} containing {@link Void}.
+     */
+    @PostMapping(path = "/{studentId}/validate")
+    public ResponseEntity<Void> triggerValidation(@PathVariable String studentId) {
+        electionService.updateValidation(studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
      * Returns all stored module elections as MS-Excel file.
      * @return {@link ResponseEntity} containing byte array with the file data.
      */
