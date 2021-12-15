@@ -65,7 +65,10 @@ public class ModuleStructureGenerator {
 
     private void applyOverflowedModules() {
         for (ModuleCategory category : ModuleCategory.values()) {
-            var moduleDefinitions = cleanModuleDefinitions(moduleDefinition.getDefinitionByCategory(category));
+            var moduleDefinitions = moduleDefinition.getDefinitionByCategory(category);
+            if (!ModuleCategory.CONTEXT_MODULE.equals(category)) {
+                moduleDefinitions = cleanModuleDefinitions(moduleDefinitions);
+            }
             int totalNumOfAllowedModules = moduleDefinitions.values().stream().reduce(0, Integer::sum);
             var numOfModules = filterAndCountModuleStructureList(electedModuleStructure, mse -> mse.category().equals(category));
             if(numOfModules <= totalNumOfAllowedModules) continue;
