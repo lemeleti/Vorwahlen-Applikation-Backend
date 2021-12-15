@@ -78,6 +78,7 @@ class FullTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     @Test
     void testValidConsecutiveModulePairsInElection() {
         when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(new ValidationSetting());
         assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
 
         var m1 = mock(Module.class);

@@ -26,6 +26,11 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
+        var settings = moduleElection.getValidationSetting();
+        if (settings.isSkipConsecutiveModuleCheck()) {
+            return true;
+        }
+
         // IT19 Vollzeit: Wählen Sie mindestens zweimal zwei konsekutive Module
         // Die Module PSPP und FUP werden auch als konsekutive Module anerkannt.
         var countConsecutivePairs = consecutiveMap.values().stream()
