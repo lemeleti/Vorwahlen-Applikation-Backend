@@ -36,6 +36,17 @@ public class ModuleStructureGenerator {
      * @return ElectionStructureDTO
      */
     public ElectionStructureDTO generateStructure() {
+        Function<Module, ModuleStructureElement> moduleToModuleStructureElement = module -> {
+            var moduleCategory = ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup());
+            var semesterOffset = student.isTZ() && student.isSecondElection() ? 2 : 0;
+            return new ModuleStructureElement(module.getModuleTitle(),
+                    module.getModuleNo(),
+                    false,
+                    module.getSemester().getSemester() + semesterOffset,
+                    moduleCategory,
+                    moduleCategory.getCredits());
+        };
+
         var electedModuleList = new ArrayList<>(Set.copyOf(election.getElectedModules()));
         var mappedList = electedModuleList.stream()
                 .sorted(Comparator.comparingInt(o -> o.getSemester().getSemester()))
@@ -148,16 +159,6 @@ public class ModuleStructureGenerator {
     private int filterAndCountModuleStructureList(List<ModuleStructureElement> structureList, Predicate<ModuleStructureElement> filter) {
         return (int) filterModuleStructureList(structureList, filter).count();
     }
-
-    private final Function<Module, ModuleStructureElement> moduleToModuleStructureElement = module -> {
-        var moduleCategory = ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup());
-        return new ModuleStructureElement(module.getModuleTitle(),
-                module.getModuleNo(),
-                false,
-                module.getSemester().getSemester(),
-                moduleCategory,
-                moduleCategory.getCredits());
-    };
 
     private void applyDispensations() {
         dispensateModulesByCategory(student.getWpmDispensation(), ModuleCategory.SUBJECT_MODULE, ModuleCategory.DISPENSED_WPM_MODULE);
