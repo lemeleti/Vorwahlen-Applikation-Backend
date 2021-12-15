@@ -6,6 +6,7 @@ import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentConflictException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
+import ch.zhaw.vorwahlen.exception.ValidationSettingNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
 import ch.zhaw.vorwahlen.model.dto.StudentDTO;
@@ -197,6 +198,20 @@ public class StudentService {
         newStudent.setStudentClass(studentClass);
         newStudent.setElection(election);
         return studentMapper.toDto(studentRepository.save(newStudent));
+    }
+
+    /**
+     * Get validation setting for student by id
+     * @param id mail of the student
+     * @return {@link ValidationSettingDTO}
+     */
+    public ValidationSettingDTO getValidationSettingForStudent(String id) {
+        var setting = validationSettingRepository.findValidationSettingByStudentMail(id).orElseThrow(() -> {
+            var errorMessage =
+                    String.format(ResourceBundleMessageLoader.getMessage(ERROR_VALIDATION_SETTING_NOT_FOUND), id);
+            return new ValidationSettingNotFoundException(errorMessage);
+        });
+        return validationSettingMapper.toDto(setting);
     }
 
     /**

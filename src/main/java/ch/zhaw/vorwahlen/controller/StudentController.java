@@ -104,6 +104,16 @@ public class StudentController {
     }
 
     /**
+     * Get validation settings by student mail
+     * @param id mail of the student
+     * @return {@link ValidationSettingDTO}
+     */
+    @GetMapping(path ="/{id}/settings")
+    public ResponseEntity<ValidationSettingDTO> getValidationSettings(@PathVariable String id) {
+        return ResponseEntity.ok(studentService.getValidationSettingForStudent(id));
+    }
+
+    /**
      * Import class list from Excel.
      * @param file the Excel file.
      * @return {@link ResponseEntity} containing {@link Void}.
