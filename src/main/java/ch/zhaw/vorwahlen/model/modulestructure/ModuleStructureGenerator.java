@@ -98,7 +98,7 @@ public class ModuleStructureGenerator {
     private void applyMissingStructureElements(Map<Integer, Integer> moduleDefinitions, ModuleCategory category) {
         int totalNumOfAllowedModules = moduleDefinitions.values().stream().reduce(0, Integer::sum);
         var numOfModules = filterAndCountModuleStructureList(electedModuleStructure, mse -> mse.category().equals(category));
-        if(numOfModules == totalNumOfAllowedModules) return;
+        if(numOfModules >= totalNumOfAllowedModules) return;
 
         var semesterEntryList = new ArrayList<>(moduleDefinitions.entrySet());
         if(semesterEntryList.size() == 1) {
