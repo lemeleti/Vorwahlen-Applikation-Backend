@@ -4,6 +4,7 @@ import ch.zhaw.vorwahlen.model.pagetext.PageText;
 import ch.zhaw.vorwahlen.model.pagetext.UserType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public interface PageTextRepository extends JpaRepository<PageText, Long> {
     FROM PageText p
     WHERE p.page = :page
     """)
-    Set<PageText> findAllByPage(String page);
+    Set<PageText> findAllByPage(@Param("page") String page);
 
     @Query("""
     SELECT p
@@ -25,6 +26,6 @@ public interface PageTextRepository extends JpaRepository<PageText, Long> {
     WHERE p.page = :page
     AND p.userType = :userType
     """)
-    Set<PageText> findAllByUserType(String page, UserType userType);
+    Set<PageText> findAllByUserType(@Param("page") String page, @Param("userType") UserType userType);
 
 }
