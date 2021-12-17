@@ -37,7 +37,9 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
                 .filter(Objects::nonNull)
                 .count();
 
-        var isValid = countConsecutivePairs > 1 || countConsecutivePairs == 1 && containsSpecialConsecutiveModules(moduleElection);
+        countConsecutivePairs += countSpecialConsecutiveModulePairs(moduleElection);
+
+        var isValid = countConsecutivePairs > 1;
         if (!isValid) {
             var missingPairs = countConsecutivePairs == 0 ? MISSING_2_CONSECUTIVE_PAIRS : MISSING_1_CONSECUTIVE_PAIR;
             var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), missingPairs);

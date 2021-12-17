@@ -48,10 +48,12 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
                 .filter(Objects::nonNull)
                 .count();
 
+        countConsecutivePairs += countSpecialConsecutiveModulePairs(moduleElection);
+
         var isValid = false;
         if (settings.hadAlreadyElectedTwoConsecutiveModules()) {
             // case: 1. Wahl  CCP1, CCP2 / 2. Wahl MC1, MC2, ... oder FUP, PSPP, ...
-            isValid = countConsecutivePairs > 0 || containsSpecialConsecutiveModules(moduleElection);
+            isValid = countConsecutivePairs > 0;
             if (!isValid) {
                 var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), MISSING_1_CONSECUTIVE_PAIR);
                 getModuleElectionStatus().getSubjectValidation().addReason(reason);
@@ -62,7 +64,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
              * oder
              * case: 1. Wahl SCAD-EN, RAP-EN  / 2. Wahl CCP1, CCP2, FUP, PSPP, ...
              */
-            isValid = countConsecutivePairs > 1 || countConsecutivePairs == 1 && containsSpecialConsecutiveModules(moduleElection);
+            isValid = countConsecutivePairs > 1;
             if (!isValid) {
                 var missingPairs = countConsecutivePairs == 0 ? MISSING_2_CONSECUTIVE_PAIRS : MISSING_1_CONSECUTIVE_PAIR;
                 var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), missingPairs);

@@ -153,13 +153,13 @@ class AbstractElectionValidatorTest {
         when(m2.getShortModuleNo()).thenReturn(subjectModulesShort.get(1));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1));
-        assertFalse(validator.containsSpecialConsecutiveModules(moduleElectionMock));
+        assertEquals(0, validator.countSpecialConsecutiveModulePairs(moduleElectionMock));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m2));
-        assertFalse(validator.containsSpecialConsecutiveModules(moduleElectionMock));
+        assertEquals(0, validator.countSpecialConsecutiveModulePairs(moduleElectionMock));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
-        assertTrue(validator.containsSpecialConsecutiveModules(moduleElectionMock));
+        assertEquals(1, validator.countSpecialConsecutiveModulePairs(moduleElectionMock));
     }
 
     @Test
@@ -256,7 +256,7 @@ class AbstractElectionValidatorTest {
 
     @Test
     void testContainsSpecialConsecutiveModules_Null() {
-        assertThrows(NullPointerException.class, () -> validator.containsSpecialConsecutiveModules(null));
+        assertThrows(NullPointerException.class, () -> validator.countSpecialConsecutiveModulePairs(null));
     }
 
     @Test

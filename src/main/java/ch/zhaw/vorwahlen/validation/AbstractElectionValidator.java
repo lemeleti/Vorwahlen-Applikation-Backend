@@ -41,6 +41,8 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     private final ModuleElectionStatus moduleElectionStatus = new ModuleElectionStatus();
     private final Student student;
 
+    private record Pair<T>(T first, T second){}
+
     @Override
     public ModuleElectionStatus validate(ModuleElection election) {
         var status = getModuleElectionStatus();
@@ -98,9 +100,16 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
 
     protected abstract boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap);
 
-    protected boolean containsSpecialConsecutiveModules(ModuleElection moduleElection) {
-        return containsModule(moduleElection.getElectedModules(), "WV.PSPP")
-                && containsModule(moduleElection.getElectedModules(), "WV.FUP");
+    protected int countSpecialConsecutiveModulePairs(ModuleElection moduleElection) {
+        var count = 0;
+        var modules = moduleElection.getElectedModules();
+        var specialConsecutivePairSet = Set.of(new Pair<>("WV.PSPP", "WV.FUP"));
+        for (var pair: specialConsecutivePairSet) {
+            if(containsModule(modules, pair.first) && containsModule(modules, pair.second)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     protected boolean areModulesConsecutive(Module m1, Module m2) {
