@@ -2,6 +2,8 @@ package ch.zhaw.vorwahlen.security.authentication;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,6 +28,9 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final String[] allowedPaths = {"/texts/**", "/modules/**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
     private final String[] protectedPaths = {"/texts/**", "/modules/**", "/students/**", "/elections/**"};
     private final String[] userProtectedPaths = { "/students/{student}/**", "/elections/{student}/structure/**" };
+    @Value("${logoutPath}")
+    private String logoutPath;
+
 
     @Bean
     public HttpFirewall modifiedStrictFirewall() {
