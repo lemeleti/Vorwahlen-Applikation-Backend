@@ -5,6 +5,7 @@ import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.security.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.java.Log;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,6 +23,7 @@ import java.util.Map;
  */
 @RequiredArgsConstructor
 @Setter
+@Log
 public class AuthFilter extends OncePerRequestFilter {
     private final boolean isProd;
     private final StudentRepository studentRepository;
@@ -64,6 +66,15 @@ public class AuthFilter extends OncePerRequestFilter {
         userData.put("homeOrg", request.getHeader("homeorganization"));
         userData.put("mail", request.getHeader("mail"));
         userData.put("role", "USER");
+
+        var headerNames = request.getHeaderNames();
+        var stringBuilder = new StringBuilder();
+        while (headerNames.hasMoreElements()) {
+            var header = headerNames.nextElement();
+            stringBuilder.append(String.format("(%s='%s')", header, request.getHeader(header)));
+
+        }
+        log.info(String.format("Erhaltene Loginheader: %s", stringBuilder.toString()));
     }
 
     private User createUser() {

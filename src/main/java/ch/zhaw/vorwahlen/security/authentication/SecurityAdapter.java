@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.security.authentication;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 /**
  * Configure the permissions and filter the incoming requests.
@@ -22,6 +25,13 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final String[] allowedPaths = {"/texts/**", "/modules/**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
     private final String[] protectedPaths = {"/texts/**", "/modules/**", "/students/**", "/elections/**"};
     private final String[] userProtectedPaths = { "/students/{student}/**", "/elections/{student}/structure/**" };
+
+    @Bean
+    public HttpFirewall modifiedStrictFirewall() {
+        var firewall = new StrictHttpFirewall();
+        firewall.setAllowedHeaderValues(s -> true);
+        return firewall;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
