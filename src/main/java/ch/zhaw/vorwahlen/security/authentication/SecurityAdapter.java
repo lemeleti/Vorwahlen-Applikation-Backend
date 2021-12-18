@@ -1,6 +1,8 @@
 package ch.zhaw.vorwahlen.security.authentication;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -23,7 +25,9 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final String[] allowedPaths = {"/texts/**", "/modules/**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
     private final String[] protectedPaths = {"/texts/**", "/modules/**", "/students/**", "/elections/**"};
     private final String[] userProtectedPaths = { "/students/{student}/**", "/elections/{student}/structure/**" };
-
+    @Value("${logoutPath}")
+    private String logoutPath;
+    
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(customAuthProvider);
@@ -42,7 +46,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.toString()))
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
-                .logoutSuccessUrl("/Shibboleth.sso/Logout")
+                .logoutSuccessUrl(logoutPath)
                 .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
 }
