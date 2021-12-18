@@ -14,8 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -100,21 +99,4 @@ class SessionControllerTest {
             fail(e);
         }
     }
-
-    @Test
-    @Order(999)
-    void testDestroy() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                    .delete(REQUEST_MAPPING_PREFIX)
-                    .with(csrf())
-                    .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").doesNotExist())
-                    .andDo(print());
-        } catch (Exception e) {
-            fail(e);
-        }
-    }
-
 }
