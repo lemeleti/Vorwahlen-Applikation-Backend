@@ -38,7 +38,7 @@ public class WPMConfig {
         );
 
         var filter = new AuthFilter(false, studentRepository);
-        filter.setUserData(userData);
+        filter.setTestingUserData(userData);
         return filter;
     }
 

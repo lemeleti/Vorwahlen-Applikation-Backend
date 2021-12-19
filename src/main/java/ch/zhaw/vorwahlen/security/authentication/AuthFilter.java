@@ -1,6 +1,5 @@
 package ch.zhaw.vorwahlen.security.authentication;
 
-import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.security.model.User;
 import lombok.Getter;
@@ -46,23 +45,25 @@ public class AuthFilter extends OncePerRequestFilter {
     }
     private final boolean isProd;
     private final StudentRepository studentRepository;
-    private Map<String, String> userData = new HashMap<>();
-    private Student student;
+    private Map<String, String> testingUserData = new HashMap<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        var userData = new HashMap<String, String>();
         var auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (isProd) {
-            extractUserInfoFromHeader(request);
+        if (isProd && auth == null) {
+            extractUserInfoFromHeader(request, userData);
+        } else {
+            userData = new HashMap<>(testingUserData);
         }
-        findAndSetStudent(userData.get("mail"));
 
-        if (isUserDataNotNull() && (auth == null || !auth.isAuthenticated())) {
-            //auth = new CustomAuthToken(userData.get("sessionId"), createUser());
-            auth = new UsernamePasswordAuthenticationToken(createUser(), null);
+        if (isUserDataNotNull(userData) && (auth == null || !auth.isAuthenticated())) {
+            var email = userData.get("mail");
+            boolean isStudentExistent = studentRepository.existsById(email);
+            auth = new UsernamePasswordAuthenticationToken(createUser(userData, isStudentExistent), null);
             log.debug("received login request from {}", userData.get("mail"));
             log.debug(userData.toString());
         }
@@ -71,7 +72,7 @@ public class AuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isUserDataNotNull() {
+    private boolean isUserDataNotNull(Map<String, String> userData) {
         var userDataValues = userData.values();
         if (userDataValues.size() > 1) {
             for (var s : userData.values()) {
@@ -84,7 +85,7 @@ public class AuthFilter extends OncePerRequestFilter {
         return false;
     }
 
-    private void extractUserInfoFromHeader(HttpServletRequest request) {
+    private void extractUserInfoFromHeader(HttpServletRequest request, HashMap<String, String> userData) {
         for (var headerAttribute: HeaderAttribute.values()) {
             var headerValue = request.getHeader(headerAttribute.name);
             if (headerValue != null) {
@@ -95,7 +96,7 @@ public class AuthFilter extends OncePerRequestFilter {
         userData.put("role", "USER");
     }
 
-    private User createUser() {
+    private User createUser(HashMap<String, String> userData, boolean isExistent) {
         return User.builder()
                 .name(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.GIVEN_NAME)))
                 .lastName(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.SURNAME)))
@@ -104,15 +105,8 @@ public class AuthFilter extends OncePerRequestFilter {
                 .mail(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.MAIL)))
                 .shibbolethSessionId(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.SHIB_SESSION_ID)))
                 .role(userData.get("role"))
-                .isExistent(student != null)
+                .isExistent(isExistent)
                 .build();
-    }
-
-    private void findAndSetStudent(String email) {
-        if (email != null && !email.isBlank()) {
-            var studentOptional = studentRepository.findById(userData.get("mail"));
-            studentOptional.ifPresent(value -> student = value);
-        }
     }
 
     private String fieldNameForHeaderAttribute(HeaderAttribute headerAttribute) {
