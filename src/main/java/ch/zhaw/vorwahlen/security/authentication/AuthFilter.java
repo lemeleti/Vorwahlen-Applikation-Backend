@@ -14,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,12 +63,12 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private void extractUserInfoFromHeader(HttpServletRequest request) {
-        userData.put("sessionId", request.getHeader("shib-session-id"));
-        userData.put("name", request.getHeader("givenname"));
-        userData.put("lastName", request.getHeader("surname"));
-        userData.put("affiliation", request.getHeader("affiliation"));
-        userData.put("homeOrg", request.getHeader("homeorganization"));
-        userData.put("mail", request.getHeader("mail"));
+        userData.put("sessionId", URLDecoder.decode(request.getHeader("shib-session-id"), StandardCharsets.UTF_8));
+        userData.put("name", URLDecoder.decode(request.getHeader("givenname"), StandardCharsets.UTF_8));
+        userData.put("lastName", URLDecoder.decode(request.getHeader("surname"), StandardCharsets.UTF_8));
+        userData.put("affiliation", URLDecoder.decode(request.getHeader("affiliation"), StandardCharsets.UTF_8));
+        userData.put("homeOrg", URLDecoder.decode(request.getHeader("homeorganization"), StandardCharsets.UTF_8));
+        userData.put("mail", URLDecoder.decode(request.getHeader("mail"), StandardCharsets.UTF_8));
         userData.put("role", "USER");
     }
 
