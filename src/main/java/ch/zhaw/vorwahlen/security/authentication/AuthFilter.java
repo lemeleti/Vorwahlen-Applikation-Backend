@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -21,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class filters the request and response based on the {@link CustomAuthToken}.
+ * This class filters the request and response based on the {@link UsernamePasswordAuthenticationToken}.
  * If the Authentication does not exist it will be created with the user provided in the request.
  */
 @RequiredArgsConstructor
@@ -60,7 +61,8 @@ public class AuthFilter extends OncePerRequestFilter {
         findAndSetStudent(userData.get("mail"));
 
         if (isUserDataNotNull() && (auth == null || !auth.isAuthenticated())) {
-            auth = new CustomAuthToken(userData.get("sessionId"), createUser());
+            //auth = new CustomAuthToken(userData.get("sessionId"), createUser());
+            auth = new UsernamePasswordAuthenticationToken(createUser(), null);
             log.debug("received login request from {}", userData.get("mail"));
             log.debug(userData.toString());
         }
@@ -100,6 +102,7 @@ public class AuthFilter extends OncePerRequestFilter {
                 .affiliation(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.AFFILIATION)))
                 .homeOrg(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.HOME_ORGANIZATION)))
                 .mail(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.MAIL)))
+                .shibbolethSessionId(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.SHIB_SESSION_ID)))
                 .role(userData.get("role"))
                 .isExistent(student != null)
                 .build();

@@ -6,7 +6,7 @@ import ch.zhaw.vorwahlen.exception.SessionNotFoundException;
 import ch.zhaw.vorwahlen.exception.UserNotFoundException;
 import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
 import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.security.authentication.CustomAuthToken;
+import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,13 +55,13 @@ public class ModuleElectionController {
             throw new SessionNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_SESSION_NOT_FOUND));
         }
 
-        var token = (CustomAuthToken) headerAccessor.getUser();
-        var user = token != null ? token.getUser() : null;
-        if(user == null) {
+        if (headerAccessor.getUser() instanceof UsernamePasswordAuthenticationToken authToken &&
+                authToken.getPrincipal() instanceof User user) {
+
+            return electionService.saveElection(user.getMail(), moduleNo, headerAccessor);
+        } else {
             throw new UserNotFoundException(ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_USER_NOT_FOUND));
         }
-
-        return electionService.saveElection(user.getMail(), moduleNo, headerAccessor);
     }
 
     /**
