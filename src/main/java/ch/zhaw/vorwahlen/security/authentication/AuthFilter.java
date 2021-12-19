@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.security.authentication;
 import ch.zhaw.vorwahlen.model.modules.Student;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.security.model.User;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,21 @@ import java.util.Map;
 @Setter
 @Slf4j
 public class AuthFilter extends OncePerRequestFilter {
+    private enum HeaderAttribute {
+        SHIB_SESSION_ID("shib-session-id"),
+        GIVEN_NAME("givenname"),
+        SURNAME("surname"),
+        AFFILIATION("affiliation"),
+        HOME_ORGANIZATION("homeorganization"),
+        MAIL("mail");
+
+        @Getter
+        private final String name;
+
+        HeaderAttribute(String name) {
+            this.name = name;
+        }
+    }
     private final boolean isProd;
     private final StudentRepository studentRepository;
     private Map<String, String> userData = new HashMap<>();
@@ -54,31 +70,36 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isUserDataNotNull() {
-        for (var s : userData.values()) {
-            if (s == null || s.isEmpty()) {
-                return false;
+        var userDataValues = userData.values();
+        if (userDataValues.size() > 1) {
+            for (var s : userData.values()) {
+                if (s == null || s.isEmpty()) {
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private void extractUserInfoFromHeader(HttpServletRequest request) {
-        userData.put("sessionId", URLDecoder.decode(request.getHeader("shib-session-id"), StandardCharsets.UTF_8));
-        userData.put("name", URLDecoder.decode(request.getHeader("givenname"), StandardCharsets.UTF_8));
-        userData.put("lastName", URLDecoder.decode(request.getHeader("surname"), StandardCharsets.UTF_8));
-        userData.put("affiliation", URLDecoder.decode(request.getHeader("affiliation"), StandardCharsets.UTF_8));
-        userData.put("homeOrg", URLDecoder.decode(request.getHeader("homeorganization"), StandardCharsets.UTF_8));
-        userData.put("mail", URLDecoder.decode(request.getHeader("mail"), StandardCharsets.UTF_8));
+        for (var headerAttribute: HeaderAttribute.values()) {
+            var headerValue = request.getHeader(headerAttribute.name);
+            if (headerValue != null) {
+                var fieldName = fieldNameForHeaderAttribute(headerAttribute);
+                userData.put(fieldName, URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
+            }
+        }
         userData.put("role", "USER");
     }
 
     private User createUser() {
         return User.builder()
-                .name(userData.get("name"))
-                .lastName(userData.get("lastName"))
-                .affiliation(userData.get("affiliation"))
-                .homeOrg(userData.get("homeOrg"))
-                .mail(userData.get("mail"))
+                .name(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.GIVEN_NAME)))
+                .lastName(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.SURNAME)))
+                .affiliation(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.AFFILIATION)))
+                .homeOrg(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.HOME_ORGANIZATION)))
+                .mail(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.MAIL)))
                 .role(userData.get("role"))
                 .isExistent(student != null)
                 .build();
@@ -89,5 +110,16 @@ public class AuthFilter extends OncePerRequestFilter {
             var studentOptional = studentRepository.findById(userData.get("mail"));
             studentOptional.ifPresent(value -> student = value);
         }
+    }
+
+    private String fieldNameForHeaderAttribute(HeaderAttribute headerAttribute) {
+        return switch (headerAttribute) {
+            case SHIB_SESSION_ID -> "sessionId";
+            case GIVEN_NAME -> "name";
+            case SURNAME -> "lastName";
+            case AFFILIATION -> "affiliation";
+            case HOME_ORGANIZATION -> "homeOrg";
+            case MAIL -> "mail";
+        };
     }
 }
