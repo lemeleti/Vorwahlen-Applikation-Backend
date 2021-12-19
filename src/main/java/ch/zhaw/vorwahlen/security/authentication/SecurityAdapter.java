@@ -24,7 +24,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
     private final AuthFilter authFilter;
     private final CustomAuthProvider customAuthProvider;
     private final String[] allowedPaths = {"/texts/**", "/modules/**", "/", "/error**", "/session/is-authenticated", "/session/is-admin"};
-    private final String[] protectedPaths = {"/texts/**", "/modules/**", "/students/**", "/elections/**"};
+    private final String[] protectedPaths = {"/texts/**", "/modules/**", "/students/**", "/elections/**", "/swagger-ui/**", "/v2/**"};
     private final String[] userProtectedPaths = { "/students/{student}/**", "/elections/{student}/structure/**" };
 
     @Bean
