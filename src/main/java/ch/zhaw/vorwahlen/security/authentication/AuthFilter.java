@@ -17,8 +17,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
+
+import static ch.zhaw.vorwahlen.security.authentication.AuthFilter.HeaderAttribute.*;
 
 /**
  * This class filters the request and response based on the {@link UsernamePasswordAuthenticationToken}.
@@ -28,7 +30,11 @@ import java.util.Map;
 @Setter
 @Slf4j
 public class AuthFilter extends OncePerRequestFilter {
-    private enum HeaderAttribute {
+    private final boolean isProd;
+    private final StudentRepository studentRepository;
+    private Map<HeaderAttribute, String> testingUserData;
+
+    public enum HeaderAttribute {
         SHIB_SESSION_ID("shib-session-id"),
         GIVEN_NAME("givenname"),
         SURNAME("surname"),
@@ -43,28 +49,25 @@ public class AuthFilter extends OncePerRequestFilter {
             this.name = name;
         }
     }
-    private final boolean isProd;
-    private final StudentRepository studentRepository;
-    private Map<String, String> testingUserData = new HashMap<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        var userData = new HashMap<String, String>();
+        var userData = new EnumMap<HeaderAttribute, String>(HeaderAttribute.class);
         var auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (isProd && auth == null) {
             extractUserInfoFromHeader(request, userData);
-        } else {
-            userData = new HashMap<>(testingUserData);
+        } else if (!isProd) {
+            userData = new EnumMap<>(testingUserData);
         }
 
         if (isUserDataNotNull(userData) && (auth == null || !auth.isAuthenticated())) {
-            var email = userData.get("mail");
+            var email = userData.get(HeaderAttribute.MAIL);
             boolean isStudentExistent = studentRepository.existsById(email);
             auth = new UsernamePasswordAuthenticationToken(createUser(userData, isStudentExistent), null);
-            log.debug("received login request from {}", userData.get("mail"));
+            log.debug("received login request from {}", email);
             log.debug(userData.toString());
         }
 
@@ -72,51 +75,38 @@ public class AuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isUserDataNotNull(Map<String, String> userData) {
-        var userDataValues = userData.values();
-        if (userDataValues.size() > 1) {
-            for (var s : userData.values()) {
-                if (s == null || s.isEmpty()) {
-                    return false;
-                }
-            }
-            return true;
+    private boolean isUserDataNotNull(Map<HeaderAttribute, String> userData) {
+        if (userData.isEmpty()) {
+            return false;
         }
-        return false;
+
+        for (var s : userData.values()) {
+            if (s == null || s.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    private void extractUserInfoFromHeader(HttpServletRequest request, HashMap<String, String> userData) {
+    private void extractUserInfoFromHeader(HttpServletRequest request, Map<HeaderAttribute, String> userData) {
         for (var headerAttribute: HeaderAttribute.values()) {
             var headerValue = request.getHeader(headerAttribute.name);
             if (headerValue != null) {
-                var fieldName = fieldNameForHeaderAttribute(headerAttribute);
-                userData.put(fieldName, URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
+                userData.put(headerAttribute, URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
             }
         }
-        userData.put("role", "USER");
     }
 
-    private User createUser(HashMap<String, String> userData, boolean isExistent) {
+    private User createUser(Map<HeaderAttribute, String> userData, boolean isExistent) {
         return User.builder()
-                .name(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.GIVEN_NAME)))
-                .lastName(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.SURNAME)))
-                .affiliation(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.AFFILIATION)))
-                .homeOrg(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.HOME_ORGANIZATION)))
-                .mail(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.MAIL)))
-                .shibbolethSessionId(userData.get(fieldNameForHeaderAttribute(HeaderAttribute.SHIB_SESSION_ID)))
-                .role(userData.get("role"))
+                .name(userData.get(GIVEN_NAME))
+                .lastName(userData.get(SURNAME))
+                .affiliation(userData.get(AFFILIATION))
+                .homeOrg(userData.get(HOME_ORGANIZATION))
+                .mail(userData.get(MAIL))
+                .shibbolethSessionId(userData.get(SHIB_SESSION_ID))
+                .role("USER")
                 .isExistent(isExistent)
                 .build();
-    }
-
-    private String fieldNameForHeaderAttribute(HeaderAttribute headerAttribute) {
-        return switch (headerAttribute) {
-            case SHIB_SESSION_ID -> "sessionId";
-            case GIVEN_NAME -> "name";
-            case SURNAME -> "lastName";
-            case AFFILIATION -> "affiliation";
-            case HOME_ORGANIZATION -> "homeOrg";
-            case MAIL -> "mail";
-        };
     }
 }

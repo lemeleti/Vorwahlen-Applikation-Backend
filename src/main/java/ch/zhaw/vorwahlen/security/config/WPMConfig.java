@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.Map;
 
+import static ch.zhaw.vorwahlen.security.authentication.AuthFilter.HeaderAttribute.*;
+
 /**
  * Profile configuration for running the application in development or production mode.
  */
@@ -28,13 +30,12 @@ public class WPMConfig {
     @Bean
     public AuthFilter developmentAuthFilter() {
         var userData = Map.of(
-                "sessionId", "ABC123",
-                "name", "dev",
-                "lastName", "dev",
-                "affiliation", "student;member",
-                "homeOrg", "zhaw.ch",
-                "mail", "dev@zhaw.ch",
-                "role", CustomAuthProvider.ADMIN_ROLE
+            SHIB_SESSION_ID, "ABC123",
+            GIVEN_NAME, "dev",
+            SURNAME, "dev",
+            AFFILIATION, "student;member",
+            HOME_ORGANIZATION, "zhaw.ch",
+            MAIL, "dev@zhaw.ch"
         );
 
         var filter = new AuthFilter(false, studentRepository);
