@@ -3,6 +3,7 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
+import ch.zhaw.vorwahlen.exception.MailMessagingException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentConflictException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
@@ -23,12 +24,14 @@ import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.repository.ValidationSettingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -277,24 +280,30 @@ public class StudentService {
      */
     public void notifyStudents(NotificationDTO notificationDTO) {
         var studentMailAddresses = notificationDTO.studentMailAddresses();
-        var messages = new SimpleMailMessage[notificationDTO.studentMailAddresses().length];
+        var messages = new MimeMessage[notificationDTO.studentMailAddresses().length];
         var emailSenderImpl = (JavaMailSenderImpl) emailSender;
         emailSenderImpl.setUsername(notificationDTO.email());
         emailSenderImpl.setPassword(notificationDTO.password());
 
         for (var i = 0; i < studentMailAddresses.length; i++) {
-             messages[i] = createSimpleMailMessage(studentMailAddresses[i], notificationDTO);
+            var message = emailSenderImpl.createMimeMessage();
+            prepareMail(message, studentMailAddresses[i], notificationDTO);
+            messages[i] = message;
         }
+
         emailSenderImpl.send(messages);
     }
 
-    private SimpleMailMessage createSimpleMailMessage(String recipient, NotificationDTO notificationDTO) {
-        var message = new SimpleMailMessage();
-        message.setFrom(notificationDTO.email());
-        message.setTo(recipient);
-        message.setSubject(notificationDTO.subject());
-        message.setText(notificationDTO.message());
-        return message;
+    private void prepareMail(MimeMessage mimeMessage, String recipient, NotificationDTO notificationDTO) {
+        try {
+            var helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(notificationDTO.email());
+            helper.setTo(recipient);
+            helper.setSubject(notificationDTO.subject());
+            helper.setText(notificationDTO.message(), true);
+        } catch (MessagingException e) {
+            throw new MailMessagingException(e.getLocalizedMessage());
+        }
     }
 
     private Student fetchStudentById(String id) {
