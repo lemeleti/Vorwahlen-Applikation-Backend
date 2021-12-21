@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentConflictException;
@@ -52,6 +53,8 @@ class StudentServiceTest {
     private final ValidationSettingRepository validationSettingRepository;
     private final Mapper<StudentDTO, Student> studentMapper;
     private final Mapper<ValidationSettingDTO, ValidationSetting> validationSettingMapper;
+    private final UserBean userBean;
+
     @Mock
     private JavaMailSenderImpl emailSender;
     private StudentService studentService;
@@ -62,13 +65,15 @@ class StudentServiceTest {
                               ElectionRepository electionRepository,
                               ValidationSettingRepository validationSettingRepository,
                               Mapper<StudentDTO, Student> studentMapper,
-                              Mapper<ValidationSettingDTO, ValidationSetting> validationSettingMapper) {
+                              Mapper<ValidationSettingDTO, ValidationSetting> validationSettingMapper,
+                              UserBean userBean) {
         this.studentRepository = studentRepository;
         this.studentClassRepository = studentClassRepository;
         this.electionRepository = electionRepository;
         this.validationSettingRepository = validationSettingRepository;
         this.studentMapper = studentMapper;
         this.validationSettingMapper = validationSettingMapper;
+        this.userBean = userBean;
     }
 
     @BeforeEach
@@ -76,7 +81,7 @@ class StudentServiceTest {
         MockitoAnnotations.openMocks(this);
         studentService = new StudentService(studentRepository, studentClassRepository, electionRepository,
                                             validationSettingRepository, emailSender, studentMapper,
-                                            validationSettingMapper);
+                                            validationSettingMapper, userBean);
     }
 
     @AfterEach

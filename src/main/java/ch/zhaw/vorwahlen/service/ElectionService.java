@@ -21,10 +21,8 @@ import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
-import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.MessageChannel;
@@ -32,16 +30,13 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_MODULE_ELECTION_NOT_FOUND;
+import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.*;
 
 /**
  * Business logic for the election.

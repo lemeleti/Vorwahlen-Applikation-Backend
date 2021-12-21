@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.MailMessagingException;
@@ -23,7 +24,7 @@ import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import ch.zhaw.vorwahlen.repository.ValidationSettingRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -47,7 +48,7 @@ import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.*;
  */
 @RequiredArgsConstructor
 @Service
-@Log
+@Slf4j
 public class StudentService {
 
     public static final int PA_DISPENSATION = 0;
@@ -62,6 +63,8 @@ public class StudentService {
 
     private final Mapper<StudentDTO, Student> studentMapper;
     private final Mapper<ValidationSettingDTO, ValidationSetting> validationSettingMapper;
+
+    private final UserBean userBean;
 
     /**
      * Importing the Excel file and storing the needed content into the database.
@@ -86,7 +89,11 @@ public class StudentService {
      * @return the added student
      */
     public StudentDTO addStudent(StudentDTO studentDTO) {
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to add a student: {}", user.getMail(), studentDTO)
+        );
         if(studentRepository.existsById(studentDTO.getEmail())) {
+            log.debug("Throwing StudentConflictException because student with email {} already exists", studentDTO.getEmail());
             var formatString = ResourceBundleMessageLoader.getMessage(ERROR_STUDENT_CONFLICT);
             var message = String.format(formatString, studentDTO.getEmail());
             throw new StudentConflictException(message);
@@ -102,7 +109,9 @@ public class StudentService {
         student.setElection(moduleElection);
         student.setStudentClass(studentClass);
 
-        return studentMapper.toDto(studentRepository.save(student));
+        student = studentRepository.save(student);
+        log.debug("Student: {} was saved successfully to the database", student);
+        return studentMapper.toDto(student);
     }
 
     private StudentClass getOrCreateStudentClass(String className) {
@@ -176,8 +185,12 @@ public class StudentService {
      * @param id identifier of the student.
      */
     public void deleteStudentById(String id) {
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to delete a student with email: {}", user.getMail(), id)
+        );
         var student = fetchStudentById(id);
         studentRepository.deleteById(student.getEmail());
+        log.debug("student was deleted successfully");
     }
 
     /**
@@ -200,7 +213,13 @@ public class StudentService {
         newStudent.setEmail(storedStudent.getEmail());
         newStudent.setStudentClass(studentClass);
         newStudent.setElection(election);
-        return studentMapper.toDto(studentRepository.save(newStudent));
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to update student {} with {}",
+                      user.getMail(), storedStudent, newStudent)
+        );
+        var student = studentRepository.save(newStudent);
+        log.debug("student was successfully updated");
+        return studentMapper.toDto(student);
     }
 
     /**
@@ -230,7 +249,12 @@ public class StudentService {
             validationSettings.setId(storedStudent.getElection().getValidationSetting().getId());
         }
 
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to update validation setting {} with {}",
+                      user.getMail(), storedStudent.getElection().getValidationSetting(), validationSettings)
+        );
         validationSettingRepository.save(validationSettings);
+        log.debug("validation setting was successfully updated.");
     }
 
     /**
@@ -243,6 +267,11 @@ public class StudentService {
         var ip = "ip";
         var firstTimeSetup = "firstTimeSetup";
 
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to patch student values {} with {}",
+                      user.getMail(), student, patchedFields)
+        );
+
         if (patchedFields.containsKey(ip)) {
             student.setIP(patchedFields.get(ip));
         }
@@ -250,8 +279,8 @@ public class StudentService {
         if (patchedFields.containsKey(firstTimeSetup)) {
             student.setFirstTimeSetup(patchedFields.get(firstTimeSetup));
         }
-
         studentRepository.save(student);
+        log.debug("student values patched successfully");
     }
 
     /**

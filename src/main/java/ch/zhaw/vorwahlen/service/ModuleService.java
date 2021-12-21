@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.EventoDataNotFoundException;
 import ch.zhaw.vorwahlen.exception.ImportException;
@@ -17,7 +18,7 @@ import ch.zhaw.vorwahlen.repository.EventoDataRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.scraper.EventoScraper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.scheduling.annotation.Async;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 
 import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_EVENTO_MODULE_NOT_FOUND;
 
@@ -38,13 +38,14 @@ import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_EVENTO_
  */
 @RequiredArgsConstructor
 @Service
-@Log
+@Slf4j
 public class ModuleService {
     private final ModuleRepository moduleRepository;
     private final EventoDataRepository eventoDataRepository;
     private final ElectionRepository electionRepository;
     private final Mapper<ModuleDTO, Module> moduleMapper;
     private final Mapper<EventoDataDTO, EventoData> eventoDataMapper;
+    private final UserBean userBean;
 
     /**
      * Importing the Excel file and storing the needed content into the database.
@@ -129,13 +130,18 @@ public class ModuleService {
      * @return path where the module can be fetched.
      */
     public ModuleDTO addModule(ModuleDTO moduleDTO) {
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to add a module: {}", user.getMail(), moduleDTO)
+        );
         if(moduleRepository.existsById(moduleDTO.getModuleNo())) {
+            log.debug("Throwing ModuleConflictException because module with id {} already exists", moduleDTO.getModuleNo());
             var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_CONFLICT);
             var message = String.format(formatString, moduleDTO.getModuleNo());
             throw new ModuleConflictException(message);
         }
         var module = moduleMapper.toInstance(moduleDTO);
         module = moduleRepository.save(module);
+        log.debug("Module: {} was saved successfully to the database", module);
         return moduleMapper.toDto(module);
     }
 
@@ -159,6 +165,9 @@ public class ModuleService {
      * @param id to be deleted module.
      */
     public void deleteModuleById(String id) {
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to delete a module with id: {}", user.getMail(), id)
+        );
         var module = fetchModuleById(id);
         var elections = electionRepository.findAllByElectedModulesContaining(module);
 
@@ -167,8 +176,10 @@ public class ModuleService {
             moduleElection.setElectionValid(false);
         });
         moduleRepository.deleteById(id);
+        log.debug("module was deleted successfully");
         if(eventoDataRepository.existsById(id)) {
             eventoDataRepository.deleteById(id);
+            log.debug("evento data entry for deleted module {} was deleted successfully", id);
         }
     }
 
@@ -182,7 +193,13 @@ public class ModuleService {
         var storedModule = fetchModuleById(id);
         var newModule = moduleMapper.toInstance(moduleDTO);
         newModule.setModuleNo(storedModule.getModuleNo());
-        return moduleMapper.toDto(moduleRepository.save(newModule));
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to update module {} with {}",
+                      user.getMail(), storedModule, newModule)
+        );
+        var module = moduleRepository.save(newModule);
+        log.debug("module was successfully updated");
+        return moduleMapper.toDto(module);
     }
 
     /**
@@ -213,7 +230,7 @@ public class ModuleService {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
-                log.log(Level.WARNING, e.getLocalizedMessage(), e);
+                log.warn(e.getLocalizedMessage(), e);
             }
         }
         eventoDataRepository.saveAll(eventoDataList);

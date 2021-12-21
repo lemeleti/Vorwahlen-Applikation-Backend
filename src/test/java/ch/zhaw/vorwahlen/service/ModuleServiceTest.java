@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.ModuleConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleNotFoundException;
@@ -44,23 +45,27 @@ class ModuleServiceTest {
     private final ElectionRepository electionRepository;
     private final Mapper<ModuleDTO, Module> moduleMapper;
     private final Mapper<EventoDataDTO, EventoData> eventoDataMapper;
+    private final UserBean userBean;
+
     private ModuleService moduleService;
 
     @Autowired
     public ModuleServiceTest(ModuleRepository moduleRepository,
                              EventoDataRepository eventoDataRepository,
                              ElectionRepository electionRepository, Mapper<ModuleDTO, Module> moduleMapper,
-                             Mapper<EventoDataDTO, EventoData> eventoDataMapper) {
+                             Mapper<EventoDataDTO, EventoData> eventoDataMapper, UserBean userBean) {
         this.moduleRepository = moduleRepository;
         this.eventoDataRepository = eventoDataRepository;
         this.electionRepository = electionRepository;
         this.moduleMapper = moduleMapper;
         this.eventoDataMapper = eventoDataMapper;
+        this.userBean = userBean;
     }
 
     @BeforeEach
     void setUp() {
-        moduleService = new ModuleService(moduleRepository, eventoDataRepository, electionRepository, moduleMapper, eventoDataMapper);
+        moduleService = new ModuleService(moduleRepository, eventoDataRepository, electionRepository, moduleMapper,
+                                          eventoDataMapper, userBean);
     }
 
     @AfterEach

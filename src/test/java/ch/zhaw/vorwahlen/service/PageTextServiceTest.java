@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.exception.PageTextConflictException;
 import ch.zhaw.vorwahlen.exception.PageTextNotFoundException;
 import ch.zhaw.vorwahlen.exception.UserTypeInvalidException;
@@ -32,15 +33,17 @@ class PageTextServiceTest {
 
     private final PageTextRepository pageTextRepository;
     private final Mapper<PageTextDTO, PageText> mapper;
+    private final UserBean userBean;
 
     private PageTextService pageTextService;
 
     private List<PageText> pageTexts;
 
     @Autowired
-    public PageTextServiceTest(PageTextRepository pageTextRepository, Mapper<PageTextDTO, PageText> mapper) {
+    public PageTextServiceTest(PageTextRepository pageTextRepository, Mapper<PageTextDTO, PageText> mapper, UserBean userBean) {
         this.pageTextRepository = pageTextRepository;
         this.mapper = mapper;
+        this.userBean = userBean;
     }
 
     @BeforeEach
@@ -53,7 +56,7 @@ class PageTextServiceTest {
                 PageText.builder().page(PAGE_3).userType(UserType.PART_TIME_SECOND_ELECTION).textNumber(1).text("text 1").build()
         );
         pageTextRepository.saveAll(pageTexts);
-        pageTextService = new PageTextService(pageTextRepository, mapper);
+        pageTextService = new PageTextService(pageTextRepository, mapper, userBean);
     }
 
     @AfterEach

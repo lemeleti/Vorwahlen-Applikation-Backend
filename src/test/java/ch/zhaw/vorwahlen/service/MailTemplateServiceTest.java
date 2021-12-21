@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.exception.MailTemplateConflictException;
 import ch.zhaw.vorwahlen.exception.MailTemplateNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
@@ -27,20 +28,23 @@ class MailTemplateServiceTest {
     public static final long NON_EXISTING_ID = 9999L;
     private final MailTemplateRepository mailTemplateRepository;
     private final Mapper<MailTemplateDTO, MailTemplate> mapper;
+    private final UserBean userBean;
 
     private MailTemplateService mailTemplateService;
 
     private MailTemplateDTO dto;
 
     @Autowired
-    public MailTemplateServiceTest(MailTemplateRepository mailTemplateRepository, Mapper<MailTemplateDTO, MailTemplate> mapper) {
+    public MailTemplateServiceTest(MailTemplateRepository mailTemplateRepository,
+                                   Mapper<MailTemplateDTO, MailTemplate> mapper, UserBean userBean) {
         this.mailTemplateRepository = mailTemplateRepository;
         this.mapper = mapper;
+        this.userBean = userBean;
     }
 
     @BeforeEach
     void setUp() {
-        mailTemplateService = new MailTemplateService(mailTemplateRepository, mapper);
+        mailTemplateService = new MailTemplateService(mailTemplateRepository, mapper, userBean);
         dto = new MailTemplateDTO(DTO_ID_1, "descrption 1", "subject 1", "message 1");
     }
 
