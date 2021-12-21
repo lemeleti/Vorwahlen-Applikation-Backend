@@ -1,6 +1,7 @@
 package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
+import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
@@ -20,15 +21,20 @@ import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureGenerator;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
+import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.validation.ElectionValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -41,7 +47,7 @@ import static ch.zhaw.vorwahlen.constants.ResourceMessageConstants.ERROR_MODULE_
  * Business logic for the election.
  */
 @Service
-@Log
+@Slf4j
 @RequiredArgsConstructor
 public class ElectionService {
     private final ElectionRepository electionRepository;
@@ -53,6 +59,7 @@ public class ElectionService {
     private final ElectionSemesters electionSemesters;
     private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
     private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
+    private final UserBean userBean;
 
     @Qualifier("clientOutboundChannel")
     private final MessageChannel clientOutboundChannel;
@@ -82,13 +89,18 @@ public class ElectionService {
      * @param moduleElectionDTO to be added module election
      */
     public ModuleElectionDTO createModuleElection(ModuleElectionDTO moduleElectionDTO) {
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+                log.debug("User: {} requested to create module election: {}", user, moduleElectionDTO)
+        );
         if(electionRepository.existsById(moduleElectionDTO.getId())) {
+            log.debug("Throwing ModuleConflictException because module election with id {} already exists", moduleElectionDTO.getId());
             var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_ELECTION_CONFLICT);
             var message = String.format(formatString, moduleElectionDTO.getId());
             throw new ModuleElectionConflictException(message);
         }
         var election = moduleElectionMapper.toInstance(moduleElectionDTO);
         election = electionRepository.save(election);
+        log.debug("Election: {} was saved successfully to the database", election);
         return moduleElectionMapper.toDto(election);
     }
 
@@ -97,10 +109,14 @@ public class ElectionService {
      * @param id to be deleted module election
      */
     public void deleteModuleElectionById(Long id) {
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+            log.debug("User: {} requested to delete module election with id: {}", user.getMail(), id)
+        );
         var moduleElection = fetchModuleElectionById(id);
         moduleElection.getStudent().setElection(null);
         moduleElection.setStudent(null);
         electionRepository.delete(moduleElection);
+        log.debug("module election was deleted successfully");
     }
 
     /**
@@ -109,11 +125,16 @@ public class ElectionService {
      * @param moduleElectionDTO new module election
      */
     public void updateModuleElection(Long id, ModuleElectionDTO moduleElectionDTO) {
+
         var savedModuleElection = fetchModuleElectionById(id);
         var newModuleElection = moduleElectionMapper.toInstance(moduleElectionDTO);
         newModuleElection.setId(savedModuleElection.getId());
-
+        userBean.getUserFromSecurityContext().ifPresent(user ->
+                log.debug("User: {} requested to update module election {} with {}",
+                        user.getMail(), savedModuleElection, newModuleElection)
+        );
         electionRepository.save(newModuleElection);
+        log.debug("module election was successfully updated");
     }
 
     /**

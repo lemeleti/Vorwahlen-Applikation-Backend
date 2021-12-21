@@ -1,5 +1,6 @@
 package ch.zhaw.vorwahlen.service;
 
+import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
 import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
@@ -61,6 +62,7 @@ class ElectionServiceTest {
     private final StudentClassRepository studentClassRepository;
     private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
     private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
+    private final UserBean userBean;
 
     private final MessageChannel messageChannel;
 
@@ -93,7 +95,7 @@ class ElectionServiceTest {
                                StudentClassRepository studentClassRepository,
                                Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper,
                                Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper,
-                               @Qualifier("clientOutboundChannel") MessageChannel messageChannel) {
+                               UserBean userBean, @Qualifier("clientOutboundChannel") MessageChannel messageChannel) {
         this.electionRepository = electionRepository;
         this.validator = validator;
         this.moduleDefinition = moduleDefinition;
@@ -105,6 +107,7 @@ class ElectionServiceTest {
         this.studentClassRepository = studentClassRepository;
         this.moduleElectionMapper = moduleElectionMapper;
         this.electionStatusMapper = electionStatusMapper;
+        this.userBean = userBean;
         this.messageChannel = messageChannel;
     }
 
@@ -112,7 +115,7 @@ class ElectionServiceTest {
     void setUp() {
         electionService = new ElectionService(electionRepository, moduleRepository,studentRepository,
                                               validator, moduleDefinition, exporter, electionSemesters,
-                                              moduleElectionMapper, electionStatusMapper, messageChannel);
+                                              moduleElectionMapper, electionStatusMapper, userBean, messageChannel);
     }
 
     @AfterEach
