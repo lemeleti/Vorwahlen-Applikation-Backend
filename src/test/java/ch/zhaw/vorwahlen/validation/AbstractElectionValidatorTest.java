@@ -343,7 +343,7 @@ class AbstractElectionValidatorTest {
      * Helper methods
      * ************************************************************************************************************** */
 
-    List<Module> generateModuleMockSet(int numElements) {
+    List<Module> generateModuleMockList(int numElements) {
         var list = new ArrayList<Module>();
         for (var i = 0; i < numElements; i++) {
             list.add(mock(Module.class));
@@ -352,9 +352,9 @@ class AbstractElectionValidatorTest {
     }
 
     Set<Module> generateValidElectionSet() {
-        var contextModuleMockList = generateModuleMockSet(NUM_CONTEXT_MODULES);
-        var interdisciplinaryModuleMockList = generateModuleMockSet(NUM_INTERDISCIPLINARY_MODULES);
-        var subjectModuleMockList = generateModuleMockSet(NUM_SUBJECT_MODULES);
+        var contextModuleMockList = generateModuleMockList(NUM_CONTEXT_MODULES);
+        var interdisciplinaryModuleMockList = generateModuleMockList(NUM_INTERDISCIPLINARY_MODULES);
+        var subjectModuleMockList = generateModuleMockList(NUM_SUBJECT_MODULES);
 
         assertEquals(interdisciplinaryModules.size(), interdisciplinaryModuleMockList.size());
         assertEquals(contextModules.size(), contextModuleMockList.size());

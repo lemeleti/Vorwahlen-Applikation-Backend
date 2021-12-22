@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -271,10 +272,10 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
         when(moduleElectionMock.getValidationSetting()).thenReturn(validationSetting);
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of());
-        assertTrue(validator.validContextModuleElection(moduleElectionMock));
+        assertFalse(validator.validContextModuleElection(moduleElectionMock));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1));
-        assertTrue(validator.validContextModuleElection(moduleElectionMock));
+        assertFalse(validator.validContextModuleElection(moduleElectionMock));
 
         when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
         assertTrue(validator.validContextModuleElection(moduleElectionMock));
@@ -315,15 +316,154 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
     }
 
     @Test
-    void testIsCreditSumValid() {
-        var contextMocks = generateModuleMockSet(PartTimeElectionValidator.NUM_CONTEXT_MODULES_FIRST_ELECTION
-                                                                 + PartTimeElectionValidator.NUM_CONTEXT_MODULES_SECOND_ELECTION);
+    void testIsCreditSumValid_FirstElectionWithoutDispensation() {
+        var mockMap = generateMocks();
+        var subjectMocks = mockMap.get(ModuleCategory.SUBJECT_MODULE);
+        var interdisciplinaryMocks = mockMap.get(ModuleCategory.INTERDISCIPLINARY_MODULE);
+        var contextMocks = mockMap.get(ModuleCategory.CONTEXT_MODULE);
 
-        var interdisciplinaryMocks = generateModuleMockSet(PartTimeElectionValidator.NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION
-                                                                   + PartTimeElectionValidator.NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION);
+        when(studentMock.isSecondElection()).thenReturn(false);
 
-        var subjectMocks = generateModuleMockSet(PartTimeElectionValidator.NUM_SUBJECT_MODULES_FIRST_ELECTION
-                                                         + PartTimeElectionValidator.NUM_SUBJECT_MODULES_SECOND_ELECTION);
+        var set = new HashSet<Module>();
+        set.add(subjectMocks.get(0));
+        when(moduleElectionMock.getElectedModules()).thenReturn(set);
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(subjectMocks.get(1));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(0));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+        set.add(contextMocks.get(1));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+        set.add(contextMocks.get(2));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(subjectMocks.get(2));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.remove(subjectMocks.get(2));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(3));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+    }
+
+    @Test
+    void testIsCreditSumValid_FirstElectionWithDispensation() {
+        var mockMap = generateMocks();
+        var subjectMocks = mockMap.get(ModuleCategory.SUBJECT_MODULE);
+        var contextMocks = mockMap.get(ModuleCategory.CONTEXT_MODULE);
+
+        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
+        var set = new HashSet<Module>();
+        set.add(contextMocks.get(0));
+        when(moduleElectionMock.getElectedModules()).thenReturn(set);
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(1));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(2));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(subjectMocks.get(0));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(subjectMocks.get(1));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(subjectMocks.get(2));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.remove(subjectMocks.get(2));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(3));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+    }
+
+    @Test
+    void testIsCreditSumValid_SecondElectionWithoutDispensation() {
+        var mockMap = generateMocks();
+        var subjectMocks = mockMap.get(ModuleCategory.SUBJECT_MODULE);
+        var interdisciplinaryMocks = mockMap.get(ModuleCategory.INTERDISCIPLINARY_MODULE);
+        var contextMocks = mockMap.get(ModuleCategory.CONTEXT_MODULE);
+
+        when(studentMock.isSecondElection()).thenReturn(true);
+        when(studentMock.getWpmDispensation()).thenReturn(0);
+
+        var validationSettingsMock = mock(ValidationSetting.class);
+        when(validationSettingsMock.getElectedContextModulesInFirstElection()).thenReturn(2);
+
+        var set = new HashSet<Module>();
+        set.add(interdisciplinaryMocks.get(0));
+        set.add(subjectMocks.get(2));
+        set.add(subjectMocks.get(3));
+        set.add(subjectMocks.get(4));
+        set.add(subjectMocks.get(5));
+        set.add(subjectMocks.get(6));
+        set.add(subjectMocks.get(7));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(set);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingsMock);
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(0));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(1));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.remove(contextMocks.get(1));
+        set.add(subjectMocks.get(0));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+    }
+
+    @Test
+    void testIsCreditSumValid_SecondElectionWithDispensation() {
+        var mockMap = generateMocks();
+        var subjectMocks = mockMap.get(ModuleCategory.SUBJECT_MODULE);
+        var interdisciplinaryMocks = mockMap.get(ModuleCategory.INTERDISCIPLINARY_MODULE);
+        var contextMocks = mockMap.get(ModuleCategory.CONTEXT_MODULE);
+
+        when(studentMock.isSecondElection()).thenReturn(true);
+        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
+
+        var validationSettingsMock = mock(ValidationSetting.class);
+        when(validationSettingsMock.getElectedContextModulesInFirstElection()).thenReturn(3);
+
+        var set = new HashSet<Module>();
+        set.add(interdisciplinaryMocks.get(0));
+        set.add(subjectMocks.get(1));
+        set.add(subjectMocks.get(2));
+        set.add(subjectMocks.get(3));
+        set.add(subjectMocks.get(4));
+
+        when(moduleElectionMock.getElectedModules()).thenReturn(set);
+        when(moduleElectionMock.getValidationSetting()).thenReturn(validationSettingsMock);
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(contextMocks.get(0));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+
+        set.remove(contextMocks.get(0));
+        assertTrue(validator.isCreditSumValid(moduleElectionMock));
+
+        set.add(subjectMocks.get(0));
+        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+    }
+
+    private Map<ModuleCategory, List<Module>> generateMocks() {
+        var contextMocks = generateModuleMockList(PartTimeElectionValidator.NUM_CONTEXT_MODULES_FIRST_ELECTION
+                                                          + PartTimeElectionValidator.NUM_CONTEXT_MODULES_SECOND_ELECTION
+                                                          + 1);
+
+        var interdisciplinaryMocks = generateModuleMockList(PartTimeElectionValidator.NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION
+                                                                    + PartTimeElectionValidator.NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION);
+
+        var subjectMocks = generateModuleMockList(PartTimeElectionValidator.NUM_SUBJECT_MODULES_FIRST_ELECTION
+                                                          + PartTimeElectionValidator.NUM_SUBJECT_MODULES_SECOND_ELECTION);
 
         for (var context: contextMocks) {
             when(context.getCredits()).thenReturn((byte) CREDITS_PER_CONTEXT_MODULE);
@@ -337,99 +477,9 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
             when(subject.getCredits()).thenReturn((byte) CREDITS_PER_SUBJECT_MODULE);
         }
 
-        // first election
-        when(studentMock.isSecondElection()).thenReturn(false);
-
-        // without dispensation
-        var set = new HashSet<Module>();
-        set.add(subjectMocks.get(0));
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(subjectMocks.get(1));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(contextMocks.get(0));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-        set.add(contextMocks.get(1));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-        set.add(contextMocks.get(2));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(subjectMocks.get(2));
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
-
-        // with dispensation
-        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
-        set = new HashSet<>();
-        set.add(contextMocks.get(0));
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(subjectMocks.get(0));
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(subjectMocks.get(1));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(contextMocks.get(1));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(contextMocks.get(2));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        // second election
-        when(studentMock.isSecondElection()).thenReturn(true);
-
-        // without dispensation
-        when(studentMock.getWpmDispensation()).thenReturn(0);
-
-        set = new HashSet<>();
-        set.add(interdisciplinaryMocks.get(0));
-        set.add(subjectMocks.get(2));
-        set.add(subjectMocks.get(3));
-        set.add(subjectMocks.get(4));
-        set.add(subjectMocks.get(5));
-        set.add(subjectMocks.get(6));
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(subjectMocks.get(7));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(contextMocks.get(0));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-        set.add(contextMocks.get(1));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-        set.add(contextMocks.get(2));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(subjectMocks.get(0));
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
-
-        // with dispensation
-        when(studentMock.getWpmDispensation()).thenReturn(WPM_DISPENSATION);
-
-        set = new HashSet<>();
-        set.add(interdisciplinaryMocks.get(0));
-        set.add(subjectMocks.get(2));
-        set.add(subjectMocks.get(3));
-        set.add(subjectMocks.get(4));
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(subjectMocks.get(5));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(contextMocks.get(0));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-        set.add(contextMocks.get(1));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-        set.add(contextMocks.get(2));
-        assertTrue(validator.isCreditSumValid(moduleElectionMock));
-
-        set.add(subjectMocks.get(0));
-        assertFalse(validator.isCreditSumValid(moduleElectionMock));
+        return Map.of(ModuleCategory.CONTEXT_MODULE, contextMocks,
+                      ModuleCategory.INTERDISCIPLINARY_MODULE, interdisciplinaryMocks,
+                      ModuleCategory.SUBJECT_MODULE, subjectMocks);
     }
 
     /* **************************************************************************************************************
@@ -513,15 +563,15 @@ class PartTimeElectionValidatorTest extends AbstractElectionValidatorTest {
      * ************************************************************************************************************** */
 
     Set<Module> generateValidPartTimeElectionSet(boolean isFirstElection) {
-        var contextMocks = generateModuleMockSet(isFirstElection
+        var contextMocks = generateModuleMockList(isFirstElection
                                                          ? PartTimeElectionValidator.NUM_CONTEXT_MODULES_FIRST_ELECTION
                                                          : PartTimeElectionValidator.NUM_CONTEXT_MODULES_SECOND_ELECTION);
 
-        var interdisciplinaryMocks = generateModuleMockSet(isFirstElection
+        var interdisciplinaryMocks = generateModuleMockList(isFirstElection
                                                                    ? PartTimeElectionValidator.NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION
                                                                    : PartTimeElectionValidator.NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION);
 
-        var subjectMocks = generateModuleMockSet(isFirstElection
+        var subjectMocks = generateModuleMockList(isFirstElection
                                                          ? PartTimeElectionValidator.NUM_SUBJECT_MODULES_FIRST_ELECTION
                                                          : PartTimeElectionValidator.NUM_SUBJECT_MODULES_SECOND_ELECTION);
 

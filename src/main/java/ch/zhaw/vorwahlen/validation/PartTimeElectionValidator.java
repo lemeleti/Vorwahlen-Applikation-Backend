@@ -112,19 +112,20 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     protected boolean validContextModuleElection(ModuleElection moduleElection) {
-        // NOTE: Context not checked because we don't store the elected modules from the previous year.
         var totalNumContextModules = NUM_CONTEXT_MODULES_FIRST_ELECTION + NUM_CONTEXT_MODULES_SECOND_ELECTION;
         var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
 
-        var isValid = false;
+        var isValid = count >= NUM_CONTEXT_MODULES_FIRST_ELECTION && count <= totalNumContextModules;
+
         if(getStudent().isSecondElection()) {
             count += moduleElection.getValidationSetting().getElectedContextModulesInFirstElection();
             isValid = count == totalNumContextModules;
-        } else {
-            isValid = count >= 0 && count <= totalNumContextModules;
         }
 
         if(!isValid) {
+            if(!getStudent().isSecondElection()) {
+                totalNumContextModules = NUM_CONTEXT_MODULES_FIRST_ELECTION;
+            }
             addReasonWhenCountByCategoryNotValid(ModuleCategory.CONTEXT_MODULE, getModuleElectionStatus().getContextValidation(), count, totalNumContextModules);
         }
         return isValid;
@@ -132,18 +133,27 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
 
     @Override
     protected boolean isCreditSumValid(ModuleElection moduleElection) {
-        var totalNumContext = NUM_CONTEXT_MODULES_FIRST_ELECTION + NUM_CONTEXT_MODULES_SECOND_ELECTION;
+        // apply context modules
+        var firstElectionContextCredits = NUM_CONTEXT_MODULES_FIRST_ELECTION * CREDITS_PER_CONTEXT_MODULE;
+        var secondElectionContextCredits = NUM_CONTEXT_MODULES_SECOND_ELECTION * CREDITS_PER_CONTEXT_MODULE;
+        var totalContextCredits = firstElectionContextCredits + secondElectionContextCredits;
 
-        var minNeededCredits = MIN_CREDITS_FIRST_ELECTION;
-        var maxNeededCredits = MIN_CREDITS_FIRST_ELECTION + totalNumContext * CREDITS_PER_CONTEXT_MODULE;
+        var minNeededCredits = MIN_CREDITS_FIRST_ELECTION + firstElectionContextCredits;
+        var maxNeededCredits = MIN_CREDITS_FIRST_ELECTION + totalContextCredits;
         var dispensation = 0;
 
         if(getStudent().isSecondElection()) {
-            minNeededCredits = MIN_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA;
-            maxNeededCredits = MIN_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA + totalNumContext * CREDITS_PER_CONTEXT_MODULE;
+            var contextCreditsAlreadyDone = moduleElection.getValidationSetting().getElectedContextModulesInFirstElection()
+                    * CREDITS_PER_CONTEXT_MODULE;
+            if(totalContextCredits >= contextCreditsAlreadyDone) {
+                totalContextCredits -= contextCreditsAlreadyDone;
+            }
+            minNeededCredits = MIN_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA + totalContextCredits;
+            maxNeededCredits = MIN_CREDITS_SECOND_ELECTION_WITHOUT_PA_AND_BA + totalContextCredits;
             dispensation = getStudent().getWpmDispensation();
         }
 
+        // validate
         var sum = sumCreditsInclusiveDispensation(moduleElection, dispensation);
         addReasonWhenCreditSumNotValid(sum, minNeededCredits, maxNeededCredits);
         return sum >= minNeededCredits && sum <= maxNeededCredits;
