@@ -152,7 +152,7 @@ public class StudentService {
         if (matcher.find()) {
             var parsedYear = matcher.group("year");
             if (parsedYear != null && !parsedYear.isBlank()) {
-                isSecondElection = Math.abs(shortYear - Integer.parseInt(parsedYear)) > 2;
+                isSecondElection = Math.abs(shortYear - Integer.parseInt(parsedYear)) >= 2;
             }
         }
 
