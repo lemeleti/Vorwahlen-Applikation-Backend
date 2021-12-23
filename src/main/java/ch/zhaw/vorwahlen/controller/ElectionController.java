@@ -5,7 +5,7 @@ import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.SessionNotFoundException;
 import ch.zhaw.vorwahlen.exception.UserNotFoundException;
 import ch.zhaw.vorwahlen.model.ElectionTransferDTO;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElectionDTO;
+import ch.zhaw.vorwahlen.model.core.election.ElectionDTO;
 import ch.zhaw.vorwahlen.security.model.User;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +30,12 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * Controller for a module election.
+ * Controller for an election.
  */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("elections")
-public class ModuleElectionController {
+public class ElectionController {
     public static final String EXCEL_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private final ElectionService electionService;
 
@@ -65,55 +65,55 @@ public class ModuleElectionController {
     }
 
     /**
-     * Get all module elections.
-     * @return {@link ResponseEntity} containing list of {@link ModuleElectionDTO}
+     * Get all  elections.
+     * @return {@link ResponseEntity} containing list of {@link ElectionDTO}
      */
     @GetMapping(path = "")
-    public ResponseEntity<List<ModuleElectionDTO>> getAllModuleElections() {
-        return ResponseEntity.ok(electionService.getAllModuleElections());
+    public ResponseEntity<List<ElectionDTO>> getAllElections() {
+        return ResponseEntity.ok(electionService.getAllElections());
     }
 
     /**
-     * Get module election by id.
-     * @param id of the module election.
-     * @return {@link ResponseEntity} containing the {@link ModuleElectionDTO}
+     * Get  election by id.
+     * @param id of the  election.
+     * @return {@link ResponseEntity} containing the {@link ElectionDTO}
      */
     @GetMapping(path = "/{id}")
-    public ResponseEntity<ModuleElectionDTO> getModuleElectionById(@PathVariable Long id) {
-        return ResponseEntity.ok(electionService.getModuleElectionById(id));
+    public ResponseEntity<ElectionDTO> getElectionById(@PathVariable Long id) {
+        return ResponseEntity.ok(electionService.getElectionById(id));
     }
 
     /**
-     * Add a new module election.
-     * @param moduleElectionDTO to be created module election.
-     * @return {@link ResponseEntity} containing {@link ModuleElectionDTO}.
+     * Add a new  election.
+     * @param electionDTO to be created  election.
+     * @return {@link ResponseEntity} containing {@link ElectionDTO}.
      */
     @PostMapping(path = "")
-    public ResponseEntity<ModuleElectionDTO> addModuleElection(@RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
-        return ResponseEntity.ok(electionService.createModuleElection(moduleElectionDTO));
+    public ResponseEntity<ElectionDTO> addElection(@RequestBody @Valid ElectionDTO electionDTO) {
+        return ResponseEntity.ok(electionService.createElection(electionDTO));
     }
 
     /**
-     * Delete a module election by id.
-     * @param id of the module election.
+     * Delete an election by id.
+     * @param id of the  election.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Void> deleteModuleElectionById(@PathVariable Long id) {
-        electionService.deleteModuleElectionById(id);
+    public ResponseEntity<Void> deleteElectionById(@PathVariable Long id) {
+        electionService.deleteElectionById(id);
         return ResponseEntity.ok().build();
     }
 
     /**
-     * Replaces a module election by id.
-     * @param id of the module election.
-     * @param moduleElectionDTO new module election.
+     * Replaces an election by id.
+     * @param id of the  election.
+     * @param electionDTO new  election.
      * @return {@link ResponseEntity} containing {@link Void}.
      */
     @PutMapping(path = "/{id}")
-    public ResponseEntity<Void> replaceModuleElectionById(@PathVariable Long id,
-                                                          @RequestBody @Valid ModuleElectionDTO moduleElectionDTO) {
-        electionService.updateModuleElection(id, moduleElectionDTO);
+    public ResponseEntity<Void> replaceElectionById(@PathVariable Long id,
+                                                    @RequestBody @Valid ElectionDTO electionDTO) {
+        electionService.updateElection(id, electionDTO);
         return ResponseEntity.ok().build();
     }
 
@@ -139,15 +139,15 @@ public class ModuleElectionController {
     }
 
     /**
-     * Returns all stored module elections as MS-Excel file.
+     * Returns all stored  elections as MS-Excel file.
      * @return {@link ResponseEntity} containing byte array with the file data.
      */
     @GetMapping(path = "/export")
-    public ResponseEntity<byte[]> exportModuleElection() {
+    public ResponseEntity<byte[]> exportElection() {
         var fileName = "attachment; filename=module_election.xlsx";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(EXCEL_MIME))
                 .header(HttpHeaders.CONTENT_DISPOSITION, fileName)
-                .body(electionService.exportModuleElection());
+                .body(electionService.exportElection());
     }
 }

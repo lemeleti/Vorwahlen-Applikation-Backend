@@ -59,7 +59,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      * @return ResponseEntity<Object>
      */
     @ExceptionHandler({ MailTemplateConflictException.class, ModuleConflictException.class,
-                        ModuleElectionConflictException.class, PageTextConflictException.class,
+                        ElectionConflictException.class, PageTextConflictException.class,
                         StudentConflictException.class })
     public ResponseEntity<Object> handleConflictException(Exception ex, WebRequest request) {
         log.fine(ex.getLocalizedMessage());
@@ -75,7 +75,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler({ UserNotFoundException.class, StudentNotFoundException.class,
                         MailTemplateNotFoundException.class, PageTextNotFoundException.class,
-                        ModuleNotFoundException.class, ModuleElectionNotFoundException.class,
+                        ModuleNotFoundException.class, ElectionNotFoundException.class,
                         EventoDataNotFoundException.class })
     public ResponseEntity<Object> handleNotFoundExceptions(Exception ex, WebRequest request) {
         log.fine(ex.getLocalizedMessage());

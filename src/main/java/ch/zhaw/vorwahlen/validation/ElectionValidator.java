@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.validation;
 
-import ch.zhaw.vorwahlen.model.core.election.ModuleElectionStatus;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.ElectionStatus;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 
 /**
  * Contract for a validator.
@@ -10,8 +10,8 @@ public interface ElectionValidator {
 
     /**
      * Validate the elected modules.
-     * @param election the {@link ModuleElection}
-     * @return ModuleElectionStatus
+     * @param election the {@link Election}
+     * @return ElectionStatus
      */
-    ModuleElectionStatus validate(ModuleElection election);
+    ElectionStatus validate(Election election);
 }

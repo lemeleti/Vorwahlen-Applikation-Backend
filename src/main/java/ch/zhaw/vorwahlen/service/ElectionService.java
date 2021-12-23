@@ -3,17 +3,17 @@ package ch.zhaw.vorwahlen.service;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
-import ch.zhaw.vorwahlen.exception.ModuleElectionConflictException;
-import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
+import ch.zhaw.vorwahlen.exception.ElectionConflictException;
+import ch.zhaw.vorwahlen.exception.ElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
-import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
+import ch.zhaw.vorwahlen.exporter.ElectionExporter;
 import ch.zhaw.vorwahlen.mapper.Mapper;
+import ch.zhaw.vorwahlen.model.core.election.ElectionDTO;
+import ch.zhaw.vorwahlen.model.core.election.ElectionStatus;
 import ch.zhaw.vorwahlen.model.core.election.ElectionStatusDTO;
 import ch.zhaw.vorwahlen.model.ElectionTransferDTO;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElectionDTO;
 import ch.zhaw.vorwahlen.model.modulestructure.ElectionSemesters;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElectionStatus;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSetting;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
@@ -50,86 +50,86 @@ public class ElectionService {
     private final StudentRepository studentRepository;
     private final ElectionValidator electionValidator;
     private final ModuleDefinition moduleDefinition;
-    private final ModuleElectionExporter exporter;
+    private final ElectionExporter exporter;
     private final ElectionSemesters electionSemesters;
-    private final Mapper<ModuleElectionDTO, ModuleElection> moduleElectionMapper;
-    private final Mapper<ElectionStatusDTO, ModuleElectionStatus> electionStatusMapper;
+    private final Mapper<ElectionDTO, Election>  electionMapper;
+    private final Mapper<ElectionStatusDTO, ElectionStatus> electionStatusMapper;
     private final UserBean userBean;
 
     @Qualifier("clientOutboundChannel")
     private final MessageChannel clientOutboundChannel;
 
     /**
-     * Return all module elections
-     * @return list of {@link ModuleElectionDTO}
+     * Return all  elections
+     * @return list of {@link ElectionDTO}
      */
-    public List<ModuleElectionDTO> getAllModuleElections() {
+    public List<ElectionDTO> getAllElections() {
         return electionRepository.findAllModules()
                 .stream()
-                .map(moduleElectionMapper::toDto)
+                .map( electionMapper::toDto)
                 .toList();
     }
 
     /**
-     * Get module election by id
-     * @param id identifier of the module election
-     * @return ModuleElectionDTO
+     * Get  election by id
+     * @param id identifier of the  election
+     * @return ElectionDTO
      */
-    public ModuleElectionDTO getModuleElectionById(Long id) {
-        return moduleElectionMapper.toDto(fetchModuleElectionById(id));
+    public ElectionDTO getElectionById(Long id) {
+        return  electionMapper.toDto(fetchElectionById(id));
     }
 
     /**
-     * Add new module election
-     * @param moduleElectionDTO to be added module election
+     * Add new  election
+     * @param electionDTO to be added  election
      */
-    public ModuleElectionDTO createModuleElection(ModuleElectionDTO moduleElectionDTO) {
+    public ElectionDTO createElection(ElectionDTO electionDTO) {
         userBean.getUserFromSecurityContext().ifPresent(user ->
-                log.debug("User: {} requested to create module election: {}", user, moduleElectionDTO)
+                log.debug("User: {} requested to create  election: {}", user, electionDTO)
         );
-        if(electionRepository.existsById(moduleElectionDTO.getId())) {
-            log.debug("Throwing ModuleConflictException because module election with id {} already exists", moduleElectionDTO.getId());
+        if(electionRepository.existsById(electionDTO.getId())) {
+            log.debug("Throwing ModuleConflictException because  election with id {} already exists", electionDTO.getId());
             var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_MODULE_ELECTION_CONFLICT);
-            var message = String.format(formatString, moduleElectionDTO.getId());
-            throw new ModuleElectionConflictException(message);
+            var message = String.format(formatString, electionDTO.getId());
+            throw new ElectionConflictException(message);
         }
-        var election = moduleElectionMapper.toInstance(moduleElectionDTO);
+        var election =  electionMapper.toInstance(electionDTO);
         election = electionRepository.save(election);
         log.debug("Election: {} was saved successfully to the database", election);
-        return moduleElectionMapper.toDto(election);
+        return  electionMapper.toDto(election);
     }
 
     /**
-     * Delete module election by id
-     * @param id to be deleted module election
+     * Delete  election by id
+     * @param id to be deleted  election
      */
-    public void deleteModuleElectionById(Long id) {
+    public void deleteElectionById(Long id) {
         userBean.getUserFromSecurityContext().ifPresent(user ->
-            log.debug("User: {} requested to delete module election with id: {}", user.getMail(), id)
+            log.debug("User: {} requested to delete  election with id: {}", user.getMail(), id)
         );
-        var moduleElection = fetchModuleElectionById(id);
-        moduleElection.getStudent().setElection(null);
-        moduleElection.setStudent(null);
-        electionRepository.delete(moduleElection);
-        log.debug("module election was deleted successfully");
+        var  election = fetchElectionById(id);
+         election.getStudent().setElection(null);
+         election.setStudent(null);
+        electionRepository.delete( election);
+        log.debug(" election was deleted successfully");
     }
 
     /**
-     * Replace module election by id
-     * @param id to be replaced module election
-     * @param moduleElectionDTO new module election
+     * Replace  election by id
+     * @param id to be replaced  election
+     * @param electionDTO new  election
      */
-    public void updateModuleElection(Long id, ModuleElectionDTO moduleElectionDTO) {
+    public void updateElection(Long id, ElectionDTO electionDTO) {
 
-        var savedModuleElection = fetchModuleElectionById(id);
-        var newModuleElection = moduleElectionMapper.toInstance(moduleElectionDTO);
-        newModuleElection.setId(savedModuleElection.getId());
+        var savedElection = fetchElectionById(id);
+        var newElection =  electionMapper.toInstance(electionDTO);
+        newElection.setId(savedElection.getId());
         userBean.getUserFromSecurityContext().ifPresent(user ->
-                log.debug("User: {} requested to update module election {} with {}",
-                        user.getMail(), savedModuleElection, newModuleElection)
+                log.debug("User: {} requested to update  election {} with {}",
+                        user.getMail(), savedElection, newElection)
         );
-        electionRepository.save(newModuleElection);
-        log.debug("module election was successfully updated");
+        electionRepository.save(newElection);
+        log.debug(" election was successfully updated");
     }
 
     /**
@@ -139,18 +139,18 @@ public class ElectionService {
      */
     public ElectionTransferDTO getElection(String studentId) {
         var student = fetchStudentById(studentId);
-        var moduleElection = loadModuleElectionForStudent(student);
-        var moduleElectionStatus = electionValidator.validate(moduleElection);
-        return createElectionTransferDTO(student, moduleElectionStatus, moduleElection, false);
+        var  election = loadElectionForStudent(student);
+        var  electionStatus = electionValidator.validate( election);
+        return createElectionTransferDTO(student,  electionStatus,  election, false);
     }
 
     /**
      * Get election for the specified user
      * @param student get election for student
-     * @return module election from db if existent otherwise a new instance will be created.
+     * @return  election from db if existent otherwise a new instance will be created.
      */
-    public ModuleElectionDTO getModuleElectionForStudent(Student student) {
-        return moduleElectionMapper.toDto(loadModuleElectionForStudent(student));
+    public ElectionDTO getElectionForStudent(Student student) {
+        return  electionMapper.toDto(loadElectionForStudent(student));
     }
 
     /**
@@ -173,16 +173,16 @@ public class ElectionService {
             return null;
         }
 
-        var moduleElection = loadModuleElectionForStudent(student);
-        migrateElectionChanges(moduleElection, moduleNo);
+        var  election = loadElectionForStudent(student);
+        migrateElectionChanges( election, moduleNo);
 
-        var moduleSetting = Optional.ofNullable(moduleElection.getValidationSetting()).orElse(new ValidationSetting());
-        moduleElection.setValidationSetting(moduleSetting);
+        var moduleSetting = Optional.ofNullable( election.getValidationSetting()).orElse(new ValidationSetting());
+         election.setValidationSetting(moduleSetting);
 
-        var moduleElectionStatus = electionValidator.validate(moduleElection);
-        moduleElection.setElectionValid(moduleElectionStatus.isValid());
-        electionRepository.save(moduleElection);
-        return createElectionTransferDTO(student, moduleElectionStatus, moduleElection, true);
+        var  electionStatus = electionValidator.validate( election);
+         election.setElectionValid( electionStatus.isValid());
+        electionRepository.save( election);
+        return createElectionTransferDTO(student,  electionStatus,  election, true);
     }
 
     /**
@@ -191,14 +191,14 @@ public class ElectionService {
      */
     public void updateValidation(String studentId) {
         var student = fetchStudentById(studentId);
-        var moduleElection = loadModuleElectionForStudent(student);
+        var  election = loadElectionForStudent(student);
 
-        var moduleSetting = Optional.ofNullable(moduleElection.getValidationSetting()).orElse(new ValidationSetting());
-        moduleElection.setValidationSetting(moduleSetting);
+        var moduleSetting = Optional.ofNullable( election.getValidationSetting()).orElse(new ValidationSetting());
+         election.setValidationSetting(moduleSetting);
 
-        var moduleElectionStatus = electionValidator.validate(moduleElection);
-        moduleElection.setElectionValid(moduleElectionStatus.isValid());
-        electionRepository.save(moduleElection);
+        var  electionStatus = electionValidator.validate( election);
+         election.setElectionValid( electionStatus.isValid());
+        electionRepository.save( election);
     }
 
     private Student fetchStudentById(String studentId) {
@@ -211,45 +211,45 @@ public class ElectionService {
     }
 
     /**
-     * Export all module elections.
-     * @return byte array containing the formatted module election.
+     * Export all  elections.
+     * @return byte array containing the formatted  election.
      */
-    public byte[] exportModuleElection() {
+    public byte[] exportElection() {
         return exporter.export(electionRepository.findAllModules());
     }
 
-    private void migrateElectionChanges(ModuleElection moduleElection, String moduleNo) {
+    private void migrateElectionChanges(Election election, String moduleNo) {
         var module = moduleRepository.findById(moduleNo).orElseThrow();
-        var electedModules = moduleElection.getElectedModules();
+        var electedModules = election.getElectedModules();
         if (!electedModules.removeIf(m -> moduleNo.equals(m.getModuleNo()))) {
             electedModules.add(module);
         }
     }
 
-    private ElectionTransferDTO createElectionTransferDTO(Student student, ModuleElectionStatus status,
-                                                          ModuleElection moduleElection, boolean saved) {
+    private ElectionTransferDTO createElectionTransferDTO(Student student, ElectionStatus status,
+                                                          Election election, boolean saved) {
         var electionStructure =
-                new ModuleStructureGenerator(moduleDefinition, student, moduleElection, electionSemesters).generateStructure();
+                new ModuleStructureGenerator(moduleDefinition, student, election, electionSemesters).generateStructure();
 
         return new ElectionTransferDTO(electionStructure,
-                electionStatusMapper.toDto(status), saved, moduleElection.isElectionValid());
+                                       electionStatusMapper.toDto(status), saved, election.isElectionValid());
     }
 
-    private ModuleElection fetchModuleElectionById(Long id) {
-        return electionRepository.findModuleElectionById(id).orElseThrow(() -> {
+    private Election fetchElectionById(Long id) {
+        return electionRepository.findElectionById(id).orElseThrow(() -> {
             var resourceMessage = ResourceBundleMessageLoader.getMessage(ERROR_MODULE_ELECTION_NOT_FOUND);
             var errorMessage = String.format(resourceMessage, id);
-            return new ModuleElectionNotFoundException(errorMessage);
+            return new ElectionNotFoundException(errorMessage);
         });
     }
 
-    private ModuleElection loadModuleElectionForStudent(Student student) {
-        return electionRepository.findModuleElectionByStudent(student.getEmail()).orElseGet(() -> {
-                var moduleElection = new ModuleElection();
-                moduleElection.setStudent(student);
-                moduleElection.setValidationSetting(new ValidationSetting());
-                moduleElection.setElectedModules(new HashSet<>());
-                return moduleElection;
+    private Election loadElectionForStudent(Student student) {
+        return electionRepository.findElectionByStudent(student.getEmail()).orElseGet(() -> {
+                var  election = new Election();
+                 election.setStudent(student);
+                 election.setValidationSetting(new ValidationSetting());
+                 election.setElectedModules(new HashSet<>());
+                return  election;
         });
     }
 }

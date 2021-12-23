@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.service;
 
 import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.exception.ImportException;
-import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
+import ch.zhaw.vorwahlen.exception.ElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentConflictException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
@@ -134,7 +134,7 @@ class StudentServiceTest {
         var id = created.getEmail();
         var moduleElectionId = created.getModuleElectionId();
         created.setModuleElectionId(0);
-        assertThrows(ModuleElectionNotFoundException.class, () -> studentService.replaceStudent(id, created));
+        assertThrows(ElectionNotFoundException.class, () -> studentService.replaceStudent(id, created));
         created.setModuleElectionId(moduleElectionId);
         studentService.replaceStudent(created.getEmail(), created);
         assertEquals(created.getName(), studentService.getStudentById(id).getName());
@@ -152,7 +152,7 @@ class StudentServiceTest {
         var created = studentService.addStudent(dto);
         assertEquals(1, studentRepository.count());
 
-        var createdElectionOptional = electionRepository.findModuleElectionByStudent(created.getEmail());
+        var createdElectionOptional = electionRepository.findElectionByStudent(created.getEmail());
         assertTrue(createdElectionOptional.isPresent());
 
         var createdElection = createdElectionOptional.get();
@@ -168,7 +168,7 @@ class StudentServiceTest {
         studentService.replaceValidationSettings(created.getEmail(), newSettings);
 
         // verify
-        createdElectionOptional = electionRepository.findModuleElectionByStudent(created.getEmail());
+        createdElectionOptional = electionRepository.findElectionByStudent(created.getEmail());
         assertTrue(createdElectionOptional.isPresent());
 
         createdElection = createdElectionOptional.get();

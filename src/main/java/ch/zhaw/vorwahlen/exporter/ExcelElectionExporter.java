@@ -5,7 +5,7 @@ import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ExportException;
 import ch.zhaw.vorwahlen.model.core.module.Module;
 import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import lombok.extern.java.Log;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -19,16 +19,16 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Export all module elections in the desired output format provided by @fame.
+ * Export all elections in the desired output format provided by @fame.
  */
 @Log
-public class ExcelModuleElectionExporter implements ModuleElectionExporter {
+public class ExcelElectionExporter implements ElectionExporter {
     private static final String[] HEADER_DATA = {"E-Mail", "Name", "In welcher Klasse sind Sie?",
             "Konsekutive Wahlpflichmodule", "Wahlpflichmodule", "Wahlmodule"};
     private static final String DELIMITER = "; ";
 
     @Override
-    public byte[] export(Set<ModuleElection> electionSet) {
+    public byte[] export(Set<Election> electionSet) {
         try (var workbook = new XSSFWorkbook()) {
             var sheet = workbook.createSheet("Modulvorwahlen");
             writeHeaderToSheet(sheet);
@@ -51,12 +51,12 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
         }
     }
 
-    private void writeElectionsToSheet(Set<ModuleElection> electionSet, XSSFSheet sheet) {
+    private void writeElectionsToSheet(Set<Election> electionSet, XSSFSheet sheet) {
         var rowCounter = 1;
-        for (ModuleElection moduleElection : electionSet) {
+        for (var election : electionSet) {
             var row = sheet.createRow(rowCounter++);
             var cellCounter = 0;
-            var electionData = transformModuleElectionToData(moduleElection);
+            var electionData = transformElectionToData(election);
 
             for (var data : electionData) {
                 row.createCell(cellCounter++).setCellValue(data);
@@ -64,7 +64,7 @@ public class ExcelModuleElectionExporter implements ModuleElectionExporter {
         }
     }
 
-    private String[] transformModuleElectionToData(ModuleElection election) {
+    private String[] transformElectionToData(Election election) {
         var student = election.getStudent();
         var modules = election.getElectedModules().stream().toList();
         Predicate<Module> isConsecutiveModule = m -> m.getConsecutiveModuleNo() != null &&

@@ -1,10 +1,10 @@
 package ch.zhaw.vorwahlen.validation;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElectionStatus;
+import ch.zhaw.vorwahlen.model.core.election.ElectionStatus;
 import ch.zhaw.vorwahlen.model.core.module.Module;
 import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 import ch.zhaw.vorwahlen.service.ModuleService;
 import lombok.Getter;
@@ -38,14 +38,14 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     public static final int MISSING_2_CONSECUTIVE_PAIRS = 2;
     public static final int MISSING_1_CONSECUTIVE_PAIR = 1;
 
-    private final ModuleElectionStatus moduleElectionStatus = new ModuleElectionStatus();
+    private final ElectionStatus electionStatus = new ElectionStatus();
     private final Student student;
 
     private record Pair<T>(T first, T second){}
 
     @Override
-    public ModuleElectionStatus validate(ModuleElection election) {
-        var status = getModuleElectionStatus();
+    public ElectionStatus validate(Election election) {
+        var status = getElectionStatus();
 
         var subjectValidation = status.getSubjectValidation();
         var contextValidation = status.getContextValidation();
@@ -59,31 +59,31 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
             additionalValidation.setValid(true);
         } else {
             subjectValidation.setModuleCategory(ModuleCategory.SUBJECT_MODULE);
-            subjectValidation.setValid(validSubjectModuleElection(election));
+            subjectValidation.setValid(validSubjectElection(election));
             subjectValidation.andValid(validConsecutiveModulePairsInElection(election));
 
             contextValidation.setModuleCategory(ModuleCategory.CONTEXT_MODULE);
-            contextValidation.setValid(validContextModuleElection(election));
+            contextValidation.setValid(validContextElection(election));
 
             interdisciplinaryValidation.setModuleCategory(ModuleCategory.INTERDISCIPLINARY_MODULE);
-            interdisciplinaryValidation.setValid(validInterdisciplinaryModuleElection(election));
+            interdisciplinaryValidation.setValid(validInterdisciplinaryElection(election));
 
             additionalValidation.setValid(isCreditSumValid(election));
-            additionalValidation.andValid(validIpModuleElection(election));
+            additionalValidation.andValid(validIpElection(election));
         }
 
         return status;
     }
 
-    protected boolean validConsecutiveModulePairsInElection(ModuleElection moduleElection) {
-        var consecutiveMap = calculateConsecutiveMap(moduleElection);
-        return consecutiveModuleExtraChecks(moduleElection, consecutiveMap);
+    protected boolean validConsecutiveModulePairsInElection(Election election) {
+        var consecutiveMap = calculateConsecutiveMap(election);
+        return consecutiveModuleExtraChecks(election, consecutiveMap);
     }
 
-    protected Map<Module, Module> calculateConsecutiveMap(ModuleElection moduleElection) {
+    protected Map<Module, Module> calculateConsecutiveMap(Election election) {
         var consecutiveMap = new HashMap<Module, Module>();
-        for(var m1: moduleElection.getElectedModules()) {
-            for(var m2: moduleElection.getElectedModules()) {
+        for(var m1: election.getElectedModules()) {
+            for(var m2: election.getElectedModules()) {
                 if(!m1.equals(m2) && areModulesConsecutive(m1, m2)) {
                     consecutiveMap.putIfAbsent(m1, null);
                     if (ModuleService.doTheModulesDifferOnlyInTheNumber(m1, m2)){
@@ -98,11 +98,11 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
         return consecutiveMap;
     }
 
-    protected abstract boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap);
+    protected abstract boolean consecutiveModuleExtraChecks(Election election, Map<Module, Module> consecutiveMap);
 
-    protected int countSpecialConsecutiveModulePairs(ModuleElection moduleElection) {
+    protected int countSpecialConsecutiveModulePairs(Election election) {
         var count = 0;
-        var modules = moduleElection.getElectedModules();
+        var modules = election.getElectedModules();
         var specialConsecutivePairSet = Set.of(new Pair<>("WV.PSPP", "WV.FUP"));
         for (var pair: specialConsecutivePairSet) {
             if(containsModule(modules, pair.first) && containsModule(modules, pair.second)) {
@@ -123,31 +123,31 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
                 .count() == 1;
     }
 
-    protected long countModuleCategory(ModuleElection moduleElection, ModuleCategory moduleCategory) {
-        return moduleElection.getElectedModules()
+    protected long countModuleCategory(Election election, ModuleCategory moduleCategory) {
+        return election.getElectedModules()
                 .stream()
                 .map(module -> ModuleCategory.parse(module.getModuleNo(), module.getModuleGroup()))
                 .filter(category -> category == moduleCategory)
                 .count();
     }
 
-    protected abstract boolean validIpModuleElection(ModuleElection moduleElection);
+    protected abstract boolean validIpElection(Election election);
 
-    protected boolean validModuleElectionCountByCategory(ModuleElection moduleElection, int neededModules, ModuleCategory moduleCategory) {
-        var count = countModuleCategory(moduleElection, moduleCategory);
+    protected boolean validElectionCountByCategory(Election election, int neededModules, ModuleCategory moduleCategory) {
+        var count = countModuleCategory(election, moduleCategory);
         var isValid = count == neededModules;
         if (!isValid) {
             switch (moduleCategory) {
-                case CONTEXT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getContextValidation(), count, neededModules);
-                case SUBJECT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getSubjectValidation(), count, neededModules);
-                case INTERDISCIPLINARY_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, moduleElectionStatus.getInterdisciplinaryValidation(), count, neededModules);
+                case CONTEXT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getContextValidation(), count, neededModules);
+                case SUBJECT_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getSubjectValidation(), count, neededModules);
+                case INTERDISCIPLINARY_MODULE -> addReasonWhenCountByCategoryNotValid(moduleCategory, electionStatus.getInterdisciplinaryValidation(), count, neededModules);
                 default -> {}
             }
         }
         return isValid;
     }
 
-    protected void addReasonWhenCountByCategoryNotValid(ModuleCategory moduleCategory, ModuleElectionStatus.ModuleElectionStatusElement statusElement, long count, int neededModules) {
+    protected void addReasonWhenCountByCategoryNotValid(ModuleCategory moduleCategory, ElectionStatus.ElectionStatusElement statusElement, long count, int neededModules) {
         var category = switch (moduleCategory) {
             case CONTEXT_MODULE -> ResourceBundleMessageLoader.getMessage("election_status.context");
             case SUBJECT_MODULE -> ResourceBundleMessageLoader.getMessage("election_status.subject");
@@ -160,7 +160,7 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
     }
 
     protected void addReasonWhenCreditSumNotValid(int sum, int minNeededCredits, int maxNeededCredits) {
-        var status = getModuleElectionStatus().getAdditionalValidation();
+        var status = getElectionStatus().getAdditionalValidation();
         if(sum > maxNeededCredits) {
             status.addReason(String.format(ResourceBundleMessageLoader.getMessage("election_status.too_much_credits"), (sum - maxNeededCredits)));
         } else if(sum < minNeededCredits) {
@@ -168,17 +168,17 @@ public abstract class AbstractElectionValidator implements ElectionValidator {
         }
     }
 
-    protected abstract boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection);
+    protected abstract boolean validInterdisciplinaryElection(Election election);
 
-    protected abstract boolean validSubjectModuleElection(ModuleElection moduleElection);
+    protected abstract boolean validSubjectElection(Election election);
 
-    protected abstract boolean validContextModuleElection(ModuleElection moduleElection);
+    protected abstract boolean validContextElection(Election election);
 
-    protected abstract boolean isCreditSumValid(ModuleElection moduleElection);
+    protected abstract boolean isCreditSumValid(Election election);
 
-    protected int sumCreditsInclusiveDispensation(ModuleElection moduleElection, int dispensations) {
+    protected int sumCreditsInclusiveDispensation(Election election, int dispensations) {
         // PA dispensation für die rechnung irrelevant
-        var electedModulesCreditSum = moduleElection.getElectedModules()
+        var electedModulesCreditSum = election.getElectedModules()
                 .stream()
                 .mapToInt(Module::getCredits)
                 .sum();

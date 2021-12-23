@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.model.modulestructure;
 
 import ch.zhaw.vorwahlen.model.core.module.Module;
 import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +26,7 @@ public class ModuleStructureGenerator {
     private final List<ModuleStructureElement> overflowedModuleStructure = new ArrayList<>();
     private final ModuleDefinition moduleDefinition;
     private final Student student;
-    private final ModuleElection election;
+    private final Election election;
     private final ElectionSemesters electionSemesters;
 
     /**

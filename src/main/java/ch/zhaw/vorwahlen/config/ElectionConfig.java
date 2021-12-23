@@ -2,8 +2,8 @@ package ch.zhaw.vorwahlen.config;
 
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
-import ch.zhaw.vorwahlen.exporter.ExcelModuleElectionExporter;
-import ch.zhaw.vorwahlen.exporter.ModuleElectionExporter;
+import ch.zhaw.vorwahlen.exporter.ExcelElectionExporter;
+import ch.zhaw.vorwahlen.exporter.ElectionExporter;
 import ch.zhaw.vorwahlen.model.modulestructure.ElectionSemesters;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleDefinition;
@@ -90,11 +90,11 @@ public class ElectionConfig {
 
     /**
      * Returns a new election exporter instance.
-     * @return ModuleElectionExporter
+     * @return ElectionExporter
      */
     @Bean
-    public ModuleElectionExporter moduleElectionExporter() {
-        return new ExcelModuleElectionExporter();
+    public ElectionExporter electionExporter() {
+        return new ExcelElectionExporter();
     }
 
     private Student getStudentFromSecurityContext() {

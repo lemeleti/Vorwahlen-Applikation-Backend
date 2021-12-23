@@ -3,7 +3,7 @@ package ch.zhaw.vorwahlen.validation;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.model.core.module.Module;
 import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 
 import java.util.Map;
@@ -31,14 +31,14 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
     }
 
     @Override
-    protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
+    protected boolean consecutiveModuleExtraChecks(Election election, Map<Module, Module> consecutiveMap) {
         // IT18 Teilzeit: Wenn Sie im aktuellen Studienjahr schon zwei konsekutive Module belegt haben, wählen Sie mindestens einmal zwei konsekutive Module, ansonsten mindestens zweimal zwei konsekutive Module.
         // IT19 Teilzeit: Wählen Sie bis zu zwei konsekutive Module (empfohlen: zwei Module). Achten Sie speziell auf die nötigen Vorkenntnisse der Module.
         if(!getStudent().isSecondElection()) {
             return true;
         }
 
-        var settings = moduleElection.getValidationSetting();
+        var settings = election.getValidationSetting();
         if (settings.isSkipConsecutiveModuleCheck()) {
             // case: 1. wahl CCP1, MC1 / 2. wahl CCP2, MC2, ...
             return true;
@@ -48,7 +48,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
                 .filter(Objects::nonNull)
                 .count();
 
-        countConsecutivePairs += countSpecialConsecutiveModulePairs(moduleElection);
+        countConsecutivePairs += countSpecialConsecutiveModulePairs(election);
 
         var isValid = false;
         if (settings.hadAlreadyElectedTwoConsecutiveModules()) {
@@ -56,7 +56,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
             isValid = countConsecutivePairs > 0;
             if (!isValid) {
                 var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), MISSING_1_CONSECUTIVE_PAIR);
-                getModuleElectionStatus().getSubjectValidation().addReason(reason);
+                getElectionStatus().getSubjectValidation().addReason(reason);
             }
         } else {
             /*
@@ -68,7 +68,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
             if (!isValid) {
                 var missingPairs = countConsecutivePairs == 0 ? MISSING_2_CONSECUTIVE_PAIRS : MISSING_1_CONSECUTIVE_PAIR;
                 var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), missingPairs);
-                getModuleElectionStatus().getSubjectValidation().addReason(reason);
+                getElectionStatus().getSubjectValidation().addReason(reason);
             }
         }
 
@@ -76,23 +76,23 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
     }
 
     @Override
-    protected boolean validIpModuleElection(ModuleElection moduleElection) {
+    protected boolean validIpElection(Election election) {
         // NOTE: IP not checked because we don't store the elected modules from the previous year.
         return true;
     }
 
     @Override
-    protected boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection) {
+    protected boolean validInterdisciplinaryElection(Election election) {
         // IT18 Teilzeit: Sie können bis zu einem der oben gewählten Wahlpflichtmodule durch ein Wahlmodule ersetzen.
         // IT19 Teilzeit: In der Regel wählen Sie jetzt noch keines dieser Wahlmodule, da es mit grosser Wahrscheinlichkeit mit Ihrem obligatorischen Stundenplan nicht kompatibel ist.
         var neededInterdisciplinaryModules = getStudent().isSecondElection()
                 ? NUM_INTERDISCIPLINARY_MODULES_SECOND_ELECTION
                 : NUM_INTERDISCIPLINARY_MODULES_FIRST_ELECTION;
-        return validModuleElectionCountByCategory(moduleElection, neededInterdisciplinaryModules, ModuleCategory.INTERDISCIPLINARY_MODULE);
+        return validElectionCountByCategory(election, neededInterdisciplinaryModules, ModuleCategory.INTERDISCIPLINARY_MODULE);
     }
 
     @Override
-    protected boolean validSubjectModuleElection(ModuleElection moduleElection) {
+    protected boolean validSubjectElection(Election election) {
         // IT18 Teilzeit: Zusammen mit den oben gewählten konsekutiven Modulen, wählen Sie total sieben Module (mit genehmigter Dispensation aus der beruflichen Anrechnung fünf Module)
         // IT19 Teilzeit: Zusammen mit den oben gewählten konsekutiven Modulen wählen Sie total zwei Module. In der Regel wählen Sie hier also kein Modul.
         var dispensCount = 0;
@@ -102,23 +102,23 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
             dispensCount = getStudent().getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
             neededSubjectModules = NUM_SUBJECT_MODULES_SECOND_ELECTION;
         }
-        var count = dispensCount + countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
+        var count = dispensCount + countModuleCategory(election, ModuleCategory.SUBJECT_MODULE);
         var isValid = count == neededSubjectModules;
         if(!isValid) {
-            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getModuleElectionStatus().getSubjectValidation(), count, neededSubjectModules);
+            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getElectionStatus().getSubjectValidation(), count, neededSubjectModules);
         }
         return isValid;
     }
 
     @Override
-    protected boolean validContextModuleElection(ModuleElection moduleElection) {
+    protected boolean validContextElection(Election election) {
         var totalNumContextModules = NUM_CONTEXT_MODULES_FIRST_ELECTION + NUM_CONTEXT_MODULES_SECOND_ELECTION;
-        var count = countModuleCategory(moduleElection, ModuleCategory.CONTEXT_MODULE);
+        var count = countModuleCategory(election, ModuleCategory.CONTEXT_MODULE);
 
         var isValid = count >= NUM_CONTEXT_MODULES_FIRST_ELECTION && count <= totalNumContextModules;
 
         if(getStudent().isSecondElection()) {
-            count += moduleElection.getValidationSetting().getElectedContextModulesInFirstElection();
+            count += election.getValidationSetting().getElectedContextModulesInFirstElection();
             isValid = count == totalNumContextModules;
         }
 
@@ -126,13 +126,13 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
             if(!getStudent().isSecondElection()) {
                 totalNumContextModules = NUM_CONTEXT_MODULES_FIRST_ELECTION;
             }
-            addReasonWhenCountByCategoryNotValid(ModuleCategory.CONTEXT_MODULE, getModuleElectionStatus().getContextValidation(), count, totalNumContextModules);
+            addReasonWhenCountByCategoryNotValid(ModuleCategory.CONTEXT_MODULE, getElectionStatus().getContextValidation(), count, totalNumContextModules);
         }
         return isValid;
     }
 
     @Override
-    protected boolean isCreditSumValid(ModuleElection moduleElection) {
+    protected boolean isCreditSumValid(Election election) {
         // apply context modules
         var firstElectionContextCredits = NUM_CONTEXT_MODULES_FIRST_ELECTION * CREDITS_PER_CONTEXT_MODULE;
         var secondElectionContextCredits = NUM_CONTEXT_MODULES_SECOND_ELECTION * CREDITS_PER_CONTEXT_MODULE;
@@ -143,7 +143,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
         var dispensation = 0;
 
         if(getStudent().isSecondElection()) {
-            var contextCreditsAlreadyDone = moduleElection.getValidationSetting().getElectedContextModulesInFirstElection()
+            var contextCreditsAlreadyDone = election.getValidationSetting().getElectedContextModulesInFirstElection()
                     * CREDITS_PER_CONTEXT_MODULE;
             if(totalContextCredits >= contextCreditsAlreadyDone) {
                 totalContextCredits -= contextCreditsAlreadyDone;
@@ -154,7 +154,7 @@ public class PartTimeElectionValidator extends AbstractElectionValidator {
         }
 
         // validate
-        var sum = sumCreditsInclusiveDispensation(moduleElection, dispensation);
+        var sum = sumCreditsInclusiveDispensation(election, dispensation);
         addReasonWhenCreditSumNotValid(sum, minNeededCredits, maxNeededCredits);
         return sum >= minNeededCredits && sum <= maxNeededCredits;
     }

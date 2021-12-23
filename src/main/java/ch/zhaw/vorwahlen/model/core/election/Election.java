@@ -12,12 +12,13 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Model / Entity class for a module election.
+ * Model / Entity class for an election.
  */
 @Entity
+@Table(name = "module_election")
 @Getter @Setter
 @NoArgsConstructor
-public class ModuleElection {
+public class Election {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +47,7 @@ public class ModuleElection {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ModuleElection that)) return false;
+        if (!(o instanceof Election that)) return false;
         return isElectionValid() == that.isElectionValid()
                 && Objects.equals(getId(), that.getId())
                 && Objects.equals(getStudent(), that.getStudent())

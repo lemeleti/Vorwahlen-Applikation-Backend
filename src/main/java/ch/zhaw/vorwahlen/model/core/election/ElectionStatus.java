@@ -9,20 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class ModuleElectionStatus {
+public class ElectionStatus {
 
-    private final ModuleElectionStatusElement subjectValidation;
-    private final ModuleElectionStatusElement contextValidation;
-    private final ModuleElectionStatusElement interdisciplinaryValidation;
-    private final ModuleElectionStatusElement additionalValidation;
+    private final ElectionStatusElement subjectValidation;
+    private final ElectionStatusElement contextValidation;
+    private final ElectionStatusElement interdisciplinaryValidation;
+    private final ElectionStatusElement additionalValidation;
 
     private boolean isValid;
 
-    public ModuleElectionStatus() {
-        subjectValidation = new ModuleElectionStatusElement(this);
-        contextValidation = new ModuleElectionStatusElement(this);
-        interdisciplinaryValidation = new ModuleElectionStatusElement(this);
-        additionalValidation = new ModuleElectionStatusElement(this);
+    public ElectionStatus() {
+        subjectValidation = new ElectionStatusElement(this);
+        contextValidation = new ElectionStatusElement(this);
+        interdisciplinaryValidation = new ElectionStatusElement(this);
+        additionalValidation = new ElectionStatusElement(this);
     }
 
     protected void updateIsValid() {
@@ -33,14 +33,14 @@ public class ModuleElectionStatus {
     }
 
     @Getter @Setter
-    public static class ModuleElectionStatusElement {
+    public static class ElectionStatusElement {
 
-        private ModuleElectionStatus moduleElectionStatus;
+        private ElectionStatus electionStatus;
         private ModuleCategory moduleCategory;
         private boolean isValid;
 
-        private ModuleElectionStatusElement(ModuleElectionStatus moduleElectionStatus) {
-            this.moduleElectionStatus = moduleElectionStatus;
+        private ElectionStatusElement(ElectionStatus electionStatus) {
+            this.electionStatus = electionStatus;
         }
 
         @Setter(AccessLevel.NONE)
@@ -55,12 +55,12 @@ public class ModuleElectionStatus {
 
         public void setValid(boolean valid) {
             isValid = valid;
-            moduleElectionStatus.updateIsValid();
+            electionStatus.updateIsValid();
         }
 
         public void andValid(boolean valid) {
             isValid = isValid && valid;
-            moduleElectionStatus.updateIsValid();
+            electionStatus.updateIsValid();
         }
 
     }

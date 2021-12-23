@@ -5,7 +5,7 @@ import ch.zhaw.vorwahlen.config.UserBean;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.ImportException;
 import ch.zhaw.vorwahlen.exception.MailMessagingException;
-import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
+import ch.zhaw.vorwahlen.exception.ElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentConflictException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.exception.ValidationSettingNotFoundException;
@@ -13,7 +13,7 @@ import ch.zhaw.vorwahlen.mapper.Mapper;
 import ch.zhaw.vorwahlen.model.mailtemplate.NotificationDTO;
 import ch.zhaw.vorwahlen.model.core.student.StudentDTO;
 import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSettingDTO;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 import ch.zhaw.vorwahlen.model.core.student.StudentClass;
 import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSetting;
@@ -75,7 +75,7 @@ public class StudentService {
             var classListParser = new ClassListParser(file.getInputStream(), worksheet);
             var students = classListParser.parseFromXLSX();
             setSecondElection(students);
-            createAndSetModuleElection(students);
+            createAndSetElection(students);
             studentRepository.saveAll(students);
         } catch (IOException e) {
             var formatString = ResourceBundleMessageLoader.getMessage(ResourceMessageConstants.ERROR_IMPORT_EXCEPTION);
@@ -99,14 +99,14 @@ public class StudentService {
             throw new StudentConflictException(message);
         }
         var student = studentMapper.toInstance(studentDTO);
-        var moduleElection = new ModuleElection();
+        var  election = new Election();
         var validationSetting = new ValidationSetting();
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
 
-        moduleElection.setStudent(student);
-        moduleElection.setValidationSetting(validationSetting);
+         election.setStudent(student);
+         election.setValidationSetting(validationSetting);
 
-        student.setElection(moduleElection);
+        student.setElection( election);
         student.setStudentClass(studentClass);
 
         student = studentRepository.save(student);
@@ -130,16 +130,16 @@ public class StudentService {
                 .forEach(student-> student.setSecondElection(isSecondElection(student.getStudentClass().getName())));
     }
 
-    private void createAndSetModuleElection(List<Student> students) {
+    private void createAndSetElection(List<Student> students) {
         students.forEach(student -> {
-                    var moduleElection = new ModuleElection();
+                    var  election = new Election();
                     var validationSetting = new ValidationSetting();
 
-                    moduleElection.setStudent(student);
-                    moduleElection.setValidationSetting(validationSetting);
-                    moduleElection.setElectedModules(new HashSet<>());
+                     election.setStudent(student);
+                     election.setValidationSetting(validationSetting);
+                     election.setElectedModules(new HashSet<>());
 
-                    student.setElection(moduleElection);
+                    student.setElection( election);
                 });
     }
 
@@ -201,11 +201,11 @@ public class StudentService {
      */
     public StudentDTO replaceStudent(String id, StudentDTO studentDTO) {
         var studentClass = getOrCreateStudentClass(studentDTO.getClazz());
-        var election = electionRepository.findModuleElectionById(studentDTO.getModuleElectionId())
+        var election = electionRepository.findElectionById(studentDTO.getModuleElectionId())
                 .orElseThrow(() -> {
                     var resourceMessage = ResourceBundleMessageLoader.getMessage(ERROR_MODULE_ELECTION_NOT_FOUND);
                     var errorMessage = String.format(resourceMessage, studentDTO.getModuleElectionId());
-                    return new ModuleElectionNotFoundException(errorMessage);
+                    return new ElectionNotFoundException(errorMessage);
                 });
 
         var storedStudent = fetchStudentById(id);

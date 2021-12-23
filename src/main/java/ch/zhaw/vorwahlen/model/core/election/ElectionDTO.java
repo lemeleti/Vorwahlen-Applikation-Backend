@@ -19,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
 @Builder
-public class ModuleElectionDTO {
+public class ElectionDTO {
 
     private long id;
     @Email(message = "{validation.email.invalid}")

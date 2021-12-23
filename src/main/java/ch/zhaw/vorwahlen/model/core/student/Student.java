@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.model.core.student;
 
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,7 +52,7 @@ public class Student {
 
     @OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)
     @JoinColumn(name = "election_id")
-    private ModuleElection election;
+    private Election election;
 
     @Override
     public boolean equals(Object o) {

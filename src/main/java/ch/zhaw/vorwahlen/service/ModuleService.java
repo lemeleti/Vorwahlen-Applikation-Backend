@@ -171,9 +171,9 @@ public class ModuleService {
         var module = fetchModuleById(id);
         var elections = electionRepository.findAllByElectedModulesContaining(module);
 
-        elections.forEach(moduleElection -> {
-            moduleElection.removeModuleFromElection(module);
-            moduleElection.setElectionValid(false);
+        elections.forEach(election -> {
+            election.removeModuleFromElection(module);
+            election.setElectionValid(false);
         });
         moduleRepository.deleteById(id);
         log.debug("module was deleted successfully");

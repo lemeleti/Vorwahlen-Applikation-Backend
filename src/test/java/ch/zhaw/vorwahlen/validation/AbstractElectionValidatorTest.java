@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.validation;
 
 import ch.zhaw.vorwahlen.model.core.module.Module;
 import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
@@ -73,7 +73,7 @@ class AbstractElectionValidatorTest {
     Student studentMock;
 
     @Mock
-    ModuleElection moduleElectionMock;
+    Election electionMock;
 
     AbstractElectionValidator validator;
 
@@ -108,11 +108,11 @@ class AbstractElectionValidatorTest {
         when(m2.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(0));
         when(m3.getConsecutiveModuleNo()).thenReturn(consecutiveSubjectModulesShort.get(3));
 
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
-        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+        when(electionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
+        assertTrue(validator.validConsecutiveModulePairsInElection(electionMock));
 
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3));
-        assertTrue(validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+        when(electionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3));
+        assertTrue(validator.validConsecutiveModulePairsInElection(electionMock));
     }
 
     @Test
@@ -138,8 +138,8 @@ class AbstractElectionValidatorTest {
         expected2.put(m3, null);
         expected2.put(m1, m2);
 
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
-        var result = validator.calculateConsecutiveMap(moduleElectionMock);
+        when(electionMock.getElectedModules()).thenReturn(Set.of(m1, m2, m3, m4));
+        var result = validator.calculateConsecutiveMap(electionMock);
 
         assertThat(result, anyOf(is(expected1), is(expected2)));
     }
@@ -152,14 +152,14 @@ class AbstractElectionValidatorTest {
         when(m1.getShortModuleNo()).thenReturn(MODULE_WV_PSPP);
         when(m2.getShortModuleNo()).thenReturn(subjectModulesShort.get(1));
 
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1));
-        assertEquals(0, validator.countSpecialConsecutiveModulePairs(moduleElectionMock));
+        when(electionMock.getElectedModules()).thenReturn(Set.of(m1));
+        assertEquals(0, validator.countSpecialConsecutiveModulePairs(electionMock));
 
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m2));
-        assertEquals(0, validator.countSpecialConsecutiveModulePairs(moduleElectionMock));
+        when(electionMock.getElectedModules()).thenReturn(Set.of(m2));
+        assertEquals(0, validator.countSpecialConsecutiveModulePairs(electionMock));
 
-        when(moduleElectionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
-        assertEquals(1, validator.countSpecialConsecutiveModulePairs(moduleElectionMock));
+        when(electionMock.getElectedModules()).thenReturn(Set.of(m1, m2));
+        assertEquals(1, validator.countSpecialConsecutiveModulePairs(electionMock));
     }
 
     @Test
@@ -192,39 +192,39 @@ class AbstractElectionValidatorTest {
 
     @Test
     void testCountModuleCategory() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertEquals(NUM_CONTEXT_MODULES, validator.countModuleCategory(moduleElectionMock, ModuleCategory.CONTEXT_MODULE));
-        assertEquals(NUM_INTERDISCIPLINARY_MODULES, validator.countModuleCategory(moduleElectionMock, ModuleCategory.INTERDISCIPLINARY_MODULE));
-        assertEquals(NUM_SUBJECT_MODULES, validator.countModuleCategory(moduleElectionMock, ModuleCategory.SUBJECT_MODULE));
+        when(electionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertEquals(NUM_CONTEXT_MODULES, validator.countModuleCategory(electionMock, ModuleCategory.CONTEXT_MODULE));
+        assertEquals(NUM_INTERDISCIPLINARY_MODULES, validator.countModuleCategory(electionMock, ModuleCategory.INTERDISCIPLINARY_MODULE));
+        assertEquals(NUM_SUBJECT_MODULES, validator.countModuleCategory(electionMock, ModuleCategory.SUBJECT_MODULE));
     }
 
     @Test
-    void testValidModuleElectionCountByCategory() {
+    void testValidElectionCountByCategory() {
         // valid
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertTrue(validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_CONTEXT_MODULES, ModuleCategory.CONTEXT_MODULE));
+        when(electionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertTrue(validator.validElectionCountByCategory(electionMock, NUM_CONTEXT_MODULES, ModuleCategory.CONTEXT_MODULE));
 
         // too less
         removeOneModuleByCategory(validElectionSet, ModuleCategory.SUBJECT_MODULE);
-        assertFalse(validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_SUBJECT_MODULES, ModuleCategory.SUBJECT_MODULE));
+        assertFalse(validator.validElectionCountByCategory(electionMock, NUM_SUBJECT_MODULES, ModuleCategory.SUBJECT_MODULE));
 
         // too much
         validElectionSet = generateValidElectionSet();
         addModule(validElectionSet, ModuleCategoryTest.INTERDISCIPLINARY_PREFIX_WM, mock(Module.class), CREDITS_PER_INTERDISCIPLINARY_MODULE);
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertFalse(validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE));
+        when(electionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertFalse(validator.validElectionCountByCategory(electionMock, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE));
     }
 
     @Test
     void testSumCreditsInclusiveDispensation() {
         //--- Case No Dispensations
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertEquals(MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA, validator.sumCreditsInclusiveDispensation(moduleElectionMock, 0));
+        when(electionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertEquals(MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA, validator.sumCreditsInclusiveDispensation(electionMock, 0));
 
         //--- Case Some Dispensations
         removeNonConsecutiveSubjectModulesFromSet(validElectionSet);
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertEquals(MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA, validator.sumCreditsInclusiveDispensation(moduleElectionMock, WPM_DISPENSATION));
+        when(electionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertEquals(MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA, validator.sumCreditsInclusiveDispensation(electionMock, WPM_DISPENSATION));
     }
 
 
@@ -239,8 +239,8 @@ class AbstractElectionValidatorTest {
 
     @Test
     void testValidConsecutiveModulePairsInElection_NullElectionSet() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(null);
-        assertThrows(NullPointerException.class, () -> validator.validConsecutiveModulePairsInElection(moduleElectionMock));
+        when(electionMock.getElectedModules()).thenReturn(null);
+        assertThrows(NullPointerException.class, () -> validator.validConsecutiveModulePairsInElection(electionMock));
     }
 
     @Test
@@ -250,8 +250,8 @@ class AbstractElectionValidatorTest {
 
     @Test
     void testCalculateConsecutiveMap_NullSet() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(null);
-        assertThrows(NullPointerException.class, () -> validator.calculateConsecutiveMap(moduleElectionMock));
+        when(electionMock.getElectedModules()).thenReturn(null);
+        assertThrows(NullPointerException.class, () -> validator.calculateConsecutiveMap(electionMock));
     }
 
     @Test
@@ -307,25 +307,25 @@ class AbstractElectionValidatorTest {
     void testCountModuleCategory_NullElectionSet() {
         var set = new HashSet<Module>();
         set.add(null);
-        when(moduleElectionMock.getElectedModules()).thenReturn(set);
-        assertThrows(NullPointerException.class, () -> validator.countModuleCategory(moduleElectionMock, ModuleCategory.CONTEXT_MODULE));
+        when(electionMock.getElectedModules()).thenReturn(set);
+        assertThrows(NullPointerException.class, () -> validator.countModuleCategory(electionMock, ModuleCategory.CONTEXT_MODULE));
     }
 
     @Test
     void testCountModuleCategory_NullCategory() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertEquals(0, validator.countModuleCategory(moduleElectionMock, null));
+        when(electionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertEquals(0, validator.countModuleCategory(electionMock, null));
     }
 
     @Test
-    void testValidModuleElectionCountByCategory_Null() {
-        assertThrows(NullPointerException.class, () -> validator.validModuleElectionCountByCategory(null, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE));
+    void testValidElectionCountByCategory_Null() {
+        assertThrows(NullPointerException.class, () -> validator.validElectionCountByCategory(null, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE));
     }
 
     @Test
-    void testValidModuleElectionCountByCategory_NullCategory() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(validElectionSet);
-        assertThrows(NullPointerException.class, () -> validator.validModuleElectionCountByCategory(moduleElectionMock, NUM_CONTEXT_MODULES, null));
+    void testValidElectionCountByCategory_NullCategory() {
+        when(electionMock.getElectedModules()).thenReturn(validElectionSet);
+        assertThrows(NullPointerException.class, () -> validator.validElectionCountByCategory(electionMock, NUM_CONTEXT_MODULES, null));
     }
 
     @Test
@@ -335,8 +335,8 @@ class AbstractElectionValidatorTest {
 
     @Test
     void testIsCreditSumValid_NullElectionSet() {
-        when(moduleElectionMock.getElectedModules()).thenReturn(null);
-        assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(moduleElectionMock, 0));
+        when(electionMock.getElectedModules()).thenReturn(null);
+        assertThrows(NullPointerException.class, () -> validator.sumCreditsInclusiveDispensation(electionMock, 0));
     }
 
     /* **************************************************************************************************************

@@ -4,10 +4,10 @@ import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.exception.ValidationSettingNotFoundException;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElectionDTO;
+import ch.zhaw.vorwahlen.model.core.election.ElectionDTO;
 import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.model.core.module.Module;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSetting;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
@@ -21,45 +21,45 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Mapping class for {@link ModuleElection}.
+ * Mapping class for {@link Election}.
  */
 @Component
 @RequiredArgsConstructor
-public class ElectionMapper implements Mapper<ModuleElectionDTO, ModuleElection> {
+public class ElectionMapper implements Mapper<ElectionDTO, Election> {
     private final Mapper<ValidationSettingDTO, ValidationSetting> mapper;
     private final ModuleRepository moduleRepository;
     private final StudentRepository studentRepository;
     private final ValidationSettingRepository validationSettingRepository;
 
     @Override
-    public ModuleElectionDTO toDto(ModuleElection moduleElection) {
-        return ModuleElectionDTO
+    public ElectionDTO toDto(Election election) {
+        return ElectionDTO
                 .builder()
-                .id(moduleElection.getId())
-                .studentEmail(moduleElection.getStudent().getEmail())
-                .electionValid(moduleElection.isElectionValid())
-                .electedModules(modulesToModuleNos(moduleElection.getElectedModules()))
-                .validationSettingDTO(mapper.toDto(moduleElection.getValidationSetting()))
+                .id(election.getId())
+                .studentEmail(election.getStudent().getEmail())
+                .electionValid(election.isElectionValid())
+                .electedModules(modulesToModuleNos(election.getElectedModules()))
+                .validationSettingDTO(mapper.toDto(election.getValidationSetting()))
                 .build();
 
     }
 
     @Override
-    public ModuleElection toInstance(ModuleElectionDTO moduleElectionDTO) {
-        var moduleElection = new ModuleElection();
-        var modules = moduleRepository.findAllById(moduleElectionDTO.getElectedModules());
-        var student = fetchStudentById(moduleElectionDTO.getStudentEmail());
-        var validationSettingDto = moduleElectionDTO.getValidationSettingDTO();
+    public Election toInstance(ElectionDTO electionDTO) {
+        var election = new Election();
+        var modules = moduleRepository.findAllById(electionDTO.getElectedModules());
+        var student = fetchStudentById(electionDTO.getStudentEmail());
+        var validationSettingDto = electionDTO.getValidationSettingDTO();
         var validationSetting = validationSettingDto == null
                 ? new ValidationSetting()
                 : fetchValidationSetting(student.getEmail());
 
-        moduleElection.setElectedModules(new HashSet<>(modules));
-        moduleElection.setElectionValid(moduleElectionDTO.isElectionValid());
-        moduleElection.setStudent(student);
-        moduleElection.setValidationSetting(validationSetting);
+        election.setElectedModules(new HashSet<>(modules));
+        election.setElectionValid(electionDTO.isElectionValid());
+        election.setStudent(student);
+        election.setValidationSetting(validationSetting);
 
-        return moduleElection;
+        return election;
     }
 
     private Set<String> modulesToModuleNos(Set<Module> modules) {

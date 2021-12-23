@@ -3,7 +3,7 @@ package ch.zhaw.vorwahlen.validation;
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
 import ch.zhaw.vorwahlen.model.core.module.Module;
 import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
-import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.Election;
 import ch.zhaw.vorwahlen.model.core.student.Student;
 
 import java.util.Map;
@@ -25,8 +25,8 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     }
 
     @Override
-    protected boolean consecutiveModuleExtraChecks(ModuleElection moduleElection, Map<Module, Module> consecutiveMap) {
-        var settings = moduleElection.getValidationSetting();
+    protected boolean consecutiveModuleExtraChecks(Election election, Map<Module, Module> consecutiveMap) {
+        var settings = election.getValidationSetting();
         if (settings.isSkipConsecutiveModuleCheck()) {
             return true;
         }
@@ -37,22 +37,22 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
                 .filter(Objects::nonNull)
                 .count();
 
-        countConsecutivePairs += countSpecialConsecutiveModulePairs(moduleElection);
+        countConsecutivePairs += countSpecialConsecutiveModulePairs(election);
 
         var isValid = countConsecutivePairs > 1;
         if (!isValid) {
             var missingPairs = countConsecutivePairs == 0 ? MISSING_2_CONSECUTIVE_PAIRS : MISSING_1_CONSECUTIVE_PAIR;
             var reason = String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_consecutive"), missingPairs);
-            getModuleElectionStatus().getSubjectValidation().addReason(reason);
+            getElectionStatus().getSubjectValidation().addReason(reason);
         }
         return isValid;
     }
 
     @Override
-    protected boolean validIpModuleElection(ModuleElection moduleElection)  {
+    protected boolean validIpElection(Election election)  {
         var isValid = true;
         if(getStudent().isIP()) {
-            var englishModules = moduleElection.getElectedModules().stream()
+            var englishModules = election.getElectedModules().stream()
                     .filter(module -> "Englisch".equals(module.getLanguage()))
                     .collect(Collectors.toSet());
 
@@ -65,7 +65,7 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
                     .filter(module -> module.getShortModuleNo().contains("WVK.ICAM-EN"))
                     .count() == 1;
 
-            var status = getModuleElectionStatus().getAdditionalValidation();
+            var status = getElectionStatus().getAdditionalValidation();
             if(creditSum < NUM_ENGLISH_CREDITS) {
                 status.addReason(String.format(ResourceBundleMessageLoader.getMessage("election_status.too_less_english"), (NUM_ENGLISH_CREDITS - creditSum)));
             }
@@ -79,33 +79,33 @@ public class FullTimeElectionValidator extends AbstractElectionValidator {
     }
 
     @Override
-    protected boolean validInterdisciplinaryModuleElection(ModuleElection moduleElection) {
+    protected boolean validInterdisciplinaryElection(Election election) {
         // IT19 Vollzeit: Sie müssen eines dieser Wahlmodule wählen (Sie können auch mehrere wählen, angerechnet werden kann aber nur ein Wahlmodul).
-        return validModuleElectionCountByCategory(moduleElection, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE);
+        return validElectionCountByCategory(election, NUM_INTERDISCIPLINARY_MODULES, ModuleCategory.INTERDISCIPLINARY_MODULE);
     }
 
     @Override
-    protected boolean validSubjectModuleElection(ModuleElection moduleElection) {
+    protected boolean validSubjectElection(Election election) {
         // IT 19 Vollzeit: Zusammen mit den oben gewählten konsekutiven Modulen wählen Sie total acht Module.
         var dispensCount = getStudent().getWpmDispensation() / CREDIT_PER_SUBJECT_MODULE;
-        var count = dispensCount + countModuleCategory(moduleElection, ModuleCategory.SUBJECT_MODULE);
+        var count = dispensCount + countModuleCategory(election, ModuleCategory.SUBJECT_MODULE);
         var isValid = count == NUM_SUBJECT_MODULES;
         if(!isValid) {
-            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getModuleElectionStatus().getSubjectValidation(), count, NUM_SUBJECT_MODULES);
+            addReasonWhenCountByCategoryNotValid(ModuleCategory.SUBJECT_MODULE, getElectionStatus().getSubjectValidation(), count, NUM_SUBJECT_MODULES);
         }
         return isValid;
     }
 
     @Override
-    protected boolean validContextModuleElection(ModuleElection moduleElection) {
+    protected boolean validContextElection(Election election) {
         // IT19 Vollzeit: Dies gehört zur Modulgruppe IT5. Sie können bis zu drei dieser Module wählen.
-        return validModuleElectionCountByCategory(moduleElection, NUM_CONTEXT_MODULES, ModuleCategory.CONTEXT_MODULE);
+        return validElectionCountByCategory(election, NUM_CONTEXT_MODULES, ModuleCategory.CONTEXT_MODULE);
     }
 
     @Override
-    protected boolean isCreditSumValid(ModuleElection moduleElection) {
+    protected boolean isCreditSumValid(Election election) {
         // PA dispensation für die rechnung irrelevant
-        var sum = sumCreditsInclusiveDispensation(moduleElection, getStudent().getWpmDispensation());
+        var sum = sumCreditsInclusiveDispensation(election, getStudent().getWpmDispensation());
         addReasonWhenCreditSumNotValid(sum, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA, MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA);
         return sum == MAX_CREDITS_PER_YEAR_WITHOUT_PA_AND_BA;
     }
