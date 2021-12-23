@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.controller;
 
-import ch.zhaw.vorwahlen.model.dto.MailTemplateDTO;
+import ch.zhaw.vorwahlen.model.mailtemplate.MailTemplateDTO;
 import ch.zhaw.vorwahlen.service.MailTemplateService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;

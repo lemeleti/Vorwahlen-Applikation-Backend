@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.modules;
+package ch.zhaw.vorwahlen.model.evento;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

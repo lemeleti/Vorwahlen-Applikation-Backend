@@ -6,12 +6,11 @@ import ch.zhaw.vorwahlen.exception.ModuleElectionNotFoundException;
 import ch.zhaw.vorwahlen.exception.StudentConflictException;
 import ch.zhaw.vorwahlen.exception.StudentNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
-import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
-import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.model.modules.StudentClass;
-import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
+import ch.zhaw.vorwahlen.model.core.student.StudentDTO;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSettingDTO;
+import ch.zhaw.vorwahlen.model.core.student.Student;
+import ch.zhaw.vorwahlen.model.core.student.StudentClass;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSetting;
 import ch.zhaw.vorwahlen.repository.ElectionRepository;
 import ch.zhaw.vorwahlen.repository.StudentClassRepository;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
@@ -24,7 +23,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -260,8 +258,8 @@ class StudentServiceTest {
         var tzClass = new StudentClass();
         vzClass.setName("IT19a_WIN");
         tzClass.setName("IT19ta_WIN");
-        // ch.zhaw.vorwahlen.model.modules.Student                        @53ef0db3<Student(email=meierbob@students.zhaw.ch, name=Bob Meier, studentClass=StudentClass(name=IT19ta_WIN), paDispensation=0, wpmDispensation=8, isIP=false, isTZ=true, isSecondElection=false, election=null)>
-        // ch.zhaw.vorwahlen.model.modules.Student$HibernateProxy$DiB75Mal@29957fe0<Student(email=meierbob@students.zhaw.ch, name=Bob Meier, studentClass=StudentClass(name=IT19ta_WIN), paDispensation=0, wpmDispensation=8, isIP=false, isTZ=true, isSecondElection=false, election=null)>
+        // ch.zhaw.vorwahlen.model.modules.student.Student                        @53ef0db3<Student(email=meierbob@students.zhaw.ch, name=Bob Meier, studentClass=StudentClass(name=IT19ta_WIN), paDispensation=0, wpmDispensation=8, isIP=false, isTZ=true, isSecondElection=false, election=null)>
+        // ch.zhaw.vorwahlen.model.modules.student.Student$HibernateProxy$DiB75Mal@29957fe0<Student(email=meierbob@students.zhaw.ch, name=Bob Meier, studentClass=StudentClass(name=IT19ta_WIN), paDispensation=0, wpmDispensation=8, isIP=false, isTZ=true, isSecondElection=false, election=null)>
         var expected = List.of(
                 Student.builder().name("Anna Muster").studentClass(vzClass).email("musteranna@students.zhaw.ch").paDispensation(6).build(),
                 Student.builder().name("Bob Meier").studentClass(tzClass).email("meierbob@students.zhaw.ch").wpmDispensation(8).isTZ(true).build()

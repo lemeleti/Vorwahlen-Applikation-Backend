@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.mapper;
 
-import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
-import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSettingDTO;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSetting;
 import org.springframework.stereotype.Component;
 
 /**

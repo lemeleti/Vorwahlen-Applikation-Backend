@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.repository;
 
-import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.core.module.Module;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

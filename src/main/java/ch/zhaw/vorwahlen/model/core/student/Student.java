@@ -1,5 +1,6 @@
-package ch.zhaw.vorwahlen.model.modules;
+package ch.zhaw.vorwahlen.model.core.student;
 
+import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

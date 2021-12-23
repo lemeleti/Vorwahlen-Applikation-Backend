@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.evento;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Dto for the {@link ch.zhaw.vorwahlen.model.modules.EventoData}.
+ * Dto for the {@link EventoData}.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor

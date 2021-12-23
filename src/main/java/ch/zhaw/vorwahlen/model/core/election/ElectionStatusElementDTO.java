@@ -1,6 +1,6 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.core.election;
 
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
+import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;

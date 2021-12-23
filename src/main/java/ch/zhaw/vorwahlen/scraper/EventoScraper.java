@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.scraper;
 
-import ch.zhaw.vorwahlen.model.modules.EventoData;
-import ch.zhaw.vorwahlen.model.modules.Module;
+import ch.zhaw.vorwahlen.model.evento.EventoData;
+import ch.zhaw.vorwahlen.model.core.module.Module;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;

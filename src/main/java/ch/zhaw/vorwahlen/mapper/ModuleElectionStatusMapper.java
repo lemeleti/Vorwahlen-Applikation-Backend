@@ -1,8 +1,8 @@
 package ch.zhaw.vorwahlen.mapper;
 
-import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
-import ch.zhaw.vorwahlen.model.dto.ElectionStatusElementDTO;
-import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
+import ch.zhaw.vorwahlen.model.core.election.ElectionStatusDTO;
+import ch.zhaw.vorwahlen.model.core.election.ElectionStatusElementDTO;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElectionStatus;
 import org.springframework.stereotype.Component;
 
 /**

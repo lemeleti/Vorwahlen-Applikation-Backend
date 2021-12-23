@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.core.student;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -14,7 +14,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
- * Dto for the {@link ch.zhaw.vorwahlen.model.modules.Student}.
+ * Dto for the {@link Student}.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor

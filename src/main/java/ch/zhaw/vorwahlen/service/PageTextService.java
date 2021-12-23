@@ -6,7 +6,7 @@ import ch.zhaw.vorwahlen.constants.ResourceMessageConstants;
 import ch.zhaw.vorwahlen.exception.PageTextConflictException;
 import ch.zhaw.vorwahlen.exception.PageTextNotFoundException;
 import ch.zhaw.vorwahlen.mapper.Mapper;
-import ch.zhaw.vorwahlen.model.dto.PageTextDTO;
+import ch.zhaw.vorwahlen.model.pagetext.PageTextDTO;
 import ch.zhaw.vorwahlen.model.pagetext.PageText;
 import ch.zhaw.vorwahlen.model.pagetext.UserType;
 import ch.zhaw.vorwahlen.repository.PageTextRepository;

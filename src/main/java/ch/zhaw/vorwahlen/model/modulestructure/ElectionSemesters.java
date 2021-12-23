@@ -1,5 +1,6 @@
-package ch.zhaw.vorwahlen.model.modules;
+package ch.zhaw.vorwahlen.model.modulestructure;
 
+import ch.zhaw.vorwahlen.model.core.student.Student;
 import lombok.Data;
 
 import java.util.HashSet;

@@ -1,8 +1,8 @@
 package ch.zhaw.vorwahlen.controller;
 
-import ch.zhaw.vorwahlen.model.dto.NotificationDTO;
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
+import ch.zhaw.vorwahlen.model.mailtemplate.NotificationDTO;
+import ch.zhaw.vorwahlen.model.core.student.StudentDTO;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSettingDTO;
 import ch.zhaw.vorwahlen.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

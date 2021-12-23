@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.parser;
 
-import ch.zhaw.vorwahlen.model.modules.Student;
-import ch.zhaw.vorwahlen.model.modules.StudentClass;
+import ch.zhaw.vorwahlen.model.core.student.Student;
+import ch.zhaw.vorwahlen.model.core.student.StudentClass;
 import ch.zhaw.vorwahlen.parser.lookup.StudentLookupTable;
 import ch.zhaw.vorwahlen.repository.StudentRepository;
 import org.apache.poi.ss.usermodel.Cell;

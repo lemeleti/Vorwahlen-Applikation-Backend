@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.validation;
 
-import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElectionStatus;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
 
 /**
  * Contract for a validator.

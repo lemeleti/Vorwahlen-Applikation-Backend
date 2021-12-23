@@ -1,4 +1,7 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model;
+
+import ch.zhaw.vorwahlen.model.core.election.ElectionStatusDTO;
+import ch.zhaw.vorwahlen.model.modulestructure.ElectionStructureDTO;
 
 /**
  * Dto wrapper for {@link ElectionStructureDTO}, {@link ElectionStatusDTO},

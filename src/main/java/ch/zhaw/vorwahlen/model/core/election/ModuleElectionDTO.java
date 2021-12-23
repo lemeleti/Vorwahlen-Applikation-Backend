@@ -1,5 +1,6 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.core.election;
 
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSettingDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

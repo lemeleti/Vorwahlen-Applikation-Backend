@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.repository;
 
-import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.module.Module;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

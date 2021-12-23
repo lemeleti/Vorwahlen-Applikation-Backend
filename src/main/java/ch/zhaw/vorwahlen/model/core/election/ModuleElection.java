@@ -1,5 +1,8 @@
-package ch.zhaw.vorwahlen.model.modules;
+package ch.zhaw.vorwahlen.model.core.election;
 
+import ch.zhaw.vorwahlen.model.core.student.Student;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSetting;
+import ch.zhaw.vorwahlen.model.core.module.Module;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

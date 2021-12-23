@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.repository;
 
-import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSetting;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

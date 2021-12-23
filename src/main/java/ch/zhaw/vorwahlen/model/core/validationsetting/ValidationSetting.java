@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.modules;
+package ch.zhaw.vorwahlen.model.core.validationsetting;
 
 import lombok.AccessLevel;
 import lombok.Getter;

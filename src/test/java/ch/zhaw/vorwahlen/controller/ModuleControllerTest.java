@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.controller;
 
-import ch.zhaw.vorwahlen.model.dto.ModuleDTO;
+import ch.zhaw.vorwahlen.model.core.module.ModuleDTO;
 import ch.zhaw.vorwahlen.service.ModuleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

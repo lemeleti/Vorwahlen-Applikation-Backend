@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.modulestructure;
 
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureElement;
 

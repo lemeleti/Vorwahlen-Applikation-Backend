@@ -1,12 +1,12 @@
 package ch.zhaw.vorwahlen.controller;
 
-import ch.zhaw.vorwahlen.model.dto.ElectionStatusDTO;
-import ch.zhaw.vorwahlen.model.dto.ElectionStatusElementDTO;
-import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
-import ch.zhaw.vorwahlen.model.dto.ElectionTransferDTO;
-import ch.zhaw.vorwahlen.model.dto.ModuleElectionDTO;
-import ch.zhaw.vorwahlen.model.dto.ValidationSettingDTO;
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
+import ch.zhaw.vorwahlen.model.core.election.ElectionStatusDTO;
+import ch.zhaw.vorwahlen.model.core.election.ElectionStatusElementDTO;
+import ch.zhaw.vorwahlen.model.modulestructure.ElectionStructureDTO;
+import ch.zhaw.vorwahlen.model.ElectionTransferDTO;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElectionDTO;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSettingDTO;
+import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
 import ch.zhaw.vorwahlen.model.modulestructure.ModuleStructureElement;
 import ch.zhaw.vorwahlen.service.ElectionService;
 import com.fasterxml.jackson.core.type.TypeReference;

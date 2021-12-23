@@ -1,9 +1,9 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.core.validationsetting;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * Dto for the {@link ch.zhaw.vorwahlen.model.modules.ValidationSetting}.
+ * Dto for the {@link ValidationSetting}.
  */
 public record ValidationSettingDTO (@NotNull(message = "{validation.repetent.null}")
                                     boolean isRepetent,

@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.modules;
 
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
+import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.exporter;
 
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
 
 import java.util.Set;
 

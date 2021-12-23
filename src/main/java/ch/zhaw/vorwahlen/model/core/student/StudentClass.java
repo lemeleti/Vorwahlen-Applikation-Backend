@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.modules;
+package ch.zhaw.vorwahlen.model.core.student;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

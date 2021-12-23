@@ -1,11 +1,9 @@
 package ch.zhaw.vorwahlen.model.modulestructure;
 
-import ch.zhaw.vorwahlen.model.dto.ElectionStructureDTO;
-import ch.zhaw.vorwahlen.model.modules.ElectionSemesters;
-import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
-import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.core.module.Module;
+import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.student.Student;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;

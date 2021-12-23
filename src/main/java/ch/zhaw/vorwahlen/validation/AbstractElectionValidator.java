@@ -1,11 +1,11 @@
 package ch.zhaw.vorwahlen.validation;
 
 import ch.zhaw.vorwahlen.config.ResourceBundleMessageLoader;
-import ch.zhaw.vorwahlen.model.modules.ModuleElectionStatus;
-import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
-import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElectionStatus;
+import ch.zhaw.vorwahlen.model.core.module.Module;
+import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.student.Student;
 import ch.zhaw.vorwahlen.service.ModuleService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

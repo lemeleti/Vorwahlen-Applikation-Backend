@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.core.election;
 
 /**
  * Dto for the election status

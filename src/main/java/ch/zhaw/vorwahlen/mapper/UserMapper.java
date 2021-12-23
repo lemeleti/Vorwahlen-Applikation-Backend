@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.mapper;
 
-import ch.zhaw.vorwahlen.model.dto.UserDTO;
+import ch.zhaw.vorwahlen.model.UserDTO;
 import ch.zhaw.vorwahlen.security.model.User;
 import org.springframework.stereotype.Component;
 

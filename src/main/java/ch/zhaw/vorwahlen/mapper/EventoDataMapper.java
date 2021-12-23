@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.mapper;
 
-import ch.zhaw.vorwahlen.model.dto.EventoDataDTO;
-import ch.zhaw.vorwahlen.model.modules.EventoData;
+import ch.zhaw.vorwahlen.model.evento.EventoDataDTO;
+import ch.zhaw.vorwahlen.model.evento.EventoData;
 import org.springframework.stereotype.Component;
 
 /**

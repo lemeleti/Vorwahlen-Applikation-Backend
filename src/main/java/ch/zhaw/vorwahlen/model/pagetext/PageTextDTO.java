@@ -1,6 +1,4 @@
-package ch.zhaw.vorwahlen.model.dto;
-
-import ch.zhaw.vorwahlen.model.pagetext.UserType;
+package ch.zhaw.vorwahlen.model.pagetext;
 
 /**
  * Dto for {@link ch.zhaw.vorwahlen.model.pagetext.PageText}.

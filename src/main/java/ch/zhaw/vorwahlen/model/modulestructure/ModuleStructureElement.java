@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.model.modulestructure;
 
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
+import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
 
 /**
  * Model for the module structure element.

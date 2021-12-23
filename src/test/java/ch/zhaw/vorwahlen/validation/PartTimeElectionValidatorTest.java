@@ -1,10 +1,10 @@
 package ch.zhaw.vorwahlen.validation;
 
-import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
-import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
-import ch.zhaw.vorwahlen.model.modules.ModuleElection;
-import ch.zhaw.vorwahlen.model.modules.ValidationSetting;
+import ch.zhaw.vorwahlen.model.ExecutionSemester;
+import ch.zhaw.vorwahlen.model.core.module.Module;
+import ch.zhaw.vorwahlen.model.core.module.ModuleCategory;
+import ch.zhaw.vorwahlen.model.core.election.ModuleElection;
+import ch.zhaw.vorwahlen.model.core.validationsetting.ValidationSetting;
 import ch.zhaw.vorwahlen.modules.ModuleCategoryTest;
 import ch.zhaw.vorwahlen.parser.ModuleParser;
 import org.junit.jupiter.api.BeforeEach;

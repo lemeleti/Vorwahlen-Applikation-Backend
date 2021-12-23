@@ -1,6 +1,5 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.core.module;
 
-import ch.zhaw.vorwahlen.model.modules.ModuleCategory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
- * Dto for the {@link ch.zhaw.vorwahlen.model.modules.Module}.
+ * Dto for the {@link Module}.
  */
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

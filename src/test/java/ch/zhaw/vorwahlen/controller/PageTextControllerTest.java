@@ -1,6 +1,6 @@
 package ch.zhaw.vorwahlen.controller;
 
-import ch.zhaw.vorwahlen.model.dto.PageTextDTO;
+import ch.zhaw.vorwahlen.model.pagetext.PageTextDTO;
 import ch.zhaw.vorwahlen.model.pagetext.UserType;
 import ch.zhaw.vorwahlen.service.PageTextService;
 import com.fasterxml.jackson.core.type.TypeReference;

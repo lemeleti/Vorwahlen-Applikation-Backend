@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.mapper;
 
-import ch.zhaw.vorwahlen.model.dto.StudentDTO;
-import ch.zhaw.vorwahlen.model.modules.Student;
+import ch.zhaw.vorwahlen.model.core.student.StudentDTO;
+import ch.zhaw.vorwahlen.model.core.student.Student;
 import org.springframework.stereotype.Component;
 
 /**

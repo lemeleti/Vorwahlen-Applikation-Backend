@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.dto;
+package ch.zhaw.vorwahlen.model.mailtemplate;
 
 import org.springframework.boot.context.properties.ConstructorBinding;
 
@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * Dto for the {@link ch.zhaw.vorwahlen.model.modules.MailTemplate}.
+ * Dto for the {@link MailTemplate}.
  */
 @ConstructorBinding
 public record MailTemplateDTO(Long id,

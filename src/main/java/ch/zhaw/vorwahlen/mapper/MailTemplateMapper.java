@@ -1,7 +1,7 @@
 package ch.zhaw.vorwahlen.mapper;
 
-import ch.zhaw.vorwahlen.model.dto.MailTemplateDTO;
-import ch.zhaw.vorwahlen.model.modules.MailTemplate;
+import ch.zhaw.vorwahlen.model.mailtemplate.MailTemplateDTO;
+import ch.zhaw.vorwahlen.model.mailtemplate.MailTemplate;
 import org.springframework.stereotype.Component;
 
 /**
