@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.modules.parser;
+package ch.zhaw.vorwahlen.parser.lookup;
 
 /**
  * Contract for lookup table.<br>

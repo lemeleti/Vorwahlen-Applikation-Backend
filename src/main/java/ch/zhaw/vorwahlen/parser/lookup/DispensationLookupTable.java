@@ -1,4 +1,4 @@
-package ch.zhaw.vorwahlen.model.modules.parser;
+package ch.zhaw.vorwahlen.parser.lookup;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,10 +11,10 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @Getter
 @ToString
-public enum StudentLookupTable implements LookupTable<StudentLookupTable> {
+public enum DispensationLookupTable implements LookupTable<DispensationLookupTable> {
     EMAIL("E-Mail"),
-    NAME("Name"),
-    CLAZZ("Klasse");
+    PA("Dispensation PA [Credits]"),
+    WPM("Dispensation WPM [Credits]");
 
     private final String cellHeaderName;
     @Setter

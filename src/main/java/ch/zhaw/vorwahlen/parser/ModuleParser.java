@@ -2,13 +2,13 @@ package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.parser.ModuleLookupTable;
+import ch.zhaw.vorwahlen.parser.lookup.ModuleLookupTable;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.InputStream;
 
-import static ch.zhaw.vorwahlen.model.modules.parser.ModuleLookupTable.GROUP;
+import static ch.zhaw.vorwahlen.parser.lookup.ModuleLookupTable.GROUP;
 
 /**
  * Concrete module Excel parser.

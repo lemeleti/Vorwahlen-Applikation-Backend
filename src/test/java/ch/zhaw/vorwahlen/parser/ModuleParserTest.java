@@ -2,7 +2,7 @@ package ch.zhaw.vorwahlen.parser;
 
 import ch.zhaw.vorwahlen.model.modules.ExecutionSemester;
 import ch.zhaw.vorwahlen.model.modules.Module;
-import ch.zhaw.vorwahlen.model.modules.parser.ModuleLookupTable;
+import ch.zhaw.vorwahlen.parser.lookup.ModuleLookupTable;
 import ch.zhaw.vorwahlen.repository.ModuleRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
