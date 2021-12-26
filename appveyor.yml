@@ -1,0 +1,41 @@
+image: Ubuntu2004
+
+environment:
+  DOCKERHUB_PASS:
+    secure: o71pevAd3AAskRz34CZIak0HRHKebCm8MM1mE7g9w3dWajlADYoFLR++PXpt5G1MK6fYPQGrjZEqDV6jpN5uPg==
+  SSH_ENC_PW:
+    secure: dsfg/madWjGDwzbs9mqzVBzsm9yTPuAXDn8p06X5x19HE55oB2/DwLyt2rBdOEhc
+  SSH_ENC_SALT:
+    secure: SfpYN5CE94KMJwIe+tznDBzhMfMqwdgQxb0uxVS9yVUuzgV5ko6mVx26Er6QRovyNYsCZ6WcaxFYHhDmLx9htw==
+
+cache:
+  - build
+  - jdk-17
+
+install:
+  - sh: |
+      [ ! -f jdk-17 ] && \
+      wget https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz && \
+      tar xfz openjdk-17_linux-x64_bin.tar.gz
+      export JAVA_HOME=./jdk-17
+      export PATH=$PATH:$JAVA_HOME/bin
+
+build_script:
+  # Build a JAR from the sources.
+  - ./gradlew --build-cache bootJar
+
+test_script:
+  # Run tests.
+  - ./gradlew test
+
+artifacts:
+  # Collect all JARs that have been built and upload them to the CI server. Can be downloaded via
+  # the UI. If you want to keep them longer than 6 months, deploy to Artifactory (not shown).
+  - path: "build/libs/*.jar"
+    name: "WPM-Backend"
+
+deploy_script:
+  - sh: ./deploy.sh
+
+# Use integers as build versions (1, 2, 3, …) instead of 1.0.X.
+version: "{build}"

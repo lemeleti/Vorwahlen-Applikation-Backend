@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  database:
+    image: mysql:8
+    restart: always
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_DATABASE: ${SQL_DB}
+      MYSQL_USER: ${SQL_USER}
+      MYSQL_PASSWORD: ${SQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${SQL_ROOT_PASSWORD}
+    volumes:
+      - "mysql:/var/lib/mysql"
+    networks:
+      - wpm
+
+  wpm-backend:
+    image: vorwahlen/backend:latest
+    container_name: wpm-backend
+    restart: always
+    entrypoint: ["java", "-jar", "vorwahlen.jar", "--spring.jpa.hibernate.ddl-auto=none"]
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - database
+    environment:
+      SQL_HOST: database
+      SQL_DB: ${SQL_DB}
+      SQL_USER: ${SQL_USER}
+      SQL_PASSWORD: ${SQL_PASSWORD}
+      ADMIN: ${ADMIN}
+    networks:
+      - wpm
+
+volumes:
+  mysql:
+    external: false
+
+networks:
+  wpm:
+    external: false
