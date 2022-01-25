@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Log
 public class ExcelElectionExporter implements ElectionExporter {
     private static final String[] HEADER_DATA = {"E-Mail", "Name", "In welcher Klasse sind Sie?",
-            "Konsekutive Wahlpflichmodule", "Wahlpflichmodule", "Wahlmodule"};
+            "Konsekutive Wahlpflichmodule", "Wahlpflichmodule", "Wahlmodule", "Wahlgültigkeit"};
     private static final String DELIMITER = "; ";
 
     @Override
@@ -82,7 +82,8 @@ public class ExcelElectionExporter implements ElectionExporter {
                 student.getStudentClass().getName(),
                 getModulesAsString(modules, mapConsecutiveModule, isConsecutiveModule),
                 getModulesAsString(modules, mapModule, isSubjectModule),
-                getModulesAsString(modules, mapModule, isContextModule)
+                getModulesAsString(modules, mapModule, isContextModule),
+                student.getElection().isElectionValid() ? "gültig" : "ungültig",
         };
     }
 
