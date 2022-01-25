@@ -83,7 +83,7 @@ public class ExcelElectionExporter implements ElectionExporter {
                 getModulesAsString(modules, mapConsecutiveModule, isConsecutiveModule),
                 getModulesAsString(modules, mapModule, isSubjectModule),
                 getModulesAsString(modules, mapModule, isContextModule),
-                student.getElection().isElectionValid() ? "gültig" : "ungültig",
+                election.isElectionValid() ? "gültig" : "ungültig",
         };
     }
 
