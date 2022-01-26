@@ -281,6 +281,7 @@ class ElectionServiceTest {
         election.setElectedModules(electedModules);
         election.setValidationSetting(new ValidationSetting());
         election.setStudent(student);
+        election.setElectionValid(true);
         electionRepository.save(election);
 
         // execute

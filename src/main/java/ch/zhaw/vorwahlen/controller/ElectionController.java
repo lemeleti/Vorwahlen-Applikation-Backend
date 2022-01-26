@@ -150,4 +150,14 @@ public class ElectionController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, fileName)
                 .body(electionService.exportElection());
     }
+
+    /**
+     * Close the election for all students
+     * @return {@link ResponseEntity} containing {@link Void}
+     */
+    @PostMapping(path = "close")
+    public ResponseEntity<Void> closeElection() {
+        electionService.closeElection();
+        return ResponseEntity.ok().build();
+    }
 }
