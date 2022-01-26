@@ -218,6 +218,13 @@ public class ElectionService {
         return exporter.export(electionRepository.findAllModules());
     }
 
+    /**
+     * Close the election for all students
+     */
+    public void closeElection() {
+        studentRepository.closeElection();
+    }
+
     private void migrateElectionChanges(Election election, String moduleNo) {
         var module = moduleRepository.findById(moduleNo).orElseThrow();
         var electedModules = election.getElectedModules();
